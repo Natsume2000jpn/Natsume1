@@ -1,0 +1,2107 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+  <meta name="theme-color" content="#060a14"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <title>PLT — Power Level Tracker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg:#0b1120;--surface:#121a2e;--card:#162030;--card-hover:#1c2a3e;
+      --border:#1e3050;--border-md:#2e5090;--border-sys:#243a64;
+      --accent:#e0b860;--accent-dim:rgba(224,184,96,0.15);--accent-glow:rgba(224,184,96,0.3);
+      --accent-blue:#60b4ff;--accent-blue-dim:#0e2244;
+      --text:#c8dff8;--text-bright:#f0f8ff;--subtext:#5a7aaa;--muted:#344a6a;
+      --green:#50e890;--green-dim:rgba(80,232,144,0.12);
+      --red:#f06060;--red-dim:rgba(240,96,96,0.12);
+      --font-body:'Rajdhani',sans-serif;
+      --font-mono:'Share Tech Mono',monospace;
+      --font-desc:'Share Tech Mono',monospace;
+      --str:#e05c5c;--int:#5c9ee0;--stm:#5ce08a;--kno:#c47ee0;--dis:#e0a35c;--foc:#5ce0d8;--cha:#e07eb8;
+    }
+    html{font-size:16px}
+    body{font-family:var(--font-body);background:var(--bg);color:var(--text);min-height:100dvh;padding-bottom:80px;overflow-x:hidden}
+    ::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:#1a3060;border-radius:2px}
+
+    /* ── TOPBAR ── */
+    .topbar{position:sticky;top:0;z-index:100;background:rgba(11,17,32,0.94);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--border-sys);display:flex;align-items:center;justify-content:space-between;padding:12px 16px}
+    .topbar-brand{font-family:var(--font-mono);font-size:0.82rem;font-weight:400;letter-spacing:0.22em;color:var(--accent-blue);text-transform:uppercase}
+    .topbar-right{display:flex;align-items:center;gap:10px}
+    .topbar-date{font-family:var(--font-mono);font-size:0.65rem;color:var(--muted)}
+    .topbar-btn{background:var(--accent-blue-dim);border:1px solid #1a3a6a;color:var(--accent-blue);font-size:0.65rem;font-weight:400;padding:4px 10px;border-radius:2px;cursor:pointer;transition:all 0.2s;font-family:var(--font-mono);letter-spacing:0.08em}
+    .topbar-btn:hover{background:#0f2a52;border-color:#2d6fcf}
+
+    /* ── PAGES ── */
+    .page{display:none;max-width:480px;margin:0 auto;padding:12px 14px 0;position:relative;z-index:1}
+    .page.active{display:block}
+
+    /* ── BOTTOM NAV ── */
+    .bottomnav{position:fixed;bottom:0;left:0;right:0;z-index:100;background:rgba(6,10,20,0.96);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--border-sys);display:flex;justify-content:space-around;padding:10px 0 max(10px,env(safe-area-inset-bottom))}
+    .nav-item{display:flex;flex-direction:column;align-items:center;gap:3px;flex:1;cursor:pointer;opacity:0.3;transition:opacity 0.2s}
+    .nav-item.active{opacity:1}
+    .nav-item i{font-size:1rem;color:var(--subtext)}
+    .nav-item.active i{color:var(--accent-blue)}
+    .nav-item span{font-size:0.52rem;font-weight:400;letter-spacing:0.1em;color:var(--muted);font-family:var(--font-mono)}
+    .nav-item.active span{color:var(--accent-blue)}
+
+    /* ── SYS CARD BASE ── */
+    .sys-card-base{background:var(--surface);border:1px solid var(--border-sys);border-left:2px solid #2d6fcf;border-radius:4px;padding:12px;position:relative}
+    .sys-card-base::before{content:attr(data-label);position:absolute;top:-8px;left:12px;font-family:var(--font-mono);font-size:0.5rem;color:#2d6fcf;background:var(--bg);padding:0 6px;letter-spacing:0.1em}
+
+    /* Corner brackets helper */
+    .cornered{position:relative}
+    .cornered::before,.cornered::after{content:'';position:absolute;width:8px;height:8px;border-color:#1a3a6a;border-style:solid;pointer-events:none}
+    .cornered::before{top:4px;left:4px;border-width:1px 0 0 1px}
+    .cornered::after{top:4px;right:4px;border-width:1px 1px 0 0}
+
+    /* ── SHARED ── */
+    .section-header{display:flex;align-items:center;justify-content:space-between;margin:14px 0 8px}
+    .section-title{font-size:0.58rem;font-weight:400;letter-spacing:0.18em;text-transform:uppercase;color:var(--muted);font-family:var(--font-mono);display:flex;align-items:center;gap:5px}
+    .section-title::before{content:'▸';color:#2d6fcf}
+    .section-badge{font-family:var(--font-mono);font-size:0.55rem;color:var(--subtext)}
+    .section-action{background:var(--accent-blue-dim);border:1px solid #1a3a6a;color:var(--accent-blue);font-family:var(--font-mono);font-size:0.58rem;padding:4px 10px;border-radius:2px;cursor:pointer;letter-spacing:0.06em}
+    .section-action:hover{background:#0f2a52}
+
+    /* Buttons */
+    .btn{flex:1;padding:11px;border-radius:3px;font-family:var(--font-mono);font-size:0.75rem;cursor:pointer;border:none;transition:all 0.2s;letter-spacing:0.06em}
+    .btn:hover{opacity:0.85}
+    .btn-primary{background:#1a3a6a;color:var(--accent-blue);border:1px solid #2d6fcf}
+    .btn-ghost{background:var(--bg);color:var(--subtext);border:1px solid var(--border)}
+
+    /* API Banner */
+    .api-banner{background:rgba(212,168,83,0.06);border:1px solid rgba(212,168,83,0.2);border-left:2px solid var(--accent);border-radius:4px;padding:14px;margin-bottom:12px;display:none;position:relative}
+    .api-banner::before{content:'▸ SETUP REQUIRED ◂';position:absolute;top:-8px;left:12px;font-family:var(--font-mono);font-size:0.5rem;color:var(--accent);background:var(--bg);padding:0 5px;letter-spacing:0.1em}
+    .api-banner.show{display:block}
+    .api-banner-title{font-size:0.8rem;font-weight:700;color:var(--accent);margin-bottom:4px;font-family:var(--font-body)}
+    .api-banner-desc{font-family:var(--font-mono);font-size:0.6rem;color:var(--subtext);line-height:1.6;margin-bottom:12px}
+    .api-banner-desc a{color:var(--accent-blue);text-decoration:none}
+    .api-key-row{display:flex;gap:6px}
+    .api-key-input{flex:1;background:var(--bg);border:1px solid var(--border);border-radius:2px;color:var(--text);font-family:var(--font-mono);font-size:0.65rem;padding:9px 10px;outline:none;transition:border-color 0.2s}
+    .api-key-input:focus{border-color:#2d6fcf}
+    .api-key-save{background:#1a3a6a;border:1px solid #2d6fcf;border-radius:2px;color:var(--accent-blue);font-size:0.65rem;font-weight:400;padding:9px 14px;cursor:pointer;font-family:var(--font-mono);letter-spacing:0.08em}
+
+    /* Toast */
+    .toast{position:fixed;bottom:88px;left:50%;transform:translateX(-50%);background:var(--surface);border:1px solid #1a3a6a;color:var(--accent-blue);font-size:0.65rem;padding:8px 16px;border-radius:2px;opacity:0;transition:opacity 0.3s;pointer-events:none;white-space:nowrap;z-index:9999;font-family:var(--font-mono);letter-spacing:0.06em}
+    .toast.show{opacity:1}
+
+    /* Spinners */
+    .spinner{width:14px;height:14px;border:2px solid rgba(74,159,255,0.2);border-top-color:var(--accent-blue);border-radius:50%;animation:spin 0.7s linear infinite;display:inline-block}
+    .spinner-dark{width:14px;height:14px;border:2px solid var(--border);border-top-color:var(--accent-blue);border-radius:50%;animation:spin 0.7s linear infinite;display:inline-block}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    /* Modal */
+    .modal-overlay{display:none;position:fixed;inset:0;z-index:999;background:rgba(0,0,8,0.85);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);align-items:flex-end;justify-content:center}
+    .modal-overlay.active{display:flex}
+    .modal-overlay.center{align-items:center;padding:20px}
+    .modal-sheet{background:#08101e;border:1px solid #1a3a6a;border-top:2px solid #2d6fcf;border-radius:12px 12px 0 0;width:100%;max-width:480px;padding:18px 16px max(22px,env(safe-area-inset-bottom));max-height:85dvh;overflow-y:auto}
+    .modal-overlay.center .modal-sheet{border-radius:6px;border-top:2px solid #2d6fcf;max-height:90dvh}
+    .modal-handle{width:32px;height:3px;background:#1a3a6a;border-radius:2px;margin:0 auto 16px}
+    .modal-sheet h3{font-size:0.95rem;font-weight:700;color:var(--text-bright);margin-bottom:14px;font-family:var(--font-body);letter-spacing:0.04em}
+    .modal-field{margin-bottom:10px}
+    .modal-field label{font-family:var(--font-mono);font-size:0.55rem;letter-spacing:0.12em;color:var(--muted);display:block;margin-bottom:5px;text-transform:uppercase}
+    .modal-field input,.modal-field textarea{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:2px;color:var(--text);font-family:var(--font-mono);font-size:0.8rem;padding:10px 12px;outline:none;transition:border-color 0.2s;resize:none}
+    .modal-field input:focus,.modal-field textarea:focus{border-color:#2d6fcf}
+    .modal-btns{display:flex;gap:6px;margin-top:12px}
+
+    /* Picker */
+    .picker-search{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:2px;color:var(--text);font-family:var(--font-mono);font-size:0.8rem;padding:9px 12px;outline:none;margin-bottom:10px;transition:border-color 0.2s}
+    .picker-search:focus{border-color:#2d6fcf}
+    .picker-list{display:flex;flex-direction:column;gap:4px}
+    .picker-item{background:var(--card);border:1px solid var(--border);border-radius:3px;padding:10px 12px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:all 0.15s}
+    .picker-item:hover{background:var(--card-hover);border-color:var(--border-md)}
+    .picker-item.selected{border-color:#2d6fcf;background:#0a1628}
+    .picker-item-icon{font-size:1.1rem;width:26px;text-align:center}
+    .picker-item-body{flex:1}
+    .picker-item-name{font-size:0.82rem;font-weight:600;color:var(--text);font-family:var(--font-body)}
+    .picker-item-sub{font-family:var(--font-mono);font-size:0.58rem;color:var(--subtext);margin-top:1px}
+    .picker-item-check{color:var(--accent-blue);font-size:0.8rem;opacity:0;transition:opacity 0.2s}
+    .picker-item.selected .picker-item-check{opacity:1}
+    .picker-divider{font-family:var(--font-mono);font-size:0.55rem;letter-spacing:0.12em;color:var(--muted);text-transform:uppercase;margin:10px 0 5px;padding-left:2px}
+    .custom-add-wrap{display:flex;gap:6px;margin-top:10px}
+    .custom-add-wrap input{flex:1;background:var(--bg);border:1px solid var(--border);border-radius:2px;color:var(--text);font-family:var(--font-mono);font-size:0.78rem;padding:9px 12px;outline:none;transition:border-color 0.2s}
+    .custom-add-wrap input:focus{border-color:#2d6fcf}
+    .custom-add-btn{background:#1a3a6a;border:1px solid #2d6fcf;border-radius:2px;color:var(--accent-blue);font-size:0.65rem;padding:9px 14px;cursor:pointer;white-space:nowrap;font-family:var(--font-mono)}
+
+    /* ════ STATS PAGE ════ */
+    .char-card{background:var(--surface);border:1px solid var(--border-sys);border-left:2px solid #2d6fcf;border-radius:4px;padding:14px;margin-bottom:12px;position:relative;overflow:hidden;animation:fadeUp 0.4s ease both 0.05s}
+    .char-card::before{content:'▸ SYSTEM WINDOW ◂';position:absolute;top:-8px;left:12px;font-family:var(--font-mono);font-size:0.5rem;color:#2d6fcf;background:var(--bg);padding:0 6px;letter-spacing:0.1em}
+    /* Corner brackets */
+    .char-card::after{display:none}
+    .char-top{display:flex;align-items:center;gap:12px}
+    .char-avatar{width:48px;height:48px;border-radius:4px;background:#0a1628;border:1px solid #2d6fcf;display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;overflow:hidden;transition:all 0.2s}
+    .char-avatar:hover{background:#0f2040;box-shadow:0 0 10px rgba(45,111,207,0.3)}
+    .char-avatar i{color:var(--accent-blue);font-size:1.2rem}
+    .char-avatar img{width:100%;height:100%;object-fit:cover;display:none}
+    .char-info{flex:1;min-width:0}
+    .char-name-wrap{display:flex;align-items:center;gap:7px;margin-bottom:4px}
+    .char-name{font-size:1.2rem;font-weight:700;color:var(--text-bright);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px;cursor:pointer;letter-spacing:0.04em;font-family:var(--font-body)}
+    .char-name.placeholder{color:var(--subtext);font-weight:400;font-size:0.85rem;font-style:italic}
+    .edit-btn{background:none;border:none;cursor:pointer;color:var(--subtext);padding:2px 4px;border-radius:2px;transition:color 0.2s;font-size:0.7rem}
+    .edit-btn:hover{color:var(--accent-blue)}
+    .char-level-row{display:flex;align-items:center;gap:7px}
+    .char-level{font-family:var(--font-mono);font-size:0.65rem;color:var(--accent-blue);background:var(--accent-blue-dim);border:1px solid #1a3a6a;padding:2px 8px;border-radius:2px;letter-spacing:0.1em}
+    .char-total-xp{font-family:var(--font-mono);font-size:0.6rem;color:var(--muted)}
+    .char-title{margin-top:10px;padding-top:10px;border-top:1px solid var(--border);font-size:0.6rem;color:var(--muted);font-family:var(--font-mono);letter-spacing:0.06em}
+    .char-title span{color:var(--accent-blue)}
+
+    .radar-wrap{background:var(--surface);border:1px solid var(--border-sys);border-left:2px solid #2d6fcf;border-radius:4px;padding:16px;margin-bottom:12px;display:flex;flex-direction:column;align-items:center;position:relative}
+    .radar-wrap::before{content:'▸ OVERVIEW STATS ◂';position:absolute;top:-8px;left:12px;font-family:var(--font-mono);font-size:0.5rem;color:#2d6fcf;background:var(--bg);padding:0 6px;letter-spacing:0.1em}
+    .radar-canvas-wrap{width:100%;max-width:280px}
+
+    .stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+    .stat-card{background:var(--card);border:1px solid var(--border);border-radius:3px;padding:12px;cursor:default;transition:all 0.2s;position:relative;overflow:hidden;animation:fadeUp 0.4s ease both}
+    .stat-card:hover{background:var(--card-hover);border-color:var(--border-md)}
+    .stat-card::after{content:'';position:absolute;top:0;left:0;bottom:0;width:2px;border-radius:1px 0 0 1px}
+    .stat-card[data-stat=STR]::after{background:var(--str)}.stat-card[data-stat=INT]::after{background:var(--int)}.stat-card[data-stat=STM]::after{background:var(--stm)}.stat-card[data-stat=KNO]::after{background:var(--kno)}.stat-card[data-stat=DIS]::after{background:var(--dis)}.stat-card[data-stat=FOC]::after{background:var(--foc)}.stat-card[data-stat=CHA]::after{background:var(--cha)}
+    .stat-card.full-width{grid-column:1/-1}
+    .stat-abbr{font-family:var(--font-mono);font-size:0.58rem;font-weight:400;letter-spacing:0.14em;margin-bottom:2px}
+    .stat-card[data-stat=STR] .stat-abbr{color:var(--str)}.stat-card[data-stat=INT] .stat-abbr{color:var(--int)}.stat-card[data-stat=STM] .stat-abbr{color:var(--stm)}.stat-card[data-stat=KNO] .stat-abbr{color:var(--kno)}.stat-card[data-stat=DIS] .stat-abbr{color:var(--dis)}.stat-card[data-stat=FOC] .stat-abbr{color:var(--foc)}.stat-card[data-stat=CHA] .stat-abbr{color:var(--cha)}
+    .stat-name{font-size:0.92rem;font-weight:700;color:#b8d4f0;margin-bottom:8px;font-family:var(--font-body);letter-spacing:0.02em}
+    .stat-bottom{display:flex;align-items:flex-end;justify-content:space-between}
+    .stat-value{font-family:var(--font-mono);font-size:2rem;font-weight:400;line-height:1;color:var(--text-bright)}
+    .stat-value .unit{font-size:0.65rem;color:var(--muted);font-weight:400;margin-left:1px}
+    .stat-right{display:flex;flex-direction:column;align-items:flex-end;gap:5px}
+    .stat-lv{font-family:var(--font-mono);font-size:0.6rem;padding:2px 6px;border-radius:2px;border:1px solid}
+    .stat-card[data-stat=STR] .stat-lv{color:var(--str);border-color:var(--str);background:rgba(224,92,92,0.08)}.stat-card[data-stat=INT] .stat-lv{color:var(--int);border-color:var(--int);background:rgba(92,158,224,0.08)}.stat-card[data-stat=STM] .stat-lv{color:var(--stm);border-color:var(--stm);background:rgba(92,224,138,0.08)}.stat-card[data-stat=KNO] .stat-lv{color:var(--kno);border-color:var(--kno);background:rgba(196,126,224,0.08)}.stat-card[data-stat=DIS] .stat-lv{color:var(--dis);border-color:var(--dis);background:rgba(224,163,92,0.08)}.stat-card[data-stat=FOC] .stat-lv{color:var(--foc);border-color:var(--foc);background:rgba(92,224,216,0.08)}.stat-card[data-stat=CHA] .stat-lv{color:var(--cha);border-color:var(--cha);background:rgba(224,126,184,0.08)}
+    .stat-bar-wrap{margin-top:8px;height:2px;background:#0a1628;border-radius:1px;overflow:hidden}
+    .stat-bar-fill{height:100%;border-radius:1px;transition:width 0.8s cubic-bezier(0.25,1,0.5,1)}
+    .stat-card[data-stat=STR] .stat-bar-fill{background:var(--str)}.stat-card[data-stat=INT] .stat-bar-fill{background:var(--int)}.stat-card[data-stat=STM] .stat-bar-fill{background:var(--stm)}.stat-card[data-stat=KNO] .stat-bar-fill{background:var(--kno)}.stat-card[data-stat=DIS] .stat-bar-fill{background:var(--dis)}.stat-card[data-stat=FOC] .stat-bar-fill{background:var(--foc)}.stat-card[data-stat=CHA] .stat-bar-fill{background:var(--cha)}
+    .stat-bar-label{display:flex;justify-content:space-between;margin-top:4px}
+    .stat-bar-label span{font-family:var(--font-mono);font-size:0.52rem;color:var(--muted)}
+    .stat-card.full-width .stat-value{font-size:1.9rem}
+
+    /* ════ PROFIL PAGE ════ */
+    .profile-hero{background:var(--surface);border:1px solid var(--border-sys);border-left:2px solid #2d6fcf;border-radius:4px;padding:18px 14px 14px;margin-bottom:10px;position:relative;overflow:hidden;animation:fadeUp 0.35s ease both;text-align:center}
+    .profile-hero::before{content:'▸ PLAYER INFO ◂';position:absolute;top:-8px;left:12px;font-family:var(--font-mono);font-size:0.5rem;color:#2d6fcf;background:var(--bg);padding:0 6px;letter-spacing:0.1em}
+    .avatar-wrap{position:relative;width:72px;height:72px;margin:0 auto 12px}
+    .avatar-img{width:72px;height:72px;border-radius:4px;background:#0a1628;border:1px solid #2d6fcf;display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:pointer;transition:all 0.2s}
+    .avatar-img:hover{box-shadow:0 0 12px rgba(45,111,207,0.4)}
+    .avatar-img i{color:var(--accent-blue);font-size:1.8rem}
+    .avatar-img img{width:100%;height:100%;object-fit:cover;display:none}
+    .avatar-edit-btn{position:absolute;bottom:-3px;right:-3px;width:22px;height:22px;border-radius:3px;background:#1a3a6a;border:1px solid #2d6fcf;display:flex;align-items:center;justify-content:center;cursor:pointer}
+    .avatar-edit-btn i{color:var(--accent-blue);font-size:0.55rem}
+    #photo-input{display:none}
+    .profile-name-wrap{justify-content:center;margin-bottom:6px;display:flex;align-items:center;gap:7px}
+    .profile-name{font-size:1.15rem;font-weight:700;color:var(--text-bright);font-family:var(--font-body);letter-spacing:0.05em}
+    .profile-name.placeholder{color:var(--subtext);font-style:italic;font-weight:400;font-size:0.9rem}
+    .inline-edit{background:none;border:none;cursor:pointer;color:var(--muted);padding:2px;border-radius:2px;transition:color 0.2s;font-size:0.7rem}
+    .inline-edit:hover{color:var(--accent-blue)}
+    .profile-bio{font-family:var(--font-mono);font-size:0.65rem;color:var(--subtext);line-height:1.6;margin-bottom:12px;cursor:pointer;padding:4px 6px;border-radius:2px;transition:background 0.2s}
+    .profile-bio:hover{background:rgba(255,255,255,0.02)}
+    .profile-bio.placeholder{color:var(--muted);font-style:italic}
+    .profile-badges{display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap}
+    .badge-pill{font-family:var(--font-mono);font-size:0.6rem;padding:2px 9px;border-radius:2px}
+    .badge-level{background:var(--accent-blue-dim);color:var(--accent-blue);border:1px solid #1a3a6a}
+    .badge-xp{background:var(--bg);color:var(--subtext);border:1px solid var(--border)}
+
+    .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:10px;animation:fadeUp 0.35s ease both 0.08s}
+    .info-card{background:var(--card);border:1px solid var(--border);border-radius:3px;padding:11px 12px;cursor:pointer;transition:all 0.15s}
+    .info-card:hover{background:var(--card-hover);border-color:var(--border-md)}
+    .info-label{font-family:var(--font-mono);font-size:0.52rem;letter-spacing:0.12em;color:var(--muted);text-transform:uppercase;margin-bottom:5px}
+    .info-value{font-size:0.88rem;font-weight:700;color:#8ab0d0;font-family:var(--font-body)}
+    .info-value.placeholder{color:var(--muted);font-style:italic;font-weight:400;font-size:0.72rem;font-family:var(--font-mono)}
+
+    .goal-item{background:var(--card);border:1px solid var(--border);border-left:2px solid var(--accent);border-radius:3px;padding:10px 12px;display:flex;align-items:flex-start;gap:10px}
+    .goal-icon{width:28px;height:28px;border-radius:3px;background:rgba(212,168,83,0.08);border:1px solid rgba(212,168,83,0.2);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .goal-icon i{color:var(--accent);font-size:0.72rem}
+    .goal-body{flex:1;min-width:0}
+    .goal-title-text{font-size:0.85rem;font-weight:700;color:var(--text);margin-bottom:3px;font-family:var(--font-body)}
+    .goal-desc-text{font-family:var(--font-mono);font-size:0.62rem;color:var(--subtext);line-height:1.4}
+    .goal-del{background:none;border:none;cursor:pointer;color:var(--muted);font-size:0.7rem;padding:3px;transition:color 0.2s;flex-shrink:0}
+    .goal-del:hover{color:var(--red)}
+    .goals-empty,.talent-empty,.ach-empty{background:var(--card);border:1px dashed var(--border-md);border-radius:3px;padding:20px;text-align:center;font-family:var(--font-mono);font-size:0.65rem;color:var(--muted)}
+
+    .goal-setup-card{background:var(--surface);border:1px solid var(--border-sys);border-left:2px solid #2d6fcf;border-radius:4px;padding:14px;margin-bottom:8px;position:relative;overflow:hidden}
+    .goal-setup-card::before{content:'▸ GOALS LO ◂';position:absolute;top:-8px;left:12px;font-family:var(--font-mono);font-size:0.5rem;color:#2d6fcf;background:var(--bg);padding:0 6px;letter-spacing:0.1em}
+    .goal-setup-title{font-size:0.88rem;font-weight:700;color:var(--text-bright);margin-bottom:4px;font-family:var(--font-body)}
+    .goal-setup-desc{font-family:var(--font-mono);font-size:0.62rem;color:var(--subtext);line-height:1.5;margin-bottom:12px}
+    .goal-input-row{display:flex;gap:6px}
+    .goal-input{flex:1;background:var(--bg);border:1px solid var(--border);border-radius:2px;color:var(--text);font-family:var(--font-mono);font-size:0.78rem;padding:9px 12px;outline:none;transition:border-color 0.2s}
+    .goal-input:focus{border-color:#2d6fcf}
+    .goal-add-btn{background:#1a3a6a;border:1px solid #2d6fcf;border-radius:2px;color:var(--accent-blue);font-size:0.8rem;padding:9px 14px;cursor:pointer;transition:all 0.15s}
+    .goal-chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:10px}
+    .goal-chip{background:rgba(212,168,83,0.08);border:1px solid rgba(212,168,83,0.2);border-radius:2px;padding:4px 10px 4px 10px;font-size:0.68rem;color:var(--accent);display:flex;align-items:center;gap:5px;font-family:var(--font-mono)}
+    .goal-chip-del{background:none;border:none;cursor:pointer;color:rgba(212,168,83,0.4);font-size:0.65rem;padding:0;transition:color 0.2s}
+    .goal-chip-del:hover{color:var(--red)}
+
+    .talent-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+    .talent-card{background:var(--card);border:1px solid var(--border);border-top:2px solid rgba(212,168,83,0.4);border-radius:3px;padding:11px;display:flex;flex-direction:column;gap:6px;position:relative;overflow:hidden}
+    .talent-icon{font-size:1.2rem}
+    .talent-name{font-size:0.82rem;font-weight:700;color:#a8c4e0;font-family:var(--font-body)}
+    .talent-cat{font-family:var(--font-mono);font-size:0.55rem;color:var(--muted);letter-spacing:0.08em}
+    .talent-del{position:absolute;top:8px;right:8px;background:none;border:none;cursor:pointer;color:var(--muted);font-size:0.65rem;padding:2px;transition:color 0.2s}
+    .talent-del:hover{color:var(--red)}
+
+    .ach-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+    .ach-card{background:var(--card);border:1px solid var(--border);border-radius:3px;padding:11px 8px;display:flex;flex-direction:column;align-items:center;gap:5px;text-align:center}
+    .ach-icon{font-size:1.5rem}
+    .ach-name{font-size:0.68rem;font-weight:700;color:#a8c4e0;line-height:1.3;font-family:var(--font-body)}
+    .ach-date{font-family:var(--font-mono);font-size:0.5rem;color:var(--muted)}
+    .ach-del{background:none;border:none;cursor:pointer;color:var(--muted);font-size:0.6rem;padding:2px;transition:color 0.2s}
+    .ach-del:hover{color:var(--red)}
+
+    /* ════ LOG PAGE ════ */
+    .input-card{background:var(--surface);border:1px solid var(--border-sys);border-left:2px solid #2d6fcf;border-radius:4px;padding:14px;margin-bottom:12px;position:relative;overflow:hidden;animation:fadeUp 0.35s ease both}
+    .input-card::before{content:'▸ INPUT AKTIVITAS ◂';position:absolute;top:-8px;left:12px;font-family:var(--font-mono);font-size:0.5rem;color:#2d6fcf;background:var(--bg);padding:0 6px;letter-spacing:0.1em}
+    .input-label{font-family:var(--font-mono);font-size:0.58rem;font-weight:400;letter-spacing:0.12em;color:var(--accent-blue);text-transform:uppercase;margin-bottom:8px;display:block}
+    .activity-textarea{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:2px;color:#8ab0d0;font-family:var(--font-mono);font-size:0.78rem;line-height:1.6;padding:11px;outline:none;resize:none;transition:border-color 0.2s;min-height:80px}
+    .activity-textarea:focus{border-color:#2d6fcf}
+    .activity-textarea::placeholder{color:var(--muted)}
+    .quick-label{font-family:var(--font-mono);font-size:0.55rem;letter-spacing:0.12em;color:var(--muted);text-transform:uppercase;margin:11px 0 6px}
+    .quick-chips{display:flex;flex-wrap:wrap;gap:4px}
+    .quick-chip{background:var(--bg);border:1px solid var(--border);border-radius:20px;padding:5px 10px;cursor:pointer;font-family:var(--font-mono);font-size:0.62rem;color:var(--subtext);transition:all 0.15s;white-space:nowrap}
+    .quick-chip:hover{background:var(--card-hover);border-color:var(--border-md);color:var(--text)}
+    .submit-btn{width:100%;margin-top:11px;padding:12px;background:#1a3a6a;border:1px solid #2d6fcf;border-radius:3px;color:var(--accent-blue);font-family:var(--font-mono);font-size:0.78rem;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:7px;letter-spacing:0.08em}
+    .submit-btn:hover{background:#1f4080;box-shadow:0 0 12px rgba(45,111,207,0.2)}
+    .submit-btn:active{transform:scale(0.99)}
+    .submit-btn:disabled{opacity:0.4;cursor:not-allowed}
+
+    .result-panel{background:var(--surface);border:1px solid #0d3040;border-left:2px solid var(--green);border-radius:4px;padding:14px;margin-bottom:12px;display:none;animation:fadeUp 0.3s ease both;position:relative}
+    .result-panel::before{content:'▸ STAT UPDATE ◂';position:absolute;top:-8px;left:12px;font-family:var(--font-mono);font-size:0.5rem;color:var(--green);background:var(--bg);padding:0 6px;letter-spacing:0.1em}
+    .result-panel.show{display:block}
+    .result-header{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+    .result-icon{width:32px;height:32px;border-radius:3px;background:var(--green-dim);border:1px solid rgba(74,222,128,0.2);display:flex;align-items:center;justify-content:center}
+    .result-icon i{color:var(--green);font-size:0.9rem}
+    .result-title{font-size:0.95rem;font-weight:700;color:var(--green);font-family:var(--font-body)}
+    .result-activity-name{font-family:var(--font-mono);font-size:0.6rem;color:var(--subtext)}
+    .result-stats{display:flex;flex-direction:column;gap:6px}
+    .result-stat-row{display:flex;align-items:center;gap:8px}
+    .result-stat-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+    .result-stat-name{font-size:0.85rem;font-weight:600;flex:1;font-family:var(--font-body);color:#a0b8d0}
+    .result-stat-gain{font-family:var(--font-mono);font-size:0.82rem;font-weight:400;color:var(--green)}
+    .result-stat-bar-wrap{height:2px;background:#0a1628;border-radius:1px;overflow:hidden;margin-top:1px}
+    .result-stat-bar{height:100%;border-radius:1px;transition:width 0.6s cubic-bezier(0.25,1,0.5,1)}
+    .result-confirm-btn{width:100%;margin-top:12px;padding:10px;background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2);border-radius:3px;color:var(--green);font-family:var(--font-mono);font-size:0.68rem;cursor:pointer;transition:all 0.2s;letter-spacing:0.08em}
+    .result-confirm-btn:hover{background:rgba(74,222,128,0.12)}
+
+    .ai-thinking{background:#060e1a;border:1px solid #0a2040;border-radius:3px;padding:9px 11px;margin-bottom:9px}
+    .ai-thinking-label{font-family:var(--font-mono);font-size:0.52rem;letter-spacing:0.1em;color:var(--int);margin-bottom:4px;text-transform:uppercase}
+    .ai-thinking div:last-child{font-family:var(--font-mono);font-size:0.65rem;color:var(--subtext);line-height:1.5}
+
+    .log-list{display:flex;flex-direction:column;gap:6px}
+    .log-item{background:var(--card);border:1px solid var(--border);border-radius:3px;padding:11px 12px;animation:fadeUp 0.3s ease both}
+    .log-item-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:6px}
+    .log-item-text{font-size:0.85rem;font-weight:600;color:var(--text);line-height:1.4;flex:1;font-family:var(--font-body)}
+    .log-item-time{font-family:var(--font-mono);font-size:0.58rem;color:var(--muted);white-space:nowrap;flex-shrink:0;margin-top:2px}
+    .log-item-gains{display:flex;flex-wrap:wrap;gap:4px}
+    .gain-tag{font-family:var(--font-mono);font-size:0.58rem;padding:2px 7px;border-radius:10px}
+    .log-empty{background:var(--card);border:1px dashed var(--border-md);border-radius:3px;padding:24px;text-align:center;font-family:var(--font-mono);font-size:0.68rem;color:var(--muted)}
+
+    /* ════ QUEST PAGE ════ */
+    .tab-row{display:flex;gap:3px;margin-bottom:12px;background:var(--card);border:1px solid var(--border);border-radius:4px;padding:3px}
+    .tab-btn{flex:1;padding:8px;border:none;background:none;color:var(--muted);font-family:var(--font-mono);font-size:0.65rem;border-radius:3px;cursor:pointer;transition:all 0.15s;letter-spacing:0.06em}
+    .tab-btn.active{background:#0a1628;color:var(--accent-blue);border:1px solid #1a3a6a}
+    .q-tab-content{display:none}.q-tab-content.active{display:block}
+
+    .summary-bar{background:var(--surface);border:1px solid var(--border-sys);border-radius:4px;padding:13px 14px;margin-bottom:12px;display:flex;align-items:center;gap:11px}
+    .summary-ring{position:relative;width:48px;height:48px;flex-shrink:0}
+    .summary-ring svg{transform:rotate(-90deg)}
+    .ring-bg{fill:none;stroke:#0a1628;stroke-width:4}
+    .ring-fill{fill:none;stroke:var(--accent);stroke-width:4;stroke-linecap:round;stroke-dasharray:138;stroke-dashoffset:138;transition:stroke-dashoffset 0.8s cubic-bezier(0.25,1,0.5,1)}
+    .ring-label{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:0.68rem;color:var(--text)}
+    .summary-info{flex:1}
+    .summary-title{font-size:0.9rem;font-weight:700;color:var(--text-bright);margin-bottom:2px;font-family:var(--font-body)}
+    .summary-sub{font-family:var(--font-mono);font-size:0.6rem;color:var(--subtext)}
+    .summary-penalty{font-family:var(--font-mono);font-size:0.58rem;color:var(--red);background:var(--red-dim);border:1px solid rgba(224,92,92,0.2);padding:2px 8px;border-radius:2px;white-space:nowrap}
+
+    .quest-list{display:flex;flex-direction:column;gap:6px}
+    .quest-card{background:var(--card);border:1px solid var(--border);border-radius:3px;padding:11px 12px;display:flex;align-items:flex-start;gap:10px;animation:fadeUp 0.3s ease both}
+    .quest-card.done{opacity:0.45}.quest-card.done .quest-title{text-decoration:line-through;color:var(--muted)}
+    .quest-card.wajib{border-left:2px solid var(--red)}
+    .quest-card:not(.wajib){border-left:2px solid var(--green)}
+    .quest-check{width:20px;height:20px;border-radius:3px;flex-shrink:0;border:1px solid var(--border-md);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;margin-top:1px}
+    .quest-check:hover{border-color:var(--accent-blue)}
+    .quest-check.checked{background:#1a3a6a;border-color:#2d6fcf}
+    .quest-check.checked::after{content:'';display:block;width:5px;height:8px;border:1.5px solid var(--accent-blue);border-top:none;border-left:none;transform:rotate(40deg) translate(-1px,-1px)}
+    .quest-card.wajib:not(.done) .quest-check{border-color:rgba(224,92,92,0.3)}
+    .quest-body{flex:1;min-width:0}
+    .quest-title{font-size:0.92rem;font-weight:600;color:var(--text-bright);line-height:1.4;margin-bottom:5px;font-family:var(--font-body)}
+    .quest-meta{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+    .quest-type{font-family:var(--font-mono);font-size:0.54rem;padding:2px 6px;border-radius:2px}
+    .type-wajib{background:var(--red-dim);color:var(--red);border:1px solid rgba(224,92,92,0.2)}
+    .type-opsional{background:var(--green-dim);color:var(--green);border:1px solid rgba(74,222,128,0.18)}
+    .quest-reward{font-family:var(--font-mono);font-size:0.58rem;color:var(--accent)}
+    .quest-penalty{font-family:var(--font-mono);font-size:0.58rem;color:var(--red)}
+
+    .gen-quest-btn{width:100%;margin-top:12px;padding:12px;background:#1a3a6a;border:1px solid #2d6fcf;border-radius:3px;color:var(--accent-blue);font-family:var(--font-mono);font-size:0.75rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:all 0.2s;letter-spacing:0.06em}
+    .gen-quest-btn:hover{background:#1f4080;box-shadow:0 0 12px rgba(45,111,207,0.2)}.gen-quest-btn:disabled{opacity:0.4;cursor:not-allowed}
+    .quest-empty{background:var(--card);border:1px dashed var(--border-md);border-radius:3px;padding:24px 16px;text-align:center}
+    .quest-empty-icon{font-size:1.6rem;margin-bottom:8px;opacity:0.3}
+    .quest-empty-text{font-family:var(--font-mono);font-size:0.65rem;color:var(--muted);line-height:1.5}
+    .quest-loading{background:var(--card);border:1px solid var(--border);border-radius:3px;padding:16px;display:flex;align-items:center;gap:10px}
+    .quest-loading-text{font-family:var(--font-mono);font-size:0.68rem;color:var(--subtext)}
+
+    .challenge-grid{display:flex;flex-direction:column;gap:8px}
+    .challenge-card{background:var(--card);border:1px solid var(--border);border-radius:4px;overflow:hidden;animation:fadeUp 0.3s ease both}
+    .challenge-card.active-challenge{border-color:rgba(212,168,83,0.35);border-left:2px solid var(--accent)}
+    .challenge-top{padding:12px 12px 10px;display:flex;align-items:center;gap:10px}
+    .challenge-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+    .challenge-info{flex:1;min-width:0}
+    .challenge-name{font-size:0.88rem;font-weight:700;color:var(--text-bright);margin-bottom:2px;font-family:var(--font-body)}
+    .challenge-task{font-family:var(--font-mono);font-size:0.62rem;color:var(--subtext);line-height:1.4}
+    .challenge-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0}
+    .challenge-reward{font-family:var(--font-mono);font-size:0.6rem;color:var(--accent)}
+    .ch-badge{font-family:var(--font-mono);font-size:0.55rem;padding:2px 7px;border-radius:2px}
+    .ch-badge.active{background:rgba(212,168,83,0.1);color:var(--accent);border:1px solid rgba(212,168,83,0.3)}
+    .ch-badge.avail{background:var(--bg);color:var(--muted);border:1px solid var(--border)}
+    .ch-badge.looped{background:rgba(92,158,224,0.1);color:var(--int);border:1px solid rgba(92,158,224,0.2)}
+    .ch-progress{padding:0 12px 12px;display:none}
+    .active-challenge .ch-progress{display:block}
+    .day-pips{display:flex;gap:3px;margin-bottom:9px}
+    .day-pip{flex:1;height:4px;border-radius:2px;background:#0a1628;transition:background 0.3s}
+    .day-pip.done{background:var(--accent)}.day-pip.today{background:rgba(212,168,83,0.4);animation:pulse 1.5s ease infinite}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+    .ch-claim-row{display:flex;align-items:flex-start;justify-content:space-between;gap:9px}
+    .ch-claim-info{font-family:var(--font-mono);font-size:0.6rem;color:var(--subtext);line-height:1.5;flex:1}
+    .ch-claim-info b{color:var(--text)}
+    .ch-claim-btn{background:#1a3a6a;border:1px solid #2d6fcf;border-radius:2px;color:var(--accent-blue);font-family:var(--font-mono);font-size:0.65rem;padding:7px 12px;cursor:pointer;white-space:nowrap;flex-shrink:0}
+    .ch-claim-btn:disabled{opacity:0.35;cursor:not-allowed}
+    .ch-take-btn{width:calc(100% - 24px);margin:0 12px 12px;background:var(--bg);border:1px solid var(--border);border-radius:2px;color:var(--subtext);font-family:var(--font-mono);font-size:0.65rem;padding:8px;cursor:pointer;transition:all 0.15s;display:none;letter-spacing:0.06em}
+    .challenge-card:not(.active-challenge) .ch-take-btn{display:block}
+    .ch-take-btn:hover{background:var(--card-hover);border-color:var(--border-md);color:var(--text)}
+    .decay-warn{background:var(--red-dim);border:1px solid rgba(224,92,92,0.2);border-radius:3px;padding:9px 12px;margin-bottom:6px;font-family:var(--font-mono);font-size:0.65rem;color:var(--red);display:flex;align-items:center;gap:7px}
+
+    /* ════ ROLL PAGE ════ */
+    .mood-label{font-family:var(--font-mono);font-size:0.58rem;letter-spacing:0.12em;color:var(--muted);text-transform:uppercase;margin-bottom:8px;display:block}
+    .mood-chips{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:16px}
+    .mood-chip{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:6px 12px;cursor:pointer;font-family:var(--font-mono);font-size:0.65rem;color:var(--subtext);transition:all 0.15s;display:flex;align-items:center;gap:5px}
+    .mood-chip:hover{background:var(--card-hover);border-color:var(--border-md);color:var(--text)}
+    .mood-chip.active{background:#0a1628;border-color:#1a3a6a;color:var(--accent-blue)}
+
+    .roll-wrap{display:flex;flex-direction:column;align-items:center;margin:4px 0 18px}
+    .roll-btn{width:150px;height:150px;border-radius:50%;background:radial-gradient(circle at 35% 35%,rgba(74,159,255,0.18),rgba(74,159,255,0.04));border:1.5px solid rgba(74,159,255,0.4);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:pointer;transition:transform 0.15s,box-shadow 0.2s;position:relative;overflow:hidden}
+    .roll-btn::before{content:'';position:absolute;inset:-2px;border-radius:50%;background:conic-gradient(from 0deg,transparent 0%,rgba(74,159,255,0.12) 50%,transparent 100%);animation:rotate 4s linear infinite}
+    @keyframes rotate{to{transform:rotate(360deg)}}
+    .roll-btn:hover{transform:scale(1.04);box-shadow:0 0 30px rgba(74,159,255,0.18)}
+    .roll-btn:active{transform:scale(0.97)}
+    .roll-btn.rolling{animation:rollPulse 0.12s ease infinite alternate}
+    @keyframes rollPulse{from{transform:scale(1)}to{transform:scale(1.05)}}
+    .roll-icon{font-size:2rem;position:relative;z-index:1}
+    .roll-text{font-family:var(--font-mono);font-size:0.68rem;color:var(--accent-blue);text-transform:uppercase;letter-spacing:0.18em;position:relative;z-index:1}
+    .roll-sub{font-family:var(--font-mono);font-size:0.58rem;color:var(--muted);margin-top:6px;text-align:center}
+
+    .roll-result-card{background:var(--surface);border:1px solid var(--border-sys);border-top:2px solid var(--accent);border-radius:4px;padding:14px;margin-bottom:12px;display:none;position:relative;overflow:hidden;animation:popIn 0.3s cubic-bezier(0.34,1.56,0.64,1) both}
+    .roll-result-card::before{content:'▸ AKTIVITAS TERPILIH ◂';position:absolute;top:-8px;left:12px;font-family:var(--font-mono);font-size:0.5rem;color:var(--accent);background:var(--bg);padding:0 6px;letter-spacing:0.1em}
+    .roll-result-card.show{display:block}
+    @keyframes popIn{from{opacity:0;transform:scale(0.93) translateY(8px)}to{opacity:1;transform:scale(1) translateY(0)}}
+    .roll-result-category{font-family:var(--font-mono);font-size:0.58rem;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:7px}
+    .roll-result-activity{font-size:1rem;font-weight:700;color:var(--text-bright);line-height:1.4;margin-bottom:8px;font-family:var(--font-body)}
+    .roll-result-why{font-family:var(--font-mono);font-size:0.65rem;color:var(--subtext);line-height:1.6;margin-bottom:10px}
+    .roll-result-stats{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:12px}
+    .roll-stat-tag{font-family:var(--font-mono);font-size:0.58rem;padding:3px 8px;border-radius:10px}
+    .roll-actions{display:flex;gap:6px}
+    .roll-btn-do{flex:1;padding:11px;background:#1a3a6a;border:1px solid #2d6fcf;border-radius:3px;color:var(--accent-blue);font-family:var(--font-mono);font-size:0.72rem;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:7px;letter-spacing:0.06em}
+    .roll-btn-do:hover{background:#1f4080;box-shadow:0 0 10px rgba(45,111,207,0.2)}
+    .roll-btn-skip{padding:11px 14px;background:var(--bg);border:1px solid var(--border);border-radius:3px;color:var(--subtext);font-family:var(--font-mono);font-size:0.7rem;cursor:pointer;transition:all 0.15s;letter-spacing:0.05em}
+    .roll-btn-skip:hover{border-color:var(--border-md);color:var(--text)}
+    .roll-done-overlay{position:absolute;inset:0;background:rgba(6,10,20,0.88);border-radius:4px;display:none;flex-direction:column;align-items:center;justify-content:center;gap:7px;backdrop-filter:blur(4px)}
+    .roll-done-overlay.show{display:flex}
+    .roll-done-check{width:46px;height:46px;border-radius:50%;background:var(--green-dim);border:1px solid rgba(74,222,128,0.3);display:flex;align-items:center;justify-content:center}
+    .roll-done-check i{color:var(--green);font-size:1.2rem}
+    .roll-done-text{font-size:0.9rem;font-weight:700;color:var(--green);font-family:var(--font-body)}
+    .roll-done-sub{font-family:var(--font-mono);font-size:0.62rem;color:var(--subtext)}
+
+    .history-list{display:flex;flex-direction:column;gap:6px}
+    .history-item{background:var(--card);border:1px solid var(--border);border-radius:3px;padding:10px 12px;display:flex;align-items:center;gap:9px}
+    .history-icon{width:30px;height:30px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:0.85rem;flex-shrink:0}
+    .history-body{flex:1;min-width:0}
+    .history-text{font-size:0.82rem;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:2px;font-family:var(--font-body)}
+    .history-time{font-family:var(--font-mono);font-size:0.58rem;color:var(--muted)}
+    .history-empty{background:var(--card);border:1px dashed var(--border-md);border-radius:3px;padding:20px;text-align:center;font-family:var(--font-mono);font-size:0.68rem;color:var(--muted)}
+    .section-clear{background:none;border:none;cursor:pointer;font-family:var(--font-mono);font-size:0.62rem;color:var(--muted);padding:3px;transition:color 0.2s}
+    .section-clear:hover{color:var(--red)}
+
+    /* ════ GLITCH ════ */
+    @keyframes glitch-skew{0%{transform:skewX(0)}10%{transform:skewX(-3deg)}20%{transform:skewX(2deg)}30%{transform:skewX(-1deg)}40%{transform:skewX(3deg)}50%{transform:skewX(0)}60%{transform:skewX(-2deg)}70%{transform:skewX(1deg)}100%{transform:skewX(0)}}
+    @keyframes glitch-clip1{0%{clip-path:inset(0 0 95% 0);transform:translate(-4px,0)}10%{clip-path:inset(30% 0 50% 0);transform:translate(4px,0)}20%{clip-path:inset(60% 0 20% 0);transform:translate(-3px,0)}30%{clip-path:inset(10% 0 70% 0);transform:translate(3px,0)}40%{clip-path:inset(80% 0 5% 0);transform:translate(-4px,0)}50%{clip-path:inset(45% 0 40% 0);transform:translate(2px,0)}60%{clip-path:inset(5% 0 85% 0);transform:translate(-2px,0)}70%{clip-path:inset(70% 0 10% 0);transform:translate(4px,0)}80%{clip-path:inset(20% 0 65% 0);transform:translate(-3px,0)}100%{clip-path:inset(0 0 100% 0);transform:translate(0,0)}}
+    @keyframes glitch-clip2{0%{clip-path:inset(50% 0 30% 0);transform:translate(4px,0)}15%{clip-path:inset(10% 0 75% 0);transform:translate(-4px,0)}30%{clip-path:inset(70% 0 15% 0);transform:translate(3px,0)}45%{clip-path:inset(25% 0 55% 0);transform:translate(-3px,0)}60%{clip-path:inset(85% 0 5% 0);transform:translate(4px,0)}75%{clip-path:inset(40% 0 45% 0);transform:translate(-2px,0)}90%{clip-path:inset(5% 0 90% 0);transform:translate(2px,0)}100%{clip-path:inset(0 0 100% 0);transform:translate(0,0)}}
+    @keyframes glitch-flash{0%,100%{opacity:0}15%{opacity:0.05}30%{opacity:0}50%{opacity:0.03}70%{opacity:0}85%{opacity:0.07}}
+    @keyframes scanline-move{0%{transform:translateY(-100%)}100%{transform:translateY(100vh)}}
+    @keyframes stat-pop{0%{transform:scale(1)}30%{transform:scale(1.06)}60%{transform:scale(0.97)}100%{transform:scale(1)}}
+    @keyframes float-up{0%{opacity:1;transform:translateY(0) scale(1)}100%{opacity:0;transform:translateY(-60px) scale(1.2)}}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+    #glitch-overlay{position:fixed;inset:0;z-index:9998;pointer-events:none;overflow:hidden;opacity:0;transition:opacity 0.05s}
+    #glitch-overlay.active{opacity:1}
+    #glitch-layer1,#glitch-layer2{position:absolute;inset:0;background:var(--bg)}
+    #glitch-layer1{animation:glitch-clip1 0.4s steps(1) both;background:rgba(74,159,255,0.03)}
+    #glitch-layer2{animation:glitch-clip2 0.4s steps(1) 0.05s both;background:rgba(224,92,92,0.03)}
+    #glitch-flash{position:absolute;inset:0;background:rgba(255,255,255,1);animation:glitch-flash 0.4s ease both}
+    #glitch-scanline{position:absolute;left:0;right:0;height:3px;background:linear-gradient(transparent,rgba(212,168,83,0.5),transparent);animation:scanline-move 0.35s linear both}
+    body.glitching{animation:glitch-skew 0.4s steps(1) both}
+    .float-pts{position:fixed;font-family:var(--font-mono);font-size:1rem;font-weight:400;pointer-events:none;z-index:9999;animation:float-up 1s cubic-bezier(0.25,1,0.5,1) forwards}
+    .stat-card.popping{animation:stat-pop 0.35s cubic-bezier(0.34,1.56,0.64,1) both}
+
+    /* Stat history */
+    .sh-item{background:var(--card);border:1px solid var(--border);border-radius:3px;padding:9px 12px;display:flex;align-items:center;gap:10px}
+    .sh-source{font-family:var(--font-mono);font-size:0.58rem;color:var(--subtext);flex-shrink:0;min-width:42px;text-align:right}
+    .sh-text{font-size:0.82rem;font-weight:600;color:var(--text);flex:1;font-family:var(--font-body);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .sh-pts{font-family:var(--font-mono);font-size:0.75rem;font-weight:400;flex-shrink:0}
+    .sh-date{font-family:var(--font-mono);font-size:0.55rem;color:var(--muted)}
+    .sh-empty{font-family:var(--font-mono);font-size:0.68rem;color:var(--muted);text-align:center;padding:20px}
+  </style>
+  <!-- PWA -->
+  <link rel="manifest" href="data:application/json;charset=utf-8,%7B%22name%22%3A%22PLT%20%E2%80%94%20Power%20Level%20Tracker%22%2C%22short_name%22%3A%22PLT%22%2C%22start_url%22%3A%22.%2F%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%230b1120%22%2C%22theme_color%22%3A%22%230b1120%22%2C%22orientation%22%3A%22portrait%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%2C%253Csvg%2520xmlns%253D%2527http%253A%252F%252Fwww.w3.org%252F2000%252Fsvg%2527%2520viewBox%253D%25270%25200%2520512%2520512%2527%253E%253Crect%2520width%253D%2527512%2527%2520height%253D%2527512%2527%2520fill%253D%2527%25230b1120%2527%252F%253E%253Ctext%2520x%253D%2527256%2527%2520y%253D%2527320%2527%2520text-anchor%253D%2527middle%2527%2520font-family%253D%2527monospace%2527%2520font-size%253D%2527220%2527%2520fill%253D%252760b4ff%2527%253EPLT%253C%252Ftext%253E%253C%252Fsvg%253E%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%7D%5D%7D"/>
+  <meta name="mobile-web-app-capable" content="yes"/>
+  <meta name="apple-touch-fullscreen" content="yes"/>
+</head>
+<body>
+
+<!-- ANIMATED BACKGROUND -->
+<canvas id="bg-canvas" style="position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;opacity:0.55"></canvas>
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="topbar-brand">PLT</div>
+  <div class="topbar-right">
+    <div class="topbar-date" id="topbar-date">—</div>
+    <button class="topbar-btn" id="topbar-regen" onclick="regenQuests()" style="display:none">
+      <i class="fa-solid fa-rotate"></i> Ulang
+    </button>
+  </div>
+</header>
+
+<!-- ══════════════════════════════════════
+     PAGE: STATS
+══════════════════════════════════════ -->
+<div class="page active" id="page-stats">
+  <div class="char-card">
+    <div class="char-top">
+      <div class="char-avatar" id="stats-avatar" onclick="goPage('profil')">
+        <i class="fa-solid fa-user" id="stats-avatar-icon"></i>
+        <img id="stats-avatar-photo" alt="foto"/>
+      </div>
+      <div class="char-info">
+        <div class="char-name-wrap">
+          <div class="char-name placeholder" id="char-name" onclick="goPage('profil')">Tap untuk set nama</div>
+          <button class="edit-btn" onclick="goPage('profil')"><i class="fa-solid fa-pen"></i></button>
+        </div>
+        <div class="char-level-row">
+          <div class="char-level" id="char-level">LV 1</div>
+          <div class="char-total-xp" id="char-xp">Total XP: 0</div>
+        </div>
+      </div>
+    </div>
+    <div class="char-title">Status: <span id="char-status">Rookie — Baru mulai perjalanan</span></div>
+  </div>
+  <div class="section-header" style="margin-top:4px">
+    <div class="section-title">Overview Stats</div>
+    <div class="section-badge" id="radar-total">—</div>
+  </div>
+  <div class="radar-wrap"><div class="radar-canvas-wrap"><canvas id="radarChart"></canvas></div></div>
+  <div class="section-header"><div class="section-title">Character Stats</div></div>
+  <div class="stats-grid" id="stats-grid"></div>
+  <div style="height:12px"></div>
+</div>
+
+<!-- ══════════════════════════════════════
+     PAGE: QUEST
+══════════════════════════════════════ -->
+<div class="page" id="page-quest">
+  <div class="api-banner" id="quest-api-banner">
+    <div class="api-banner-title"><i class="fa-solid fa-key"></i> Setup Gemini AI</div>
+    <div class="api-banner-desc">Butuh API key gratis dari Google.<br>
+      Buka <a href="https://aistudio.google.com/apikey" target="_blank">aistudio.google.com/apikey</a> → Create API Key → paste di sini.</div>
+    <div class="api-key-row">
+      <input class="api-key-input" id="quest-api-key-input" type="password" placeholder="AIza..."/>
+      <button class="api-key-save" onclick="saveApiKeyFrom('quest')">Simpan</button>
+    </div>
+  </div>
+
+  <div class="tab-row">
+    <button class="tab-btn active" onclick="switchQuestTab('daily')">Quest Harian</button>
+    <button class="tab-btn" onclick="switchQuestTab('challenge')">Challenge</button>
+  </div>
+
+  <!-- Daily Tab -->
+  <div class="q-tab-content active" id="qtab-daily">
+    <div class="summary-bar" id="q-summary-bar" style="display:none">
+      <div class="summary-ring">
+        <svg width="52" height="52" viewBox="0 0 52 52">
+          <circle class="ring-bg" cx="26" cy="26" r="22"/>
+          <circle class="ring-fill" id="q-ring-fill" cx="26" cy="26" r="22"/>
+        </svg>
+        <div class="ring-label" id="q-ring-label">0/0</div>
+      </div>
+      <div class="summary-info">
+        <div class="summary-title" id="q-summary-title">Quest Hari Ini</div>
+        <div class="summary-sub" id="q-summary-sub">—</div>
+      </div>
+      <div class="summary-penalty" id="q-summary-penalty" style="display:none"></div>
+    </div>
+
+    <div class="section-header"><div class="section-title"><i class="fa-solid fa-bullseye"></i> Goals Lo</div></div>
+    <div class="goal-setup-card">
+      <div class="goal-setup-title">Apa yang mau lo capai?</div>
+      <div class="goal-setup-desc">AI generate quest harian berdasarkan goals ini. Makin spesifik, makin relevan.</div>
+      <div class="goal-input-row">
+        <input class="goal-input" id="q-goal-input" placeholder="IPK 4.0, bisa main gitar, badan fit..." maxlength="80" onkeydown="if(event.key==='Enter')addQuestGoal()"/>
+        <button class="goal-add-btn" onclick="addQuestGoal()"><i class="fa-solid fa-plus"></i></button>
+      </div>
+      <div class="goal-chips" id="q-goal-chips"></div>
+      <button class="gen-quest-btn" id="q-gen-btn" onclick="generateQuests()">
+        <i class="fa-solid fa-wand-magic-sparkles"></i> Generate Quest Hari Ini
+      </button>
+    </div>
+
+    <div class="section-header" id="q-wajib-header" style="display:none">
+      <div class="section-title"><i class="fa-solid fa-fire" style="color:var(--red);font-size:0.75rem"></i> Quest Wajib</div>
+      <div class="section-badge" id="q-wajib-badge">—</div>
+    </div>
+    <div id="q-wajib-container"></div>
+
+    <div class="section-header" id="q-opsional-header" style="display:none">
+      <div class="section-title"><i class="fa-solid fa-star" style="color:var(--green);font-size:0.75rem"></i> Quest Opsional</div>
+      <div class="section-badge" id="q-opsional-badge">—</div>
+    </div>
+    <div id="q-opsional-container"></div>
+  </div>
+
+  <!-- Challenge Tab -->
+  <div class="q-tab-content" id="qtab-challenge">
+    <div class="section-header">
+      <div class="section-title"><i class="fa-solid fa-trophy" style="color:var(--accent);font-size:0.75rem"></i> Challenge Quest</div>
+      <div class="section-badge">7 hari · +5 stats</div>
+    </div>
+    <div style="font-family:var(--font-desc);font-size:0.78rem;color:var(--subtext);margin-bottom:14px;line-height:1.5">
+      Selesaikan 7 hari berturut-turut. Gagal 1 hari = reset + penalti. Claim hanya bisa di hari yang tepat.
+    </div>
+    <div id="ch-decay-warnings"></div>
+    <div class="challenge-grid" id="ch-grid"></div>
+  </div>
+  <div style="height:12px"></div>
+</div>
+
+<!-- ══════════════════════════════════════
+     PAGE: LOG
+══════════════════════════════════════ -->
+<div class="page" id="page-log">
+  <div class="api-banner" id="log-api-banner">
+    <div class="api-banner-title"><i class="fa-solid fa-key"></i> Setup Gemini AI</div>
+    <div class="api-banner-desc">Butuh API key gratis dari Google.<br>
+      Buka <a href="https://aistudio.google.com/apikey" target="_blank">aistudio.google.com/apikey</a> → Create API Key → paste di sini.</div>
+    <div class="api-key-row">
+      <input class="api-key-input" id="log-api-key-input" type="password" placeholder="AIza..."/>
+      <button class="api-key-save" onclick="saveApiKeyFrom('log')">Simpan</button>
+    </div>
+  </div>
+
+  <div class="input-card">
+    <label class="input-label">Apa yang udah lo lakuin hari ini?</label>
+    <textarea class="activity-textarea" id="activity-input" placeholder="Ceritain aktivitasnya... misal: lari 30 menit, baca buku 1 jam, atau ngobrol sama temen lama" rows="4"></textarea>
+    <div class="quick-label">Aktivitas cepat</div>
+    <div class="quick-chips" id="quick-chips"></div>
+    <button class="submit-btn" id="submit-btn" onclick="submitActivity()">
+      <i class="fa-solid fa-bolt"></i> Proses Aktivitas
+    </button>
+  </div>
+
+  <div class="result-panel" id="result-panel">
+    <div class="result-header">
+      <div class="result-icon"><i class="fa-solid fa-arrow-trend-up"></i></div>
+      <div>
+        <div class="result-title">Stats Naik!</div>
+        <div class="result-activity-name" id="result-activity-name"></div>
+      </div>
+    </div>
+    <div class="result-stats" id="result-stats-inner"></div>
+    <button class="result-confirm-btn" id="result-confirm-btn" onclick="confirmActivity()">
+      <i class="fa-solid fa-check"></i> Konfirmasi & Simpan
+    </button>
+  </div>
+
+  <div class="section-header">
+    <div class="section-title">Riwayat Hari Ini</div>
+    <div class="section-count" id="log-count" style="font-family:var(--font-mono);font-size:0.65rem;color:var(--subtext)">0 aktivitas</div>
+  </div>
+  <div id="log-container"></div>
+  <div style="height:12px"></div>
+</div>
+
+<!-- ══════════════════════════════════════
+     PAGE: ROLL
+══════════════════════════════════════ -->
+<div class="page" id="page-roll">
+  <span class="mood-label">Kondisi lo sekarang</span>
+  <div class="mood-chips" id="mood-chips"></div>
+  <div class="roll-wrap">
+    <button class="roll-btn" id="roll-btn" onclick="doRoll()">
+      <i class="fa-solid fa-dice roll-icon"></i>
+      <span class="roll-text">Roll</span>
+    </button>
+    <div class="roll-sub">Tap untuk dapat aktivitas random</div>
+  </div>
+  <div class="roll-result-card" id="roll-result-card">
+    <div class="roll-result-category" id="roll-result-category"></div>
+    <div class="roll-result-activity" id="roll-result-activity"></div>
+    <div class="roll-result-why" id="roll-result-why"></div>
+    <div class="roll-result-stats" id="roll-result-stats"></div>
+    <div class="roll-actions">
+      <button class="roll-btn-do" onclick="rollDoThis()"><i class="fa-solid fa-check"></i> Gua Lakuin Ini</button>
+      <button class="roll-btn-skip" onclick="doRoll()"><i class="fa-solid fa-rotate"></i> Roll Lagi</button>
+    </div>
+    <div class="roll-done-overlay" id="roll-done-overlay">
+      <div class="roll-done-check"><i class="fa-solid fa-check"></i></div>
+      <div class="roll-done-text">Dicatat ke Log!</div>
+      <div class="roll-done-sub" id="roll-done-gains"></div>
+    </div>
+  </div>
+  <div class="section-header">
+    <div class="section-title">Roll Hari Ini</div>
+    <button class="section-clear" onclick="clearRollHistory()">Hapus</button>
+  </div>
+  <div id="roll-history-container"></div>
+  <div style="height:12px"></div>
+</div>
+
+<!-- ══════════════════════════════════════
+     PAGE: PROFIL
+══════════════════════════════════════ -->
+<div class="page" id="page-profil">
+  <div class="profile-hero">
+    <div class="avatar-wrap">
+      <div class="avatar-img" id="profil-avatar-wrap" onclick="document.getElementById('photo-input').click()">
+        <i class="fa-solid fa-user" id="profil-avatar-icon"></i>
+        <img id="profil-avatar-photo" alt="foto profil"/>
+      </div>
+      <div class="avatar-edit-btn" onclick="document.getElementById('photo-input').click()">
+        <i class="fa-solid fa-camera"></i>
+      </div>
+    </div>
+    <input type="file" id="photo-input" accept="image/*" onchange="handlePhotoUpload(event)"/>
+    <div class="profile-name-wrap">
+      <div class="profile-name placeholder" id="profile-name" onclick="openModal('pname-modal')">Belum ada nama</div>
+      <button class="inline-edit" onclick="openModal('pname-modal')"><i class="fa-solid fa-pen"></i></button>
+    </div>
+    <div class="profile-bio placeholder" id="profile-bio" onclick="openModal('pbio-modal')">Tambah bio singkat...</div>
+    <div class="profile-badges">
+      <div class="badge-pill badge-level" id="p-badge-level">LV 1</div>
+      <div class="badge-pill badge-xp" id="p-badge-xp">96 XP</div>
+    </div>
+  </div>
+
+  <div class="info-grid">
+    <div class="info-card" onclick="openInfoModal('umur')"><div class="info-label">Umur</div><div class="info-value placeholder" id="info-umur">Belum diisi</div></div>
+    <div class="info-card" onclick="openInfoModal('kota')"><div class="info-label">Kota</div><div class="info-value placeholder" id="info-kota">Belum diisi</div></div>
+    <div class="info-card" onclick="openInfoModal('kampus')"><div class="info-label">Kampus / Jurusan</div><div class="info-value placeholder" id="info-kampus">Belum diisi</div></div>
+    <div class="info-card" onclick="openInfoModal('mulai-kuliah')"><div class="info-label">Mulai Kuliah</div><div class="info-value placeholder" id="info-mulai-kuliah">Belum diisi</div></div>
+  </div>
+
+  <div class="section-header"><div class="section-title"><i class="fa-solid fa-bullseye"></i> Goals Jangka Panjang</div><button class="section-action" onclick="openModal('pgoal-modal')"><i class="fa-solid fa-plus"></i> Tambah</button></div>
+  <div id="p-goals-container"></div>
+
+  <div class="section-header" style="margin-top:20px"><div class="section-title">Talent & Skill</div><button class="section-action" onclick="openTalentPicker()"><i class="fa-solid fa-plus"></i> Tambah</button></div>
+  <div id="p-talent-container"></div>
+
+  <div class="section-header" style="margin-top:20px"><div class="section-title">Achievement</div><button class="section-action" onclick="openAchPicker()"><i class="fa-solid fa-plus"></i> Claim</button></div>
+  <div id="p-ach-container"></div>
+
+  <!-- Reset Section -->
+  <div style="margin-top:28px;padding-top:20px;border-top:1px solid var(--border)">
+    <div style="font-family:var(--font-mono);font-size:0.62rem;font-weight:600;letter-spacing:0.12em;color:var(--subtext);text-transform:uppercase;margin-bottom:10px">Danger Zone</div>
+    <button onclick="confirmReset()" style="width:100%;padding:12px;background:var(--red-dim);border:1px solid rgba(224,92,92,0.25);border-radius:12px;color:var(--red);font-family:var(--font-body);font-size:0.85rem;font-weight:600;cursor:pointer;transition:background 0.2s">
+      <i class="fa-solid fa-trash"></i> Reset Semua Data — Mulai dari Awal
+    </button>
+    <div style="font-family:var(--font-desc);font-size:0.72rem;color:var(--muted);margin-top:8px;text-align:center">Menghapus semua stats, log, quest, dan profil. Tidak bisa dibatalkan.</div>
+  </div>
+
+  <div style="height:12px"></div>
+</div>
+
+<!-- STAT HISTORY MODAL -->
+<div class="modal-overlay" id="stat-history-modal" onclick="closeOnBg(event,'stat-history-modal')">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+      <div id="sh-dot" style="width:10px;height:10px;border-radius:50%;flex-shrink:0"></div>
+      <h3 id="sh-title" style="margin:0">Stat History</h3>
+      <div id="sh-total" style="margin-left:auto;font-family:var(--font-mono);font-size:0.65rem;color:var(--subtext)"></div>
+    </div>
+    <div id="sh-list" style="display:flex;flex-direction:column;gap:5px;max-height:60dvh;overflow-y:auto"></div>
+    <div class="modal-btns" style="margin-top:12px">
+      <button class="btn btn-ghost" onclick="closeModal('stat-history-modal')">Tutup</button>
+    </div>
+  </div>
+</div>
+
+<!-- GLITCH OVERLAY -->
+<div id="glitch-overlay">
+  <div id="glitch-layer1"></div>
+  <div id="glitch-layer2"></div>
+  <div id="glitch-flash"></div>
+  <div id="glitch-scanline"></div>
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="bottomnav">
+  <div class="nav-item active" id="nav-stats" onclick="goPage('stats')"><i class="fa-solid fa-chart-simple"></i><span>STATS</span></div>
+  <div class="nav-item" id="nav-quest" onclick="goPage('quest')"><i class="fa-solid fa-scroll"></i><span>QUEST</span></div>
+  <div class="nav-item" id="nav-log" onclick="goPage('log')"><i class="fa-solid fa-plus-circle"></i><span>LOG</span></div>
+  <div class="nav-item" id="nav-roll" onclick="goPage('roll')"><i class="fa-solid fa-dice"></i><span>ROLL</span></div>
+  <div class="nav-item" id="nav-profil" onclick="goPage('profil')"><i class="fa-solid fa-user"></i><span>PROFIL</span></div>
+</nav>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- ══════════════════════════════════════
+     MODALS
+══════════════════════════════════════ -->
+<!-- Profil: Nama -->
+<div class="modal-overlay center" id="pname-modal" onclick="closeOnBg(event,'pname-modal')">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <h3>Nama Karakter</h3>
+    <div class="modal-field"><label>Nama</label><input type="text" id="pname-input" placeholder="Nama lo..." maxlength="28"/></div>
+    <div class="modal-btns"><button class="btn btn-ghost" onclick="closeModal('pname-modal')">Batal</button><button class="btn btn-primary" onclick="savePName()">Simpan</button></div>
+  </div>
+</div>
+
+<!-- Profil: Bio -->
+<div class="modal-overlay center" id="pbio-modal" onclick="closeOnBg(event,'pbio-modal')">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <h3>Bio Singkat</h3>
+    <div class="modal-field"><label>Bio</label><textarea id="pbio-input" rows="3" placeholder="Ceritain diri lo singkat..." maxlength="120"></textarea></div>
+    <div class="modal-btns"><button class="btn btn-ghost" onclick="closeModal('pbio-modal')">Batal</button><button class="btn btn-primary" onclick="savePBio()">Simpan</button></div>
+  </div>
+</div>
+
+<!-- Profil: Info -->
+<div class="modal-overlay center" id="pinfo-modal" onclick="closeOnBg(event,'pinfo-modal')">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <h3 id="pinfo-title">Edit Info</h3>
+    <div class="modal-field"><label id="pinfo-label">Value</label><input type="text" id="pinfo-input" placeholder="" maxlength="60"/></div>
+    <div class="modal-btns"><button class="btn btn-ghost" onclick="closeModal('pinfo-modal')">Batal</button><button class="btn btn-primary" onclick="savePInfo()">Simpan</button></div>
+  </div>
+</div>
+
+<!-- Profil: Goal -->
+<div class="modal-overlay center" id="pgoal-modal" onclick="closeOnBg(event,'pgoal-modal')">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <h3>Tambah Goal</h3>
+    <div class="modal-field"><label>Goal</label><input type="text" id="pgoal-title-input" placeholder="Misal: IPK 4.0, Bisa main gitar..." maxlength="60"/></div>
+    <div class="modal-field"><label>Deskripsi</label><textarea id="pgoal-desc-input" rows="3" placeholder="Jelasin lebih detail..." maxlength="200"></textarea></div>
+    <div class="modal-btns"><button class="btn btn-ghost" onclick="closeModal('pgoal-modal')">Batal</button><button class="btn btn-primary" onclick="savePGoal()">Tambah</button></div>
+  </div>
+</div>
+
+<!-- Profil: Talent Picker -->
+<div class="modal-overlay" id="talent-modal" onclick="closeOnBg(event,'talent-modal')">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <h3>Tambah Talent</h3>
+    <input class="picker-search" id="talent-search" placeholder="Cari talent..." oninput="renderTalentPicker()"/>
+    <div class="picker-list" id="talent-picker-list"></div>
+    <div class="picker-divider">Atau tambah custom</div>
+    <div class="custom-add-wrap"><input type="text" id="talent-custom-input" placeholder="Nama talent baru..." maxlength="40"/><button class="custom-add-btn" onclick="addCustomTalent()">Tambah</button></div>
+    <div class="modal-btns" style="margin-top:14px"><button class="btn btn-ghost" onclick="closeModal('talent-modal')">Batal</button><button class="btn btn-primary" onclick="claimSelectedTalents()">Claim Dipilih</button></div>
+  </div>
+</div>
+
+<!-- Profil: Achievement Picker -->
+<div class="modal-overlay" id="ach-modal" onclick="closeOnBg(event,'ach-modal')">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <h3>Claim Achievement</h3>
+    <p style="font-family:var(--font-desc);font-size:0.8rem;color:var(--subtext);margin-bottom:14px;line-height:1.5">Hanya claim yang beneran udah lo capai.</p>
+    <input class="picker-search" id="ach-search" placeholder="Cari achievement..." oninput="renderAchPicker()"/>
+    <div class="picker-list" id="ach-picker-list"></div>
+    <div class="modal-btns" style="margin-top:14px"><button class="btn btn-ghost" onclick="closeModal('ach-modal')">Batal</button><button class="btn btn-primary" onclick="claimSelectedAchs()">Claim</button></div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════
+// SHARED UTILITIES
+// ════════════════════════════════════════════════════════
+
+const STAT_KEYS = ['STR','STM','INT','KNO','DIS','FOC','CHA'];
+const STAT_META = {
+  STR:{name:'Strength',color:'#e05c5c'}, INT:{name:'Intelligence',color:'#5c9ee0'},
+  STM:{name:'Stamina',color:'#5ce08a'},   KNO:{name:'Knowledge',color:'#c47ee0'},
+  DIS:{name:'Discipline',color:'#e0a35c'},FOC:{name:'Focus',color:'#5ce0d8'},
+  CHA:{name:'Charisma',color:'#e07eb8'},
+};
+const STAT_CONFIG = [
+  {key:'STR',name:'Strength',desc:'Aktivitas fisik & olahraga',color:'#e05c5c',initial:12,levelThresholds:[0,15,30,50,75,110,150,200,260,330]},
+  {key:'INT',name:'Intelligence',desc:'Problem solving & logika',color:'#5c9ee0',initial:22,levelThresholds:[0,15,30,50,75,110,150,200,260,330]},
+  {key:'STM',name:'Stamina',desc:'Daya tahan fisik & mental',color:'#5ce08a',initial:10,levelThresholds:[0,15,30,50,75,110,150,200,260,330]},
+  {key:'KNO',name:'Knowledge',desc:'Belajar & eksplorasi ilmu',color:'#c47ee0',initial:18,levelThresholds:[0,15,30,50,75,110,150,200,260,330]},
+  {key:'DIS',name:'Discipline',desc:'Konsistensi & kontrol diri',color:'#e0a35c',initial:8,levelThresholds:[0,15,30,50,75,110,150,200,260,330]},
+  {key:'FOC',name:'Focus',desc:'Konsentrasi & hindari distraksi',color:'#5ce0d8',initial:11,levelThresholds:[0,15,30,50,75,110,150,200,260,330]},
+  {key:'CHA',name:'Charisma',desc:'Kemampuan sosial & komunikasi',color:'#e07eb8',initial:15,levelThresholds:[0,15,30,50,75,110,150,200,260,330]},
+];
+
+// Storage
+function loadData(){const r=localStorage.getItem('plt_data');if(r)return JSON.parse(r);const s={};STAT_CONFIG.forEach(c=>{s[c.key]=c.initial});return{name:'',stats:s};}
+function saveData(d){localStorage.setItem('plt_data',JSON.stringify(d));}
+function loadLogs(){const r=localStorage.getItem('plt_logs');return r?JSON.parse(r):[];}
+function saveLogs(l){localStorage.setItem('plt_logs',JSON.stringify(l));}
+function loadProfile(){const r=localStorage.getItem('plt_profile');return r?JSON.parse(r):{name:'',bio:'',photo:'',info:{umur:'',kota:'',kampus:'','mulai-kuliah':''},goals:[],talents:[],achievements:[]};}
+function saveProfile(p){localStorage.setItem('plt_profile',JSON.stringify(p));}
+function loadGoals(){const r=localStorage.getItem('plt_goals');return r?JSON.parse(r):[];}
+function saveGoals(g){localStorage.setItem('plt_goals',JSON.stringify(g));}
+function loadQD(){const r=localStorage.getItem('plt_quests');return r?JSON.parse(r):null;}
+function saveQD(q){localStorage.setItem('plt_quests',JSON.stringify(q));}
+function loadCH(){const r=localStorage.getItem('plt_challenges');return r?JSON.parse(r):{};}
+function saveCH(c){localStorage.setItem('plt_challenges',JSON.stringify(c));}
+function loadDecay(){const r=localStorage.getItem('plt_decay');return r?JSON.parse(r):{};}
+function saveDecay(d){localStorage.setItem('plt_decay',JSON.stringify(d));}
+function loadRollHistory(){const r=localStorage.getItem('plt_roll_history');return r?JSON.parse(r):[];}
+function saveRollHistory(h){localStorage.setItem('plt_roll_history',JSON.stringify(h));}
+function getApiKey(){return localStorage.getItem('plt_gemini_key')||'';}
+
+const TODAY=new Date().toDateString();
+const TODAY_ISO=new Date().toISOString().split('T')[0];
+
+function saveApiKeyFrom(src){
+  const v=document.getElementById(src+'-api-key-input').value.trim();
+  if(!v)return;
+  localStorage.setItem('plt_gemini_key',v);
+  document.getElementById(src+'-api-banner').classList.remove('show');
+  showToast('API key disimpan — AI aktif!');
+}
+
+function hexAlpha(hex,a){const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);return `rgba(${r},${g},${b},${a})`;}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
+function formatDate(){const n=new Date(),days=['MIN','SEN','SEL','RAB','KAM','JUM','SAB'],mo=['JAN','FEB','MAR','APR','MEI','JUN','JUL','AGU','SEP','OKT','NOV','DES'];return`${days[n.getDay()]} ${n.getDate()} ${mo[n.getMonth()]} ${n.getFullYear()}`;}
+
+// Stats helpers
+function getLevel(key,value){const c=STAT_CONFIG.find(s=>s.key===key);let lv=1;c.levelThresholds.forEach((t,i)=>{if(value>=t)lv=i+1});return lv;}
+function getBarPercent(key,value){const c=STAT_CONFIG.find(s=>s.key===key),t=c.levelThresholds,lv=getLevel(key,value),f=t[lv-1]??0,n=t[lv]??t[t.length-1]*1.5;return Math.min(100,((value-f)/(n-f))*100);}
+function getTotalXP(){return Object.values(loadData().stats).reduce((a,b)=>a+b,0);}
+function getOverallLevel(){const x=getTotalXP();if(x<100)return 1;if(x<250)return 2;if(x<500)return 3;if(x<850)return 4;if(x<1300)return 5;if(x<1900)return 6;if(x<2700)return 7;if(x<3700)return 8;if(x<5000)return 9;return 10;}
+function getStatus(){const x=getTotalXP(),t=[{min:0,l:'Rookie — Baru mulai perjalanan'},{min:50,l:'Apprentice — Mulai terbentuk'},{min:120,l:'Challenger — Progres terasa'},{min:250,l:'Veteran — Konsistensi terjaga'},{min:450,l:'Elite — Jauh di atas rata-rata'},{min:700,l:'Legend — Penguasaan sejati'}];let lb=t[0].l;t.forEach(i=>{if(x>=i.min)lb=i.l});return lb;}
+
+// Modal helpers
+function openModal(id){document.getElementById(id).classList.add('active');}
+function closeModal(id){document.getElementById(id).classList.remove('active');}
+function closeOnBg(e,id){if(e.target.id===id)closeModal(id);}
+
+// ════════════════════════════════════════════════════════
+// PAGE NAVIGATION
+// ════════════════════════════════════════════════════════
+let currentPage='stats';
+
+function goPage(name){
+  // Glitch + sound on page switch
+  triggerPageGlitch();
+
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  document.getElementById('nav-'+name).classList.add('active');
+  document.getElementById('topbar-regen').style.display='none';
+  currentPage=name;
+  if(name==='stats')initStats();
+  if(name==='profil')initProfil();
+  if(name==='log')initLog();
+  if(name==='quest')initQuest();
+  if(name==='roll')initRoll();
+  window.scrollTo(0,0);
+}
+
+// ════════════════════════════════════════════════════════
+// PAGE: STATS
+// ════════════════════════════════════════════════════════
+let radarInstance=null;
+
+function initStats(){
+  const data=loadData(),prof=loadProfile();
+  // Avatar
+  if(prof.photo){document.getElementById('stats-avatar-photo').src=prof.photo;document.getElementById('stats-avatar-photo').style.display='block';document.getElementById('stats-avatar-icon').style.display='none';}
+  else{document.getElementById('stats-avatar-photo').style.display='none';document.getElementById('stats-avatar-icon').style.display='';}
+  // Name
+  const ne=document.getElementById('char-name');
+  const nm=data.name||prof.name;
+  if(nm){ne.textContent=nm;ne.classList.remove('placeholder');}else{ne.textContent='Tap untuk set nama';ne.classList.add('placeholder');}
+  document.getElementById('char-level').textContent='LV '+getOverallLevel();
+  document.getElementById('char-xp').textContent='Total XP: '+getTotalXP();
+  document.getElementById('char-status').textContent=getStatus();
+  renderRadar(data);
+  renderStatsGrid(data);
+}
+
+function renderRadar(data){
+  const labels=STAT_CONFIG.map(s=>s.name),values=STAT_CONFIG.map(s=>data.stats[s.key]);
+  document.getElementById('radar-total').textContent='Total '+values.reduce((a,b)=>a+b,0)+' XP';
+  const ctx=document.getElementById('radarChart').getContext('2d');
+  if(radarInstance)radarInstance.destroy();
+  radarInstance=new Chart(ctx,{type:'radar',data:{labels,datasets:[{data:values,backgroundColor:'rgba(212,168,83,0.1)',borderColor:'rgba(212,168,83,0.7)',borderWidth:1.5,pointBackgroundColor:'rgba(212,168,83,0.9)',pointBorderColor:'transparent',pointRadius:3,pointHoverRadius:5}]},options:{responsive:true,animation:{duration:800,easing:'easeOutQuart'},scales:{r:{beginAtZero:true,grid:{color:'rgba(255,255,255,0.05)'},angleLines:{color:'rgba(255,255,255,0.07)'},pointLabels:{color:'#6b6b8a',font:{family:"'Sora',sans-serif",size:10,weight:'500'}},ticks:{display:false}}},plugins:{legend:{display:false},tooltip:{backgroundColor:'#1c1c2e',borderColor:'rgba(255,255,255,0.08)',borderWidth:1,titleColor:'#d4a853',bodyColor:'#e4e4f0',callbacks:{label:c=>` ${c.raw} pts`}}}}});
+}
+
+function renderStatsGrid(data){
+  const grid=document.getElementById('stats-grid');
+  grid.innerHTML='';
+  STAT_CONFIG.forEach((cfg,idx)=>{
+    const v=data.stats[cfg.key],lv=getLevel(cfg.key,v),pct=getBarPercent(cfg.key,v).toFixed(1),isLast=idx===STAT_CONFIG.length-1;
+    const card=document.createElement('div');
+    card.className='stat-card'+(isLast?' full-width':'');
+    card.setAttribute('data-stat',cfg.key);
+    card.innerHTML=`<div class="stat-abbr">${cfg.key}</div><div class="stat-name">${cfg.name}</div><div class="stat-bottom"><div class="stat-value">${v}<span class="unit"> pts</span></div><div class="stat-right"><div class="stat-lv">LV ${lv}</div></div></div><div class="stat-bar-wrap"><div class="stat-bar-fill" style="width:0%"></div></div><div class="stat-bar-label"><span>${cfg.desc}</span><span>${pct}%</span></div><div style="font-family:var(--font-mono);font-size:0.52rem;color:var(--muted);margin-top:5px;letter-spacing:0.08em">▸ tap untuk lihat history</div>`;
+    card.style.cursor='pointer';
+    card.onclick=()=>showStatHistory(cfg.key, cfg.name, cfg.color);
+    card.style.animationDelay=(0.18+idx*0.04)+'s';
+    grid.appendChild(card);
+    requestAnimationFrame(()=>setTimeout(()=>{card.querySelector('.stat-bar-fill').style.width=pct+'%'},100+idx*60));
+  });
+}
+
+// ════════════════════════════════════════════════════════
+// PAGE: PROFIL
+// ════════════════════════════════════════════════════════
+const TALENT_LIST=[
+  {id:'t1',icon:'🎸',name:'Beginner Guitar',cat:'Musik'},{id:'t2',icon:'🎹',name:'Bisa Main Piano',cat:'Musik'},{id:'t3',icon:'🎤',name:'Nyanyi / Vokal',cat:'Musik'},
+  {id:'t4',icon:'🍳',name:'Bisa Masak',cat:'Life Skill'},{id:'t5',icon:'🚴',name:'Bersepeda Jarak Jauh',cat:'Fisik'},{id:'t6',icon:'🏊',name:'Bisa Renang',cat:'Fisik'},
+  {id:'t7',icon:'🥊',name:'Bela Diri',cat:'Fisik'},{id:'t8',icon:'💻',name:'Coding Basics',cat:'Tech'},{id:'t9',icon:'🎨',name:'Desain Grafis',cat:'Kreatif'},
+  {id:'t10',icon:'📸',name:'Fotografi',cat:'Kreatif'},{id:'t11',icon:'🎬',name:'Video Editing',cat:'Kreatif'},{id:'t12',icon:'✍️',name:'Nulis / Storytelling',cat:'Kreatif'},
+  {id:'t13',icon:'🗣️',name:'Public Speaking',cat:'Sosial'},{id:'t14',icon:'🤝',name:'Networking',cat:'Sosial'},{id:'t15',icon:'🌐',name:'Bahasa Inggris',cat:'Bahasa'},
+  {id:'t16',icon:'🈶',name:'Bahasa Jepang / Korea',cat:'Bahasa'},{id:'t17',icon:'📚',name:'Speed Reading',cat:'Akademik'},{id:'t18',icon:'🧩',name:'Problem Solving',cat:'Akademik'},
+  {id:'t19',icon:'♟️',name:'Main Catur',cat:'Game'},{id:'t20',icon:'🎮',name:'Gaming Kompetitif',cat:'Game'},{id:'t21',icon:'🏋️',name:'Rutin Olahraga',cat:'Fisik'},
+  {id:'t22',icon:'🧘',name:'Meditasi / Mindfulness',cat:'Mental'},
+];
+const ACH_LIST=[
+  // id, icon (fallback emoji), img (null = pakai emoji, isi URL/base64 = pakai gambar), name, desc, check (fungsi kondisi auto-unlock)
+  {id:'a1', icon:'📝', img:null, name:'Log Pertama',         desc:'Pertama kali catat aktivitas',              check:()=>loadLogs().length>=1},
+  {id:'a2', icon:'🔥', img:null, name:'3 Hari Berturut',     desc:'Catat aktivitas 3 hari berturut-turut',     check:()=>checkLogStreak(3)},
+  {id:'a3', icon:'⚡', img:null, name:'7 Hari Berturut',     desc:'Streak satu minggu penuh',                  check:()=>checkLogStreak(7)},
+  {id:'a4', icon:'🌟', img:null, name:'30 Hari Berturut',    desc:'Satu bulan penuh tanpa putus',              check:()=>checkLogStreak(30)},
+  {id:'a5', icon:'💪', img:null, name:'Olahraga 10x',        desc:'Catat aktivitas fisik 10 kali',             check:()=>countLogsWithStat('STR')>=10},
+  {id:'a6', icon:'🏋️', img:null, name:'Olahraga 30x',       desc:'Catat aktivitas fisik 30 kali',             check:()=>countLogsWithStat('STR')>=30},
+  {id:'a7', icon:'🎯', img:null, name:'Quest Pertama Clear', desc:'Selesaikan quest harian pertama',            check:()=>checkAnyQuestDone()},
+  {id:'a8', icon:'⬆️', img:null, name:'First Level Up',     desc:'Stat pertama kali naik level',              check:()=>checkAnyStatLevel(2)},
+  {id:'a9', icon:'🏅', img:null, name:'100 Total XP',        desc:'Total XP melewati 100',                     check:()=>getTotalXP()>=100},
+  {id:'a10',icon:'🥈', img:null, name:'250 Total XP',        desc:'Total XP melewati 250',                     check:()=>getTotalXP()>=250},
+  {id:'a11',icon:'🥇', img:null, name:'500 Total XP',        desc:'Total XP melewati 500',                     check:()=>getTotalXP()>=500},
+  {id:'a12',icon:'💎', img:null, name:'1000 Total XP',       desc:'Total XP melewati 1000 — serius level up',  check:()=>getTotalXP()>=1000},
+  {id:'a13',icon:'🥊', img:null, name:'Stat Level 3',        desc:'Satu stat mencapai level 3',                check:()=>checkAnyStatLevel(3)},
+  {id:'a14',icon:'🔥', img:null, name:'Stat Level 5',        desc:'Satu stat mencapai level 5',                check:()=>checkAnyStatLevel(5)},
+  {id:'a15',icon:'🚿', img:null, name:'Cold Shower Warrior', desc:'Catat cold shower di log',                  check:()=>countLogsWithKeyword('cold shower')>=1},
+  {id:'a16',icon:'🧘', img:null, name:'Meditasi Rutin',      desc:'Catat meditasi 5 kali',                     check:()=>countLogsWithKeyword('meditasi')>=5},
+  {id:'a17',icon:'📚', img:null, name:'Pembaca Setia',       desc:'Catat baca buku 10 kali',                   check:()=>countLogsWithKeyword('baca')>=10},
+  {id:'a18',icon:'🎲', img:null, name:'Roll Pertama',        desc:'Pakai fitur Random Roll pertama kali',      check:()=>loadRollHistory().length>=1},
+  {id:'a19',icon:'🎰', img:null, name:'Roller 10x',          desc:'Pakai Random Roll 10 kali',                 check:()=>loadRollHistory().length>=10},
+  {id:'a20',icon:'🏆', img:null, name:'Challenge Selesai',   desc:'Selesaikan satu Challenge Quest',           check:()=>checkAnyChallengeComplete()},
+  {id:'a21',icon:'⚔️', img:null, name:'Double Challenge',    desc:'Selesaikan dua Challenge sekaligus',        check:()=>countChallengeCompletes()>=2},
+  {id:'a22',icon:'🌅', img:null, name:'Early Bird',          desc:'Catat aktivitas sebelum jam 7 pagi, 3x',    check:()=>countEarlyLogs()>=3},
+  {id:'a23',icon:'🌙', img:null, name:'Night Grinder',       desc:'Catat aktivitas setelah jam 10 malam, 3x',  check:()=>countLateLogs()>=3},
+  {id:'a24',icon:'🎓', img:null, name:'All Stats Naik',      desc:'Semua 7 stat pernah naik dari nilai awal',  check:()=>checkAllStatsImproved()},
+  {id:'a25',icon:'🧠', img:null, name:'Knowledge First',     desc:'KNO adalah stat tertinggi lo',              check:()=>checkHighestStat('KNO')},
+  {id:'a26',icon:'💪', img:null, name:'Strength First',      desc:'STR adalah stat tertinggi lo',              check:()=>checkHighestStat('STR')},
+  {id:'a27',icon:'🗣️', img:null, name:'Social First',       desc:'CHA adalah stat tertinggi lo',              check:()=>checkHighestStat('CHA')},
+  {id:'a28',icon:'🛡️', img:null, name:'Iron Will',          desc:'DIS mencapai 50',                           check:()=>(loadData().stats.DIS||0)>=50},
+  {id:'a29',icon:'👁️', img:null, name:'Laser Focus',        desc:'FOC mencapai 50',                           check:()=>(loadData().stats.FOC||0)>=50},
+  {id:'a30',icon:'⚡', img:null, name:'Juggernaut',          desc:'STR mencapai 50',                           check:()=>(loadData().stats.STR||0)>=50},
+];
+
+// ── Achievement check helpers ──
+function checkLogStreak(days){
+  const logs=loadLogs();
+  const dates=[...new Set(logs.map(l=>l.date))].sort((a,b)=>new Date(b)-new Date(a));
+  if(!dates.length)return false;
+  let streak=1,prev=new Date(dates[0]);
+  for(let i=1;i<dates.length;i++){
+    const cur=new Date(dates[i]),diff=Math.round((prev-cur)/86400000);
+    if(diff===1){streak++;prev=cur;}else break;
+  }
+  return streak>=days;
+}
+function countLogsWithStat(stat){return loadLogs().filter(l=>l.gains&&l.gains[stat]>0).length;}
+function countLogsWithKeyword(kw){return loadLogs().filter(l=>l.text&&l.text.toLowerCase().includes(kw)).length;}
+function checkAnyQuestDone(){const qd=loadQD();return qd&&([...qd.wajib,...qd.opsional].some(q=>q.done));}
+function checkAnyStatLevel(lv){const s=loadData().stats;return STAT_KEYS.some(k=>getLevel(k,s[k]||0)>=lv);}
+function checkAnyChallengeComplete(){const ch=loadCH();return STAT_KEYS.some(k=>(ch[k]?.completions||0)>=1);}
+function countChallengeCompletes(){const ch=loadCH();return STAT_KEYS.reduce((t,k)=>t+(ch[k]?.completions||0),0);}
+function countEarlyLogs(){return loadLogs().filter(l=>{const h=parseInt((l.time||'').split(':')[0]);return h<7;}).length;}
+function countLateLogs(){return loadLogs().filter(l=>{const h=parseInt((l.time||'').split(':')[0]);return h>=22;}).length;}
+function checkAllStatsImproved(){const s=loadData().stats,init={STR:12,INT:22,STM:10,KNO:18,DIS:8,FOC:11,CHA:15};return STAT_KEYS.every(k=>(s[k]||0)>init[k]);}
+function checkHighestStat(target){const s=loadData().stats;const max=Math.max(...STAT_KEYS.map(k=>s[k]||0));return(s[target]||0)===max&&max>0;}
+
+// ── AUTO UNLOCK ACHIEVEMENTS ──
+function autoCheckAchievements(){
+  const prof=loadProfile();
+  const claimed=new Set(prof.achievements.map(a=>a.id));
+  const n=new Date(),mo=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+  const ds=`${n.getDate()} ${mo[n.getMonth()]} ${n.getFullYear()}`;
+  const newOnes=[];
+  ACH_LIST.forEach(a=>{
+    if(!claimed.has(a.id)&&a.check&&a.check()){
+      prof.achievements.push({...a,date:ds});
+      newOnes.push(a.name);
+    }
+  });
+  if(newOnes.length){
+    saveProfile(prof);
+    // Show toast for each new achievement with delay
+    newOnes.forEach((name,i)=>setTimeout(()=>showToast(`🏆 Achievement unlocked: ${name}`),i*1500));
+    if(currentPage==='profil')renderPAchs();
+  }
+}
+
+// ── RESET ALL DATA ──
+function resetAllData(){
+  const keys=['plt_data','plt_profile','plt_logs','plt_goals','plt_quests','plt_challenges','plt_decay','plt_roll_history','plt_gemini_key'];
+  keys.forEach(k=>localStorage.removeItem(k));
+  showToast('Semua data direset. App fresh!');
+  setTimeout(()=>location.reload(),1200);
+}
+let selectedTalentIds=new Set(),selectedAchIds=new Set();
+
+function initProfil(){
+  const prof=loadProfile(),data=loadData();
+  // Avatar
+  if(prof.photo){document.getElementById('profil-avatar-photo').src=prof.photo;document.getElementById('profil-avatar-photo').style.display='block';document.getElementById('profil-avatar-icon').style.display='none';}
+  else{document.getElementById('profil-avatar-photo').style.display='none';document.getElementById('profil-avatar-icon').style.display='';}
+  // Name
+  const ne=document.getElementById('profile-name');
+  if(prof.name){ne.textContent=prof.name;ne.classList.remove('placeholder');}else{ne.textContent='Belum ada nama';ne.classList.add('placeholder');}
+  // Bio
+  const be=document.getElementById('profile-bio');
+  if(prof.bio){be.textContent=prof.bio;be.classList.remove('placeholder');}else{be.textContent='Tambah bio singkat...';be.classList.add('placeholder');}
+  // Badges
+  document.getElementById('p-badge-level').textContent='LV '+getOverallLevel();
+  document.getElementById('p-badge-xp').textContent=getTotalXP()+' XP';
+  // Info
+  ['umur','kota','kampus','mulai-kuliah'].forEach(k=>{
+    const el=document.getElementById('info-'+k),v=prof.info[k];
+    if(v){el.textContent=v;el.classList.remove('placeholder');}else{el.textContent='Belum diisi';el.classList.add('placeholder');}
+  });
+  renderPGoals();renderPTalents();renderPAchs();
+}
+
+function handlePhotoUpload(e){
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=ev=>{const prof=loadProfile();prof.photo=ev.target.result;saveProfile(prof);initProfil();showToast('Foto diperbarui');};
+  r.readAsDataURL(f);
+}
+
+const PINFO_META={'umur':{title:'Umur',label:'Umur lo sekarang',ph:'Contoh: 18 tahun'},'kota':{title:'Kota',label:'Kota tinggal',ph:'Contoh: Jakarta'},'kampus':{title:'Kampus / Jurusan',label:'Kampus & jurusan',ph:'Contoh: UI — Teknik Informatika'},'mulai-kuliah':{title:'Mulai Kuliah',label:'Kapan mulai kuliah',ph:'Contoh: September 2026'}};
+let currentInfoKey='';
+
+function openInfoModal(k){
+  currentInfoKey=k;const m=PINFO_META[k],prof=loadProfile();
+  document.getElementById('pinfo-title').textContent=m.title;
+  document.getElementById('pinfo-label').textContent=m.label;
+  const inp=document.getElementById('pinfo-input');inp.placeholder=m.ph;inp.value=prof.info[k]||'';
+  openModal('pinfo-modal');setTimeout(()=>inp.focus(),100);
+}
+function savePInfo(){const v=document.getElementById('pinfo-input').value.trim(),prof=loadProfile();prof.info[currentInfoKey]=v;saveProfile(prof);initProfil();closeModal('pinfo-modal');showToast('Info disimpan');}
+function savePName(){const v=document.getElementById('pname-input').value.trim();if(!v)return;const data=loadData(),prof=loadProfile();data.name=v;prof.name=v;saveData(data);saveProfile(prof);initProfil();closeModal('pname-modal');showToast('Nama disimpan');}
+function savePBio(){const v=document.getElementById('pbio-input').value.trim(),prof=loadProfile();prof.bio=v;saveProfile(prof);initProfil();closeModal('pbio-modal');showToast('Bio disimpan');}
+function savePGoal(){const t=document.getElementById('pgoal-title-input').value.trim();if(!t)return;const d=document.getElementById('pgoal-desc-input').value.trim(),prof=loadProfile();prof.goals.push({title:t,desc:d});saveProfile(prof);renderPGoals();closeModal('pgoal-modal');document.getElementById('pgoal-title-input').value='';document.getElementById('pgoal-desc-input').value='';showToast('Goal ditambahkan');}
+function deletePGoal(i){const prof=loadProfile();prof.goals.splice(i,1);saveProfile(prof);renderPGoals();}
+function renderPGoals(){
+  const c=document.getElementById('p-goals-container'),prof=loadProfile();
+  if(!prof.goals.length){c.innerHTML='<div class="goals-empty">Belum ada goal. Tambah sekarang — serius, ini penting.</div>';return;}
+  c.innerHTML='<div style="display:flex;flex-direction:column;gap:8px">'+prof.goals.map((g,i)=>`<div class="goal-item"><div class="goal-icon"><i class="fa-solid fa-bullseye"></i></div><div class="goal-body"><div class="goal-title-text">${g.title}</div>${g.desc?`<div class="goal-desc-text">${g.desc}</div>`:''}</div><button class="goal-del" onclick="deletePGoal(${i})"><i class="fa-solid fa-xmark"></i></button></div>`).join('')+'</div>';
+}
+function openTalentPicker(){selectedTalentIds=new Set();openModal('talent-modal');document.getElementById('talent-search').value='';renderTalentPicker();}
+function renderTalentPicker(){
+  const q=document.getElementById('talent-search').value.toLowerCase(),prof=loadProfile();
+  const claimed=new Set(prof.talents.map(t=>t.id).filter(Boolean));
+  const f=TALENT_LIST.filter(t=>!claimed.has(t.id)&&(t.name.toLowerCase().includes(q)||t.cat.toLowerCase().includes(q)));
+  document.getElementById('talent-picker-list').innerHTML=f.length?f.map(t=>`<div class="picker-item ${selectedTalentIds.has(t.id)?'selected':''}" onclick="toggleTalent('${t.id}')"><div class="picker-item-icon">${t.icon}</div><div class="picker-item-body"><div class="picker-item-name">${t.name}</div><div class="picker-item-sub">${t.cat}</div></div><i class="fa-solid fa-check picker-item-check"></i></div>`).join(''):'<div style="color:var(--subtext);font-size:0.8rem;padding:10px 4px">Tidak ditemukan</div>';
+}
+function toggleTalent(id){selectedTalentIds.has(id)?selectedTalentIds.delete(id):selectedTalentIds.add(id);renderTalentPicker();}
+function claimSelectedTalents(){
+  if(!selectedTalentIds.size){showToast('Pilih dulu minimal 1');return;}
+  const prof=loadProfile();selectedTalentIds.forEach(id=>{const t=TALENT_LIST.find(x=>x.id===id);if(t)prof.talents.push({...t})});
+  selectedTalentIds.clear();saveProfile(prof);renderPTalents();closeModal('talent-modal');showToast('Talent ditambahkan!');
+}
+function addCustomTalent(){
+  const v=document.getElementById('talent-custom-input').value.trim();if(!v)return;
+  const prof=loadProfile();prof.talents.push({id:'c_'+Date.now(),icon:'✨',name:v,cat:'Custom'});saveProfile(prof);renderPTalents();document.getElementById('talent-custom-input').value='';showToast(`"${v}" ditambahkan`);
+}
+function deleteTalent(i){const prof=loadProfile();prof.talents.splice(i,1);saveProfile(prof);renderPTalents();}
+function renderPTalents(){
+  const c=document.getElementById('p-talent-container'),prof=loadProfile();
+  if(!prof.talents.length){c.innerHTML='<div class="talent-empty">Belum ada talent. Claim atau tambah skill yang udah lo punya.</div>';return;}
+  c.innerHTML='<div class="talent-grid">'+prof.talents.map((t,i)=>`<div class="talent-card"><button class="talent-del" onclick="deleteTalent(${i})"><i class="fa-solid fa-xmark"></i></button><div class="talent-icon">${t.icon||'✨'}</div><div class="talent-name">${t.name}</div><div class="talent-cat">${t.cat||'Custom'}</div></div>`).join('')+'</div>';
+}
+function openAchPicker(){selectedAchIds=new Set();openModal('ach-modal');document.getElementById('ach-search').value='';renderAchPicker();}
+function renderAchPicker(){
+  const q=document.getElementById('ach-search').value.toLowerCase(),prof=loadProfile();
+  const claimed=new Set(prof.achievements.map(a=>a.id).filter(Boolean));
+  const f=ACH_LIST.filter(a=>!claimed.has(a.id)&&(a.name.toLowerCase().includes(q)||a.desc.toLowerCase().includes(q)));
+  document.getElementById('ach-picker-list').innerHTML=f.length?f.map(a=>`<div class="picker-item ${selectedAchIds.has(a.id)?'selected':''}" onclick="toggleAch('${a.id}')"><div class="picker-item-icon">${a.icon}</div><div class="picker-item-body"><div class="picker-item-name">${a.name}</div><div class="picker-item-sub">${a.desc}</div></div><i class="fa-solid fa-check picker-item-check"></i></div>`).join(''):'<div style="color:var(--subtext);font-size:0.8rem;padding:10px 4px">Semua udah diclaim atau tidak ditemukan.</div>';
+}
+function toggleAch(id){selectedAchIds.has(id)?selectedAchIds.delete(id):selectedAchIds.add(id);renderAchPicker();}
+function claimSelectedAchs(){
+  if(!selectedAchIds.size){showToast('Pilih dulu minimal 1');return;}
+  const prof=loadProfile(),n=new Date(),mo=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+  const ds=`${n.getDate()} ${mo[n.getMonth()]} ${n.getFullYear()}`;
+  selectedAchIds.forEach(id=>{const a=ACH_LIST.find(x=>x.id===id);if(a)prof.achievements.push({...a,date:ds})});
+  selectedAchIds.clear();saveProfile(prof);renderPAchs();closeModal('ach-modal');showToast('Achievement diclaim!');
+}
+function deleteAch(i){const prof=loadProfile();prof.achievements.splice(i,1);saveProfile(prof);renderPAchs();}
+function renderPAchs(){
+  const c=document.getElementById('p-ach-container'),prof=loadProfile();
+  if(!prof.achievements.length){c.innerHTML='<div class="ach-empty">Belum ada achievement. Otomatis unlock saat kondisi terpenuhi.</div>';return;}
+  c.innerHTML='<div class="ach-grid">'+prof.achievements.map((a,i)=>{
+    // Support gambar custom: kalau a.img ada, tampilkan img, kalau tidak pakai emoji
+    const visual=a.img
+      ? `<img src="${a.img}" style="width:48px;height:48px;object-fit:cover;border-radius:10px;margin-bottom:2px" alt="${a.name}"/>`
+      : `<div class="ach-icon">${a.icon}</div>`;
+    return`<div class="ach-card">${visual}<div class="ach-name">${a.name}</div><div class="ach-date">${a.date}</div><button class="ach-del" onclick="deleteAch(${i})"><i class="fa-solid fa-xmark"></i></button></div>`;
+  }).join('')+'</div>';
+}
+document.getElementById('pname-modal').addEventListener('click',()=>{const prof=loadProfile();document.getElementById('pname-input').value=prof.name||'';},{once:false});
+document.getElementById('pbio-modal').addEventListener('click',()=>{const prof=loadProfile();document.getElementById('pbio-input').value=prof.bio||'';},{once:false});
+document.getElementById('pname-input').addEventListener('keydown',e=>{if(e.key==='Enter')savePName();});
+document.getElementById('pinfo-input').addEventListener('keydown',e=>{if(e.key==='Enter')savePInfo();});
+
+// ════════════════════════════════════════════════════════
+// PAGE: LOG
+// ════════════════════════════════════════════════════════
+// PAGE: LOG
+// ════════════════════════════════════════════════════════
+const QUICK_PICKS=['Lari pagi 30 menit','Push up 50x','Baca buku 1 jam','Belajar 2 jam','Meditasi 15 menit','Cold shower','Gym 1 jam','Ngobrol sama teman baru'];
+
+// ── Prompt lebih friendly, tidak terlalu strict ──
+const GEMINI_LOG_PROMPT=`Kamu adalah sistem penilaian aktivitas untuk game RPG kehidupan nyata bernama PLT.
+Ada 7 stats: STR (aktivitas fisik), INT (berpikir/logika), STM (daya tahan), KNO (belajar/ilmu), DIS (disiplin/konsistensi), FOC (fokus/konsentrasi), CHA (sosial/komunikasi).
+
+Cara memberi poin:
+- Aktivitas fisik ringan (jalan, stretching): STR/STM +1
+- Olahraga sedang (push up, lari, badminton): STR/STM +1 sampai +2
+- Olahraga berat (gym, HIIT, renang lama): STR/STM +2 sampai +3
+- Belajar/baca singkat: KNO/INT +1
+- Belajar serius 1+ jam: KNO/INT/FOC +2
+- Cold shower, disiplin keras: DIS +2
+- Sosial/ngobrol: CHA +1 sampai +2
+- Aktivitas basic (mandi, makan biasa, tidur, scroll HP): 0 poin, masukkan ke "ignored"
+
+PENTING: Hampir semua aktivitas positif layak dapat minimal +1 poin di stat yang relevan. Jangan terlalu ketat.
+
+Balas HANYA dengan JSON berikut tanpa teks lain:
+{"gains":{"STR":1,"DIS":1},"reasoning":"Penjelasan singkat dalam 1-2 kalimat bahasa Indonesia.","ignored":[]}
+
+Contoh:
+Input: "push up 20x" → {"gains":{"STR":1,"DIS":1},"reasoning":"20 push up adalah latihan fisik yang layak dapat poin meski tidak banyak.","ignored":[]}
+Input: "belajar matematika 1 jam" → {"gains":{"KNO":2,"INT":1,"FOC":1},"reasoning":"Belajar 1 jam penuh adalah komitmen yang solid.","ignored":[]}
+Input: "mandi pagi" → {"gains":{},"reasoning":"Mandi adalah aktivitas basic sehari-hari, tidak ada poin.","ignored":["mandi pagi"]}
+
+Sekarang nilai aktivitas ini:
+`;
+
+// ── Fallback scoring jika API gagal ──
+function fallbackScore(text) {
+  const t = text.toLowerCase();
+  const gains = {};
+  if(/lari|jogging|sprint|cardio/.test(t))         { gains.STR=(gains.STR||0)+1; gains.STM=(gains.STM||0)+2; }
+  if(/push up|pushup|sit up|pull up|plank/.test(t)) { gains.STR=(gains.STR||0)+2; gains.DIS=(gains.DIS||0)+1; }
+  if(/gym|angkat beban|squat|deadlift/.test(t))     { gains.STR=(gains.STR||0)+2; gains.STM=(gains.STM||0)+1; }
+  if(/sepeda|bersepeda|renang|berenang/.test(t))    { gains.STR=(gains.STR||0)+1; gains.STM=(gains.STM||0)+2; }
+  if(/olahraga|badminton|basket|futsal/.test(t))    { gains.STR=(gains.STR||0)+2; gains.STM=(gains.STM||0)+1; }
+  if(/baca|membaca|reading/.test(t))                { gains.KNO=(gains.KNO||0)+2; gains.FOC=(gains.FOC||0)+1; }
+  if(/belajar|study|ngerjain/.test(t))              { gains.KNO=(gains.KNO||0)+2; gains.INT=(gains.INT||0)+1; gains.DIS=(gains.DIS||0)+1; }
+  if(/coding|ngoding|programming/.test(t))          { gains.INT=(gains.INT||0)+2; gains.FOC=(gains.FOC||0)+2; }
+  if(/meditasi|mindfulness/.test(t))                { gains.FOC=(gains.FOC||0)+2; gains.DIS=(gains.DIS||0)+1; }
+  if(/cold shower|mandi dingin/.test(t))            { gains.DIS=(gains.DIS||0)+3; gains.STM=(gains.STM||0)+1; }
+  if(/ngobrol|ketemu|hangout|sosial/.test(t))       { gains.CHA=(gains.CHA||0)+2; }
+  if(/gitar|musik|latihan musik/.test(t))           { gains.FOC=(gains.FOC||0)+2; gains.DIS=(gains.DIS||0)+1; }
+  if(/jalan kaki|jalan pagi/.test(t))               { gains.STM=(gains.STM||0)+1; gains.DIS=(gains.DIS||0)+1; }
+  // Cek durasi — kalau panjang, bonus
+  const dur = text.match(/(\d+)\s*(jam|hour)/);
+  if(dur && parseInt(dur[1]) >= 2) Object.keys(gains).forEach(k=>gains[k]=Math.min(3,gains[k]+1));
+  if(Object.keys(gains).length===0) gains.DIS=1; // minimal effort = minimal DIS
+  return {
+    gains,
+    reasoning: '(Mode offline — API tidak tersedia, poin dihitung otomatis)',
+    ignored: []
+  };
+}
+
+let pendingGains=null,pendingText='',pendingReasoning='';
+
+function initLog(){
+  if(!getApiKey())document.getElementById('log-api-banner').classList.add('show');
+  else document.getElementById('log-api-banner').classList.remove('show');
+  renderQuickChips();renderLogHistory();
+}
+function renderQuickChips(){document.getElementById('quick-chips').innerHTML=QUICK_PICKS.map(l=>`<div class="quick-chip" onclick="useQuick('${l}')">${l}</div>`).join('');}
+function useQuick(t){document.getElementById('activity-input').value=t;document.getElementById('activity-input').focus();}
+
+async function callGeminiLog(text) {
+  const controller = new AbortController();
+  const timeout    = setTimeout(() => controller.abort(), 12000); // 12s timeout
+
+  try {
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-8b:generateContent?key=${getApiKey()}`,
+      {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        signal: controller.signal,
+        body: JSON.stringify({
+          contents:[{parts:[{text: GEMINI_LOG_PROMPT + text}]}],
+          generationConfig:{temperature:0.4, maxOutputTokens:250}
+        })
+      }
+    );
+
+    clearTimeout(timeout);
+
+    if(!res.ok) {
+      const err = await res.json().catch(()=>({}));
+      throw new Error(err.error?.message || `HTTP ${res.status}`);
+    }
+
+    const d   = await res.json();
+    const raw = (d.candidates?.[0]?.content?.parts?.[0]?.text || '').trim();
+
+    // Try to extract JSON even if Gemini adds extra text
+    const jsonMatch = raw.match(/\{[\s\S]*\}/);
+    if(!jsonMatch) throw new Error('Format respons tidak valid');
+
+    const parsed = JSON.parse(jsonMatch[0]);
+    parsed.gains = Object.fromEntries(
+      Object.entries(parsed.gains || {}).filter(([,v]) => typeof v==='number' && v > 0)
+    );
+    parsed.ignored  = parsed.ignored  || [];
+    parsed.reasoning= parsed.reasoning|| '';
+    return { ...parsed, source: 'ai' };
+
+  } catch(e) {
+    clearTimeout(timeout);
+    // Fallback ke hardcoded scoring
+    const fb = fallbackScore(text);
+    if(e.name === 'AbortError') {
+      fb.reasoning = '(Timeout — koneksi lambat, poin dihitung offline)';
+    } else {
+      fb.reasoning = `(API error: ${e.message} — poin dihitung offline)`;
+    }
+    return { ...fb, source: 'fallback' };
+  }
+}
+
+async function submitActivity(){
+  const text=document.getElementById('activity-input').value.trim();
+  if(!text){showToast('Tulis dulu aktivitasnya');return;}
+  if(!getApiKey()){
+    // Kalau tidak ada API key, langsung pakai fallback
+    const result = fallbackScore(text);
+    result.reasoning = 'Setup API key untuk penilaian AI. Sekarang pakai mode offline.';
+    pendingGains = Object.keys(result.gains).length > 0 ? result.gains : null;
+    pendingText  = text; pendingReasoning = result.reasoning;
+    showLogResult(result);
+    return;
+  }
+  const btn=document.getElementById('submit-btn');
+  btn.disabled=true;btn.innerHTML=`<div class="spinner"></div> AI lagi mikir...`;
+  try{
+    const result = await callGeminiLog(text);
+    pendingGains = Object.keys(result.gains).length > 0 ? result.gains : null;
+    pendingText  = text; pendingReasoning = result.reasoning;
+    showLogResult(result);
+    if(result.source==='fallback') showToast('Mode offline — API tidak tersedia');
+  }catch(e){
+    showToast('Error: '+e.message);
+  }
+  finally{btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-bolt"></i> Proses Aktivitas';}
+}
+
+function showLogResult(result){
+  const panel=document.getElementById('result-panel'),confirmBtn=document.getElementById('result-confirm-btn');
+  const gains=result.gains||{},ignored=result.ignored||[],reasoning=result.reasoning||'',hasGains=Object.keys(gains).length>0;
+  const iconEl=panel.querySelector('.result-icon i'),titleEl=panel.querySelector('.result-title');
+  document.getElementById('result-activity-name').textContent=pendingText.length>60?pendingText.slice(0,57)+'...':pendingText;
+  if(hasGains){iconEl.className='fa-solid fa-arrow-trend-up';panel.querySelector('.result-icon').style.background='var(--green-dim)';iconEl.style.color='var(--green)';titleEl.textContent='Stats Naik!';}
+  else{iconEl.className='fa-solid fa-ban';panel.querySelector('.result-icon').style.background='rgba(224,92,92,0.12)';iconEl.style.color='var(--red)';titleEl.textContent='Tidak ada poin';}
+  let html='';
+  if(reasoning)html+=`<div class="ai-thinking"><div class="ai-thinking-label"><i class="fa-solid fa-brain"></i> Pertimbangan AI</div>${reasoning}</div>`;
+  if(ignored.length)html+=`<div style="margin-bottom:10px;padding:10px 12px;background:rgba(224,92,92,0.08);border:1px solid rgba(224,92,92,0.15);border-radius:10px"><div style="font-family:var(--font-mono);font-size:0.6rem;letter-spacing:0.1em;color:#e05c5c;margin-bottom:4px">TIDAK DIHITUNG</div><div style="font-family:var(--font-desc);font-size:0.76rem;color:var(--subtext)">${ignored.map(s=>`"${s}"`).join(', ')}</div></div>`;
+  if(hasGains)html+=Object.entries(gains).map(([k,v])=>{const m=STAT_META[k];return`<div class="result-stat-row"><div class="result-stat-dot" style="background:${m.color}"></div><div class="result-stat-name">${m.name}</div><div class="result-stat-gain">+${v}</div></div><div class="result-stat-bar-wrap"><div class="result-stat-bar" id="lb-${k}" style="background:${m.color};width:0%"></div></div>`;}).join('');
+  document.getElementById('result-stats-inner').innerHTML=html;
+  confirmBtn.style.display=hasGains?'block':'none';
+  panel.classList.add('show');panel.scrollIntoView({behavior:'smooth',block:'nearest'});
+  if(hasGains)requestAnimationFrame(()=>setTimeout(()=>{Object.keys(gains).forEach(k=>{const b=document.getElementById('lb-'+k);if(b)b.style.width='70%';});},100));
+}
+
+function confirmActivity(){
+  if(!pendingGains)return;
+  const confirmedGains={...pendingGains};
+  const data=loadData();Object.entries(pendingGains).forEach(([k,v])=>{data.stats[k]=(data.stats[k]||0)+v;});saveData(data);
+  const logs=loadLogs(),now=new Date(),ts=`${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
+  logs.unshift({text:pendingText,gains:pendingGains,reasoning:pendingReasoning,time:ts,date:now.toDateString()});saveLogs(logs);
+  const decay=loadDecay();Object.keys(pendingGains).forEach(k=>{if(!decay[k])decay[k]={};decay[k].lastActivity=TODAY_ISO;});saveDecay(decay);
+  pendingGains=null;pendingText='';pendingReasoning='';
+  document.getElementById('activity-input').value='';document.getElementById('result-panel').classList.remove('show');
+  renderLogHistory();showToast('Aktivitas disimpan! Stats naik 📈');
+  triggerGlitch(confirmedGains);
+  setTimeout(autoCheckAchievements, 500);
+}
+
+function renderLogHistory(){
+  const logs=loadLogs(),container=document.getElementById('log-container'),todayLogs=logs.filter(l=>l.date===TODAY);
+  document.getElementById('log-count').textContent=todayLogs.length+' aktivitas';
+  if(!todayLogs.length){container.innerHTML='<div class="log-empty">Belum ada aktivitas hari ini.<br>Yuk catat sesuatu!</div>';return;}
+  container.innerHTML='<div class="log-list">'+todayLogs.map(log=>`<div class="log-item"><div class="log-item-top"><div class="log-item-text">${log.text}</div><div class="log-item-time">${log.time}</div></div><div class="log-item-gains">${Object.entries(log.gains).map(([k,v])=>{const m=STAT_META[k];return`<div class="gain-tag" style="background:${hexAlpha(m.color,0.15)};color:${m.color}">${k} +${v}</div>`;}).join('')}</div></div>`).join('')+'</div>';
+}
+
+// ════════════════════════════════════════════════════════
+// PAGE: QUEST
+// ════════════════════════════════════════════════════════
+let questGoals=loadGoals();
+
+function switchQuestTab(tab){
+  document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active',(i===0&&tab==='daily')||(i===1&&tab==='challenge')));
+  document.getElementById('qtab-daily').classList.toggle('active',tab==='daily');
+  document.getElementById('qtab-challenge').classList.toggle('active',tab==='challenge');
+}
+function initQuest(){
+  if(!getApiKey())document.getElementById('quest-api-banner').classList.add('show');
+  else document.getElementById('quest-api-banner').classList.remove('show');
+  questGoals=loadGoals();renderQuestGoalChips();renderDailyAll();renderChallenges();
+}
+function addQuestGoal(){
+  const inp=document.getElementById('q-goal-input'),v=inp.value.trim();
+  if(!v)return;if(questGoals.includes(v)){showToast('Goal sudah ada');return;}if(questGoals.length>=6){showToast('Maksimal 6');return;}
+  questGoals.push(v);saveGoals(questGoals);inp.value='';renderQuestGoalChips();
+}
+function deleteQuestGoal(i){questGoals.splice(i,1);saveGoals(questGoals);renderQuestGoalChips();}
+function renderQuestGoalChips(){document.getElementById('q-goal-chips').innerHTML=questGoals.map((g,i)=>`<div class="goal-chip">${g}<button class="goal-chip-del" onclick="deleteQuestGoal(${i})"><i class="fa-solid fa-xmark"></i></button></div>`).join('');}
+
+async function callGemini(prompt){
+  const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${getApiKey()}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:prompt}]}],generationConfig:{temperature:0.7,maxOutputTokens:600}})});
+  if(!res.ok)throw new Error((await res.json()).error?.message||'API error');
+  const d=await res.json();return(d.candidates?.[0]?.content?.parts?.[0]?.text||'').replace(/```json|```/g,'').trim();
+}
+
+async function generateQuests(){
+  if(!getApiKey()){document.getElementById('quest-api-banner').classList.add('show');return;}
+  if(!questGoals.length){showToast('Tambah minimal 1 goal dulu');return;}
+  const btn=document.getElementById('q-gen-btn');btn.disabled=true;btn.innerHTML=`<div class="spinner"></div> AI lagi mikir...`;
+  showQuestLoading();
+  try{
+    const stats=loadData().stats;
+    const prompt=`Quest generator RPG kehidupan nyata. Goals: ${questGoals.join(', ')}. Stats: STR=${stats.STR},INT=${stats.INT},STM=${stats.STM},KNO=${stats.KNO},DIS=${stats.DIS},FOC=${stats.FOC},CHA=${stats.CHA}. Kondisi: kelas 12 SMA, nganggur sebelum kuliah September 2026. Generate 3 quest WAJIB (spesifik+ukuran, ada penalti) dan 3 OPSIONAL (lebih ringan). Reward max +2/stat, penalti -1/stat. Beragam, relevan. Bahasa Indonesia singkat. Balas HANYA JSON: {"wajib":[{"title":"...","reward":{"STR":1},"penalty":{"STR":1}}],"opsional":[{"title":"...","reward":{"KNO":1}}]}`;
+    const parsed=JSON.parse(await callGemini(prompt));
+    const qd={date:TODAY,wajib:(parsed.wajib||[]).map((q,i)=>({...q,id:'w'+i,done:false,type:'wajib'})),opsional:(parsed.opsional||[]).map((q,i)=>({...q,id:'o'+i,done:false,type:'opsional'}))};
+    saveQD(qd);renderDailyAll();showToast('Quest hari ini siap!');
+    document.getElementById('topbar-regen').style.display='block';
+  }catch(e){showToast('Error: '+e.message);}
+  finally{btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-wand-magic-sparkles"></i> Generate Quest Hari Ini';}
+}
+async function regenQuests(){saveQD(null);await generateQuests();}
+
+function toggleQuest(type,id){
+  const qd=loadQD();if(!qd)return;
+  const q=qd[type].find(x=>x.id===id);if(!q)return;
+  q.done=!q.done;saveQD(qd);
+  const data=loadData();Object.entries(q.reward||{}).forEach(([k,v])=>{data.stats[k]=Math.max(0,(data.stats[k]||0)+(q.done?v:-v));});saveData(data);
+  if(q.done) triggerGlitch(q.reward);
+  showToast(q.done?`Quest selesai! ${Object.entries(q.reward||{}).map(([k,v])=>`+${v} ${k}`).join(' ')}`:'Quest dibatalkan');renderDailyAll();
+  setTimeout(autoCheckAchievements,500);
+}
+function applyQuestPenalties(qd){
+  if(!qd||qd.penaltyApplied)return;const data=loadData();let t=0;
+  qd.wajib.forEach(q=>{if(!q.done)Object.entries(q.penalty||{}).forEach(([k,v])=>{data.stats[k]=Math.max(0,(data.stats[k]||0)-v);t+=v;});});
+  qd.penaltyApplied=true;saveData(data);saveQD(qd);if(t>0)showToast(`Penalti: -${t} stats`);
+}
+function showQuestLoading(){
+  const h=`<div class="quest-loading"><div class="spinner-dark"></div><div class="quest-loading-text">AI lagi generate quest...</div></div>`;
+  document.getElementById('q-wajib-header').style.display='flex';document.getElementById('q-opsional-header').style.display='flex';
+  document.getElementById('q-wajib-container').innerHTML=h;document.getElementById('q-opsional-container').innerHTML=h;
+}
+function renderQuestList(quests,cId,bId){
+  const c=document.getElementById(cId),b=document.getElementById(bId);
+  if(!quests?.length){c.innerHTML='<div class="quest-empty"><div class="quest-empty-icon"><i class="fa-solid fa-scroll"></i></div><div class="quest-empty-text">Belum ada quest. Generate di atas.</div></div>';b.textContent='0';return;}
+  const done=quests.filter(q=>q.done).length;b.textContent=`${done}/${quests.length}`;
+  c.innerHTML='<div class="quest-list">'+quests.map(q=>{const rS=Object.entries(q.reward||{}).map(([k,v])=>`+${v} ${k}`).join(' '),pS=Object.entries(q.penalty||{}).map(([k,v])=>`-${v} ${k} kalau skip`).join(' ');return`<div class="quest-card ${q.type} ${q.done?'done':''}"><div class="quest-check ${q.done?'checked':''}" onclick="toggleQuest('${q.type}','${q.id}')"></div><div class="quest-body"><div class="quest-title">${q.title}</div><div class="quest-meta"><div class="quest-type type-${q.type}">${q.type==='wajib'?'WAJIB':'OPSIONAL'}</div>${rS?`<div class="quest-reward"><i class="fa-solid fa-arrow-up" style="font-size:0.5rem"></i> ${rS}</div>`:''}${pS?`<div class="quest-penalty"><i class="fa-solid fa-skull" style="font-size:0.5rem"></i> ${pS}</div>`:''}</div></div></div>`;}).join('')+'</div>';
+}
+function renderDailyAll(){
+  const qd=loadQD();
+  if(qd&&qd.date!==TODAY){applyQuestPenalties(qd);saveQD(null);renderDailyAll();return;}
+  const bar=document.getElementById('q-summary-bar');
+  if(!qd){bar.style.display='none';document.getElementById('q-wajib-header').style.display='none';document.getElementById('q-opsional-header').style.display='none';document.getElementById('q-wajib-container').innerHTML='';document.getElementById('q-opsional-container').innerHTML='';document.getElementById('topbar-regen').style.display='none';return;}
+  bar.style.display='flex';
+  const all=[...qd.wajib,...qd.opsional],total=all.length,done=all.filter(q=>q.done).length,wLeft=qd.wajib.filter(q=>!q.done).length;
+  document.getElementById('q-ring-fill').style.strokeDashoffset=138*(1-(total>0?done/total:0));
+  document.getElementById('q-ring-label').textContent=`${done}/${total}`;
+  document.getElementById('q-summary-title').textContent=done===total?'Semua selesai! 🔥':'Quest Hari Ini';
+  document.getElementById('q-summary-sub').textContent=done===total?'Luar biasa. Keep going.':`${done}/${total} selesai`;
+  const pe=document.getElementById('q-summary-penalty');
+  if(wLeft>0){pe.style.display='block';pe.textContent=`${wLeft} wajib belum`;}else pe.style.display='none';
+  document.getElementById('q-wajib-header').style.display='flex';document.getElementById('q-opsional-header').style.display='flex';
+  renderQuestList(qd.wajib,'q-wajib-container','q-wajib-badge');renderQuestList(qd.opsional,'q-opsional-container','q-opsional-badge');
+  if(currentPage==='quest')document.getElementById('topbar-regen').style.display='block';
+}
+
+// ── Challenge System ──
+function getChallengeSpec(sk,sv,lp){
+  const l=lp||0;
+  const specs={
+    STR:()=>{const b=sv<20?15:sv<40?30:sv<70?50:80,i=sv<20?5:sv<40?8:sv<70?10:15,e=l*5;return{name:'Push Up Challenge',color:'#e05c5c',desc:`Push up progresif — mulai ${b+e}, naik ${i}/hari`,getDayTask:d=>`${b+e+(d-1)*i} push up`,altNote:'Olahraga lain valid: badminton, basket, gym, renang',reward:{STR:5},penalty:{STR:1}};},
+    STM:()=>{const b=sv<20?10:sv<40?20:sv<70?30:45,i=sv<20?2:sv<40?3:sv<70?5:7,e=l*5;return{name:'Cardio Challenge',color:'#5ce08a',desc:`Cardio progresif — mulai ${b+e} menit`,getDayTask:d=>`Cardio/lari ${b+e+(d-1)*i} menit`,altNote:'Boleh: sepeda, renang, zumba, hiking',reward:{STM:5},penalty:{STM:1}};},
+    INT:()=>{const b=sv<20?20:sv<40?35:sv<70?50:70,i=sv<20?5:sv<40?7:sv<70?10:12,e=l*10;return{name:'Problem Solving Challenge',color:'#5c9ee0',desc:'Latihan otak — soal logika, coding, matematika',getDayTask:d=>`${b+e+(d-1)*i} menit mengerjakan soal logika/coding/matematika`,reward:{INT:5},penalty:{INT:1}};},
+    KNO:()=>{const b=sv<20?15:sv<40?25:sv<70?40:60,i=sv<20?3:sv<40?5:sv<70?7:10,e=l*5;return{name:'Reading Challenge',color:'#c47ee0',desc:'Baca buku/artikel edukatif tiap hari',getDayTask:d=>`Baca ${b+e+(d-1)*i} menit`,reward:{KNO:5},penalty:{KNO:1}};},
+    DIS:()=>{const wh=Math.max(5,6-l);return{name:'Iron Discipline Challenge',color:'#e0a35c',desc:`Cold shower + bangun sebelum 0${wh}:00 selama 7 hari`,getDayTask:_=>`Cold shower + bangun sebelum 0${wh}:00 + tidak skip agenda hari ini`,reward:{DIS:5},penalty:{DIS:2}};},
+    FOC:()=>{const b=sv<20?20:sv<40?35:sv<70?50:70,i=sv<20?5:sv<40?7:sv<70?8:10,e=l*5;return{name:'Deep Focus Challenge',color:'#5ce0d8',desc:'Sesi fokus tanpa HP atau media sosial',getDayTask:d=>`${b+e+(d-1)*i} menit fokus penuh — tidak buka HP, tidak buka medsos`,reward:{FOC:5},penalty:{FOC:1}};},
+    CHA:()=>{const tasks=['Ngobrol serius dengan 1 orang yang belum lo kenal dekat','Hubungi teman lama yang sudah lama tidak kontak','Berikan 1 pujian tulus kepada seseorang','Bantu orang lain tanpa diminta hari ini','Tanya pendapat seseorang tentang hal yang lo pelajari','Ikut aktif dalam percakapan grup atau komunitas','Ceritakan 1 hal yang lo pelajari minggu ini ke orang lain'];return{name:'Social Challenge',color:'#e07eb8',desc:'Interaksi sosial bermakna tiap hari',getDayTask:d=>tasks[(d-1)%7],reward:{CHA:5},penalty:{CHA:1}};}
+  };return(specs[sk]||specs['STR'])();
+}
+const DECAY_CFG={STR:{days:7,label:'tidak ada aktivitas fisik'},STM:{days:7,label:'tidak ada cardio/olahraga'},INT:{days:14,label:'tidak ada latihan berpikir'},KNO:{days:14,label:'tidak belajar/membaca'},DIS:{days:10,label:'tidak ada aktivitas terjadwal'},FOC:{days:10,label:'tidak ada sesi fokus'},CHA:{days:10,label:'tidak ada interaksi sosial'}};
+
+function takeChallenge(sk){
+  const ch=loadCH();if(ch[sk]?.active){showToast('Challenge ini sudah aktif');return;}
+  const sv=loadData().stats[sk]||0,comp=ch[sk]?.completions||0;
+  ch[sk]={active:true,startDate:TODAY_ISO,currentDay:1,claimedDays:[],completions:comp,statAtStart:sv};
+  saveCH(ch);renderChallenges();const spec=getChallengeSpec(sk,sv,comp);showToast(`${spec.name} dimulai!`);
+}
+function claimChallengeDay(sk){
+  const ch=loadCH(),c=ch[sk];if(!c?.active)return;
+  if(c.claimedDays.includes(TODAY_ISO)){showToast('Hari ini udah di-claim!');return;}
+  const todayD=new Date(TODAY_ISO),startD=new Date(c.startDate),dayIdx=Math.floor((todayD-startD)/86400000);
+  if(c.claimedDays.length>0){const lastD=new Date(c.claimedDays[c.claimedDays.length-1]);if(Math.floor((todayD-lastD)/86400000)>1){failChallenge(sk);return;}}
+  if(dayIdx!==c.claimedDays.length){showToast(dayIdx<c.claimedDays.length?'Hari ini udah di-claim!':`Belum waktunya — ini baru hari ke-${dayIdx+1}`);return;}
+  c.claimedDays.push(TODAY_ISO);c.currentDay++;saveCH(ch);
+  if(c.claimedDays.length>=7){
+    const spec=getChallengeSpec(sk,c.statAtStart,c.completions),data=loadData();
+    Object.entries(spec.reward).forEach(([k,v])=>{data.stats[k]=(data.stats[k]||0)+v;});saveData(data);
+    ch[sk]={active:false,completions:(c.completions||0)+1};saveCH(ch);
+    showToast(`🏆 Challenge selesai! +${Object.entries(spec.reward).map(([k,v])=>`${v} ${k}`).join(' ')}`);
+    triggerGlitch(spec.reward);
+  }else{showToast(`Hari ke-${c.claimedDays.length} done! ${7-c.claimedDays.length} hari lagi.`);}
+  renderChallenges();
+}
+function failChallenge(sk){
+  const ch=loadCH(),c=ch[sk],spec=getChallengeSpec(sk,c?.statAtStart||0,c?.completions||0),data=loadData();
+  Object.entries(spec.penalty||{}).forEach(([k,v])=>{data.stats[k]=Math.max(0,(data.stats[k]||0)-v);});saveData(data);
+  ch[sk]={active:false,completions:c?.completions||0};saveCH(ch);
+  showToast(`Challenge gagal! ${Object.entries(spec.penalty||{}).map(([k,v])=>`-${v} ${k}`).join(' ')}`);renderChallenges();
+}
+function checkAndRenderDecay(){
+  const dd=loadDecay(),data=loadData(),warnings=[];
+  STAT_KEYS.forEach(k=>{
+    const cfg=DECAY_CFG[k],last=dd[k]?.lastActivity;
+    if(!last){if(!dd[k])dd[k]={lastActivity:TODAY_ISO};return;}
+    const ds=Math.floor((new Date(TODAY_ISO)-new Date(last))/86400000);
+    if(ds>=cfg.days){data.stats[k]=Math.max(0,(data.stats[k]||0)-(Math.floor(ds/cfg.days)*5));dd[k].lastActivity=TODAY_ISO;saveData(data);}
+    else if(ds>=Math.ceil(cfg.days*0.6))warnings.push({key:k,daysLeft:cfg.days-ds,label:cfg.label});
+  });saveDecay(dd);
+  document.getElementById('ch-decay-warnings').innerHTML=warnings.map(w=>`<div class="decay-warn"><i class="fa-solid fa-triangle-exclamation"></i><span><b>${w.key}</b> decay dalam <b>${w.daysLeft} hari</b> — ${w.label}</span></div>`).join('');
+}
+function renderChallenges(){
+  checkAndRenderDecay();
+  const ch=loadCH(),stats=loadData().stats;
+  document.getElementById('ch-grid').innerHTML=STAT_KEYS.map(sk=>{
+    const c=ch[sk],isActive=c?.active,comp=c?.completions||0,sv=stats[sk]||0;
+    const spec=getChallengeSpec(sk,isActive?c.statAtStart:sv,comp);
+    if(isActive&&c.claimedDays.length>0){const last=new Date(c.claimedDays[c.claimedDays.length-1]);if(Math.floor((new Date(TODAY_ISO)-last)/86400000)>1){setTimeout(()=>failChallenge(sk),50);return'';}}
+    let progHtml='',claimHtml='';
+    if(isActive){
+      const claimed=c.claimedDays.length,todayIdx=Math.floor((new Date(TODAY_ISO)-new Date(c.startDate))/86400000);
+      const canClaim=todayIdx===claimed&&!c.claimedDays.includes(TODAY_ISO);
+      progHtml='<div class="day-pips">'+Array.from({length:7},(_,i)=>i<claimed?'<div class="day-pip done"></div>':i===claimed?'<div class="day-pip today"></div>':'<div class="day-pip"></div>').join('')+'</div>';
+      claimHtml=`<div class="ch-claim-row"><div class="ch-claim-info">Hari ke-${claimed+1}: <b>${spec.getDayTask(claimed+1)}</b>${spec.altNote?`<br><span style="font-size:0.7rem;color:var(--muted)">${spec.altNote}</span>`:''}</div><button class="ch-claim-btn" ${canClaim?'':'disabled'} onclick="claimChallengeDay('${sk}')">${canClaim?'Claim Hari Ini':c.claimedDays.includes(TODAY_ISO)?'✓ Done':'Belum Waktunya'}</button></div>`;
+    }
+    const bText=isActive?`HARI ${(c.claimedDays?.length||0)+1}/7`:comp>0?`LOOP ${comp+1}`:'AVAILABLE';
+    const bCls=isActive?'active':comp>0?'looped':'avail';
+    return`<div class="challenge-card ${isActive?'active-challenge':''}"><div class="challenge-top"><div class="challenge-dot" style="background:${spec.color}"></div><div class="challenge-info"><div class="challenge-name">${spec.name}</div><div class="challenge-task">${spec.desc}</div></div><div class="challenge-right"><div class="challenge-reward">+5 ${sk}</div><div class="ch-badge ${bCls}">${bText}</div></div></div><div class="ch-progress">${progHtml}${claimHtml}</div><button class="ch-take-btn" onclick="takeChallenge('${sk}')"><i class="fa-solid fa-play"></i> Ambil Challenge Ini</button></div>`;
+  }).join('');
+}
+
+// ════════════════════════════════════════════════════════
+// PAGE: ROLL
+// ════════════════════════════════════════════════════════
+const MOODS=[
+  {id:'all',label:'Semua',icon:'fa-star'},{id:'ringan',label:'Lagi males',icon:'fa-feather'},
+  {id:'fisik',label:'Mau gerak',icon:'fa-dumbbell'},{id:'otak',label:'Mau mikir',icon:'fa-brain'},
+  {id:'sosial',label:'Mau ngobrol',icon:'fa-people-group'},{id:'kreatif',label:'Mau berkreasi',icon:'fa-wand-sparkles'},
+  {id:'outdoor',label:'Mau keluar',icon:'fa-person-hiking'},{id:'challenge',label:'Mau challenge',icon:'fa-fire'},
+  {id:'inspirasi',label:'Butuh inspirasi',icon:'fa-lightbulb'},{id:'produktif',label:'Mau produktif',icon:'fa-briefcase'},
+];
+const ACTIVITIES=[
+  {mood:['all','ringan'],icon:'🚶',category:'Gerak Ringan',text:'Jalan kaki 15 menit di luar rumah',why:'Udara segar + gerak minimal = reset otak. Lo pasti bisa ini.',gains:{STM:1,DIS:1},color:'#5ce08a'},
+  {mood:['all','ringan'],icon:'🧘',category:'Mental Reset',text:'Meditasi 10 menit — tutup mata, fokus napas aja',why:'10 menit bisa nurunin kortisol dan bikin lo lebih fokus.',gains:{FOC:2,STM:1},color:'#5ce0d8'},
+  {mood:['all','ringan'],icon:'📓',category:'Refleksi',text:'Tulis 3 hal yang lo syukuri hari ini + 1 hal yang mau lo improve',why:'Journaling singkat terbukti ningkatin mood dan self-awareness.',gains:{INT:1,FOC:1,DIS:1},color:'#c47ee0'},
+  {mood:['all','ringan'],icon:'🎧',category:'Belajar Santai',text:'Dengerin 1 podcast edukatif sambil tiduran — minimal 20 menit',why:'Lo tetap belajar tanpa effort besar. Win-win.',gains:{KNO:1,INT:1},color:'#c47ee0'},
+  {mood:['all','ringan'],icon:'🌿',category:'Recovery',text:'Stretching full body selama 10 menit',why:'Recovery itu part of the grind. Tubuh lo butuh ini.',gains:{STM:1,FOC:1},color:'#5ce08a'},
+  {mood:['all','ringan'],icon:'💧',category:'Disiplin',text:'Minum 2 liter air hari ini — track dari sekarang',why:'Dehidrasi bikin otak lemot. Simple tapi sering dilupain.',gains:{DIS:1,STM:1},color:'#e0a35c'},
+  {mood:['all','ringan'],icon:'🌅',category:'Morning Ritual',text:'Bangun, langsung keluar lihat matahari pagi 10 menit tanpa HP',why:'Paparan sinar pagi reset circadian rhythm dan ningkatin energi.',gains:{DIS:2,STM:1},color:'#e0a35c'},
+  {mood:['all','ringan'],icon:'📖',category:'Reading',text:'Baca 10 halaman buku apapun — non-fiction atau fiksi sama oke',why:'10 halaman per hari = 3-4 buku per tahun. Mulai kecil, konsisten.',gains:{KNO:1,FOC:1},color:'#c47ee0'},
+  {mood:['all','ringan'],icon:'🎵',category:'Mood Boost',text:'Bikin playlist 10 lagu yang bikin lo semangat — dengarkan sambil stretching',why:'Musik yang tepat secara literal ngubah brain chemistry lo.',gains:{STM:1,FOC:1},color:'#5ce0d8'},
+  {mood:['all','ringan'],icon:'📋',category:'Organisasi',text:'Rapiin meja atau kamar lo — satu area aja, 15 menit',why:'Environment yang rapi mengurangi cognitive load otak lo.',gains:{FOC:1,DIS:1},color:'#e0a35c'},
+  {mood:['all','ringan'],icon:'🌙',category:'Night Routine',text:'Tidak buka HP 1 jam sebelum tidur — baca buku atau stretching aja',why:'Blue light sebelum tidur buang kualitas tidur lo 40%. Fix ini.',gains:{DIS:2,STM:1},color:'#e0a35c'},
+  {mood:['all','ringan'],icon:'🍵',category:'Mindful',text:'Minum teh atau kopi tanpa sambil scroll HP — nikmatin aja 10 menit',why:'Mindfulness sesederhana ini udah terbukti turunkan stres.',gains:{FOC:1,STM:1},color:'#5ce0d8'},
+  {mood:['all','ringan'],icon:'🌬️',category:'Breathing',text:'Box breathing: tarik 4 detik, tahan 4, buang 4, tahan 4 — 5 menit',why:'Teknik napas ini dipakai Navy SEAL untuk kontrol stres akut.',gains:{FOC:2,STM:1},color:'#5ce0d8'},
+  {mood:['all','ringan'],icon:'📝',category:'Planning',text:'Tulis 3 hal yang mau lo selesaikan besok — spesifik dan realistis',why:'Menulis rencana malam ini bikin otak tidak overthinking sebelum tidur.',gains:{DIS:1,INT:1},color:'#e0a35c'},
+  {mood:['all','ringan'],icon:'🔋',category:'Recovery',text:'Power nap 20 menit — set alarm, tidak boleh lebih',why:'20 menit nap ningkatin alertness 54% dan performa 34% (NASA study).',gains:{STM:2},color:'#5ce08a'},
+  {mood:['all','ringan'],icon:'🌳',category:'Outdoor Santai',text:'Duduk di luar rumah atau taman 20 menit — tidak perlu ngapa-ngapain',why:'Nature exposure nurunin cortisol dan ningkatin kreativitas.',gains:{STM:1,FOC:1},color:'#5ce08a'},
+  {mood:['all','ringan'],icon:'🧹',category:'Produktif Ringan',text:'Hapus semua notifikasi app yang tidak penting dari HP lo',why:'Rata-rata orang cek HP 96x sehari. Reduce triggers, gain focus.',gains:{FOC:1,DIS:1},color:'#5ce0d8'},
+  {mood:['all','ringan'],icon:'💌',category:'Koneksi',text:'Kirim pesan ke 1 orang yang lo appreciate — bilang lo menghargai mereka',why:'Gratitude expression ningkatin kebahagiaan pengirim lebih dari penerima.',gains:{CHA:1,STM:1},color:'#e07eb8'},
+  {mood:['all','ringan'],icon:'📰',category:'Awareness',text:'Baca berita atau artikel tentang current events — 15 menit',why:'Tetap aware sama dunia sekitar penting buat wawasan.',gains:{KNO:1,INT:1},color:'#c47ee0'},
+  {mood:['all','ringan'],icon:'🎯',category:'Refleksi Mingguan',text:'Review seminggu ini: apa yang lo capai, apa yang bisa lebih baik',why:'Weekly review adalah habit dari orang-orang paling produktif di dunia.',gains:{INT:1,DIS:1,FOC:1},color:'#5c9ee0'},
+  {mood:['all','fisik'],icon:'💪',category:'Strength',text:'50 push up — boleh dibagi beberapa set',why:'50 push up adalah benchmark yang solid. Kalau gampang, tambah.',gains:{STR:2,DIS:1},color:'#e05c5c'},
+  {mood:['all','fisik'],icon:'🏃',category:'Cardio',text:'Lari 20 menit non-stop — pace santai tapi jangan berhenti',why:'20 menit lari konsisten lebih baik dari 1 jam lari-berhenti-lari.',gains:{STM:2,STR:1,DIS:1},color:'#5ce08a'},
+  {mood:['all','fisik'],icon:'🏸',category:'Olahraga',text:'Main badminton, basket, atau futsal minimal 30 menit',why:'Olahraga yang fun bikin lo lebih konsisten jangka panjang.',gains:{STR:2,STM:2,CHA:1},color:'#e05c5c'},
+  {mood:['all','fisik'],icon:'🤸',category:'Bodyweight',text:'Circuit: 30 push up + 30 squat + 30 sit up. Ulangi 3x.',why:'Full body workout tanpa alat. Bisa dimana aja, kapan aja.',gains:{STR:2,STM:2,DIS:1},color:'#e05c5c'},
+  {mood:['all','fisik'],icon:'🧗',category:'Challenge',text:'Plank sampai gagal — catat waktunya, coba kalahkan besok',why:'Plank adalah benchmark disiplin fisik yang paling jujur.',gains:{STR:1,STM:2,DIS:2},color:'#e0a35c'},
+  {mood:['all','fisik'],icon:'🚿',category:'Disiplin',text:'Cold shower hari ini — masuk langsung, jangan pikir panjang',why:'Cold shower melatih mental lo untuk bertindak meski tidak nyaman.',gains:{DIS:3,STM:1},color:'#e0a35c'},
+  {mood:['all','fisik'],icon:'🏊',category:'Cardio',text:'Renang 30 menit — atau kalau tidak ada kolam, 400 jumping jack',why:'Full body cardio terbaik. Sendi lebih aman dari lari juga.',gains:{STR:2,STM:3},color:'#5ce08a'},
+  {mood:['all','fisik'],icon:'🦵',category:'Legs',text:'100 squat + 50 lunges — pelan tapi proper form',why:'Lower body strength sering diabaikan. Ini fixnya.',gains:{STR:2,STM:2},color:'#e05c5c'},
+  {mood:['all','fisik'],icon:'🤼',category:'Bela Diri',text:'Shadow boxing 15 menit — fokus footwork dan kombinasi pukulan',why:'Koordinasi, cardio, dan kepercayaan diri dalam satu latihan.',gains:{STR:1,STM:2,FOC:1},color:'#e05c5c'},
+  {mood:['all','fisik'],icon:'🚴',category:'Cardio',text:'Bersepeda 30 menit — keluar lingkungan, jangan di tempat',why:'Bersepeda keluar rumah ngasih dopamin lebih dari treadmill.',gains:{STM:2,STR:1},color:'#5ce08a'},
+  {mood:['all','fisik'],icon:'🏋️',category:'Gym',text:'Gym: fokus 1 muscle group hari ini, 4 set per exercise',why:'Progressive overload adalah satu-satunya cara otot tumbuh.',gains:{STR:3,DIS:1},color:'#e05c5c'},
+  {mood:['all','fisik'],icon:'⚽',category:'Olahraga Bareng',text:'Cari teman buat olahraga bareng — ajak minimal 2 orang',why:'Olahraga bareng bikin lo push harder dan lebih konsisten.',gains:{STR:2,STM:2,CHA:2},color:'#e05c5c'},
+  {mood:['all','fisik'],icon:'🤾',category:'HIIT',text:'HIIT 20 menit: 40 detik kerja keras, 20 detik istirahat, repeat',why:'20 menit HIIT membakar lebih banyak kalori dari 45 menit jogging.',gains:{STR:2,STM:3,DIS:1},color:'#e05c5c'},
+  {mood:['all','fisik'],icon:'🧘',category:'Yoga',text:'Yoga beginner 20 menit — cari video YouTube, ikutin',why:'Flexibility + balance + mental clarity dalam satu sesi.',gains:{STM:1,FOC:2,STR:1},color:'#5ce08a'},
+  {mood:['all','fisik'],icon:'🪜',category:'Strength',text:'100 pull up atau aussie pull up hari ini — boleh semua set',why:'Pull up adalah latihan paling fungsional untuk upper body.',gains:{STR:3,DIS:2},color:'#e05c5c'},
+  {mood:['all','fisik'],icon:'🥊',category:'Skip',text:'Skip/lompat tali 200 kali — boleh istirahat di tengah',why:'Skip adalah cardio paling underrated. Murah, efektif, bisa dimana aja.',gains:{STM:2,STR:1,DIS:1},color:'#5ce08a'},
+  {mood:['all','fisik'],icon:'🌄',category:'Outdoor',text:'Hiking atau jalan di tempat yang ada tanjakan — minimal 30 menit',why:'Incline walking membakar 60% lebih banyak kalori dari jalan biasa.',gains:{STM:2,STR:1,DIS:1},color:'#5ce08a'},
+  {mood:['all','fisik'],icon:'🏓',category:'Skill Motorik',text:'Main ping pong, tenis meja, atau lempar-tangkap apapun 20 menit',why:'Koordinasi tangan-mata adalah skill yang bisa ditraining.',gains:{FOC:1,STR:1,STM:1},color:'#e05c5c'},
+  {mood:['all','otak'],icon:'📚',category:'Knowledge',text:'Baca buku 30 menit non-stop — tidak ada HP di samping lo',why:'30 menit baca sehari = ~12 buku setahun. Compound effect nyata.',gains:{KNO:2,FOC:2},color:'#c47ee0'},
+  {mood:['all','otak'],icon:'🧩',category:'Problem Solving',text:'Kerjain 10 soal logika atau puzzle online — catat yang susah',why:'Latihan logika kayak gym buat otak. Makin sering, makin tajam.',gains:{INT:2,FOC:2},color:'#5c9ee0'},
+  {mood:['all','otak'],icon:'💻',category:'Tech Skill',text:'Pelajari 1 konsep programming atau AI selama 45 menit',why:'Skill tech adalah investasi terbaik sebelum kuliah. Mulai sekarang.',gains:{INT:2,KNO:2,FOC:1},color:'#5c9ee0'},
+  {mood:['all','otak'],icon:'🗺️',category:'Eksplorasi',text:'Pelajari 1 topik yang belum pernah lo tau sama sekali — 30 menit',why:'Curiosity adalah muscle. Semakin dilatih semakin kuat.',gains:{KNO:2,INT:1},color:'#c47ee0'},
+  {mood:['all','otak'],icon:'✍️',category:'Writing',text:'Tulis esai singkat 300 kata tentang sesuatu yang lo pelajari minggu ini',why:'Nulis paksa lo menyusun pikiran. Cara terbaik tahu lo ngerti atau tidak.',gains:{INT:2,KNO:1,FOC:2},color:'#5c9ee0'},
+  {mood:['all','otak'],icon:'🧠',category:'Deep Work',text:'Sesi belajar 1 jam fokus penuh — HP di luar kamar, timer on',why:'Deep work 1 jam = 3 jam belajar biasa dalam hal output nyata.',gains:{INT:2,KNO:2,FOC:3,DIS:1},color:'#5c9ee0'},
+  {mood:['all','otak'],icon:'🔢',category:'Matematika',text:'Kerjain 20 soal matematika atau statistik — tidak boleh pakai kalkulator',why:'Berhitung manual melatih kemampuan estimasi dan pattern recognition.',gains:{INT:2,FOC:2},color:'#5c9ee0'},
+  {mood:['all','otak'],icon:'🌐',category:'Bahasa',text:'Belajar 20 kata baru dalam bahasa Inggris atau bahasa lain',why:'Vocabulary adalah leverage. Satu kata baru = ribuan konteks baru.',gains:{KNO:2,INT:1},color:'#c47ee0'},
+  {mood:['all','otak'],icon:'📊',category:'Analisis',text:'Baca 1 artikel penelitian atau studi kasus — rangkum dalam 5 kalimat',why:'Baca academic paper melatih critical thinking dan reading comprehension.',gains:{INT:2,KNO:2,FOC:1},color:'#5c9ee0'},
+  {mood:['all','otak'],icon:'♟️',category:'Strategi',text:'Main catur 30 menit — offline atau online, terserah',why:'Catur melatih planning ahead, pattern recognition, dan decision making.',gains:{INT:2,FOC:2},color:'#5c9ee0'},
+  {mood:['all','otak'],icon:'🎤',category:'Feynman',text:'Jelaskan 1 konsep yang baru lo pelajari — ngomong sendiri, rekam',why:'Feynman Technique: kalau lo bisa jelasin sederhana, lo beneran ngerti.',gains:{INT:2,KNO:1,CHA:1},color:'#5c9ee0'},
+  {mood:['all','otak'],icon:'🗒️',category:'Mind Map',text:'Bikin mind map topik yang lagi lo pelajari — kertas atau digital',why:'Visual mapping meningkatkan retensi dan koneksi antar konsep.',gains:{INT:2,FOC:1,KNO:1},color:'#5c9ee0'},
+  {mood:['all','otak'],icon:'📐',category:'Coding',text:'Selesaikan 1 coding challenge di LeetCode atau HackerRank — level mudah',why:'Coding challenge melatih decomposition masalah dan logika algoritmik.',gains:{INT:3,FOC:2},color:'#5c9ee0'},
+  {mood:['all','otak'],icon:'🌍',category:'Sejarah & Geografi',text:'Pelajari sejarah atau geografi 1 negara yang lo belum pernah pelajari',why:'Context sejarah dan geografi bikin lo lebih kaya perspektif.',gains:{KNO:2,INT:1},color:'#c47ee0'},
+  {mood:['all','otak'],icon:'💡',category:'Ide',text:'Brainstorm 20 ide — topik bebas, tidak perlu yang bagus semua',why:'Ideation adalah skill. Makin sering dilatih, makin lancar.',gains:{INT:2,FOC:1},color:'#5c9ee0'},
+  {mood:['all','otak'],icon:'📜',category:'Filsafat',text:'Baca 1 artikel atau video tentang filsafat stoicism — catat 1 quote',why:'Stoicism adalah toolkit mental yang dipakai dari Marcus Aurelius sampai CEO.',gains:{INT:1,KNO:2,FOC:1},color:'#c47ee0'},
+  {mood:['all','otak'],icon:'🔬',category:'Sains',text:'Pelajari 1 fenomena ilmiah yang selama ini lo penasaran',why:'Scientific curiosity adalah fondasi dari semua inovasi.',gains:{KNO:2,INT:2},color:'#5c9ee0'},
+  {mood:['all','otak'],icon:'📈',category:'Finansial',text:'Pelajari 1 konsep finansial dasar: compound interest, inflasi, atau investasi',why:'Financial literacy tidak diajarkan di sekolah tapi krusial.',gains:{KNO:2,INT:1},color:'#c47ee0'},
+  {mood:['all','otak'],icon:'🎙️',category:'TED Talk',text:'Dengarkan TED Talk yang relevan dengan goal lo — catat 3 insights',why:'15 menit TED Talk bisa kasih perspektif yang butuh bertahun-tahun.',gains:{KNO:2,INT:1,FOC:1},color:'#c47ee0'},
+  {mood:['all','otak'],icon:'🔍',category:'Research',text:'Deep dive 1 topik di Wikipedia — klik link-link yang menarik 30 menit',why:'Wikipedia rabbit hole adalah salah satu cara belajar paling underrated.',gains:{KNO:2,INT:1},color:'#c47ee0'},
+  {mood:['all','sosial'],icon:'📞',category:'Koneksi',text:'Telepon atau video call teman/keluarga yang udah lama tidak kontak',why:'Koneksi sosial itu fuel. Lo sering lupa betapa pentingnya ini.',gains:{CHA:2,STM:1},color:'#e07eb8'},
+  {mood:['all','sosial'],icon:'🤝',category:'Networking',text:'Kenalan sama 1 orang baru hari ini — bisa online atau offline',why:'Setiap orang yang lo kenal adalah potential opportunity di masa depan.',gains:{CHA:3},color:'#e07eb8'},
+  {mood:['all','sosial'],icon:'🗣️',category:'Public Speaking',text:'Rekam diri lo ngomong 2 menit tentang topik yang lo suka — review',why:'Public speaking dimulai dari self-awareness. Ini langkah pertamanya.',gains:{CHA:2,FOC:1,DIS:1},color:'#e07eb8'},
+  {mood:['all','sosial'],icon:'💬',category:'Komunitas',text:'Temukan 1 forum atau komunitas online sesuai minat — ikut diskusi',why:'Komunitas yang tepat bisa ubah trajectory hidup lo.',gains:{CHA:2,KNO:1},color:'#e07eb8'},
+  {mood:['all','sosial'],icon:'🧑‍🤝‍🧑',category:'Quality Time',text:'Habiskan waktu berkualitas dengan keluarga — makan bareng atau ngobrol',why:'Hubungan keluarga yang kuat adalah safety net terkuat yang lo punya.',gains:{CHA:1,STM:2},color:'#e07eb8'},
+  {mood:['all','sosial'],icon:'🎭',category:'Empati',text:'Tanya kabar seseorang dan dengerin beneran — tidak sambil HP',why:'Active listening adalah skill paling langka dan paling dihargai.',gains:{CHA:2,FOC:1},color:'#e07eb8'},
+  {mood:['all','sosial'],icon:'🙏',category:'Apresiasi',text:'Tulis surat atau pesan panjang ke orang yang paling berpengaruh di hidup lo',why:'Gratitude yang diekspresikan bikin hubungan lebih dalam.',gains:{CHA:2,INT:1},color:'#e07eb8'},
+  {mood:['all','sosial'],icon:'🤲',category:'Kontribusi',text:'Bantu seseorang hari ini — tanpa diminta, tanpa ekspektasi balik',why:'Altruism meningkatkan self-esteem dan sense of purpose.',gains:{CHA:2,STM:1},color:'#e07eb8'},
+  {mood:['all','sosial'],icon:'🎓',category:'Sharing',text:'Ajari sesuatu ke orang lain — apapun yang lo tau lebih dari mereka',why:'Teaching is the best learning. Dan lo bikin orang lain lebih pinter.',gains:{CHA:2,KNO:1,INT:1},color:'#e07eb8'},
+  {mood:['all','sosial'],icon:'🌐',category:'Digital',text:'Post sesuatu yang berguna di media sosial — insight, tips, atau cerita',why:'Sharing value online adalah networking yang bekerja saat lo tidur.',gains:{CHA:2,KNO:1},color:'#e07eb8'},
+  {mood:['all','sosial'],icon:'☕',category:'Hangout',text:'Ajak 1 teman ngopi atau jalan bareng — no agenda, just talk',why:'Casual hangout itu recharge buat introvert dan extrovert sama-sama.',gains:{CHA:2,STM:1},color:'#e07eb8'},
+  {mood:['all','sosial'],icon:'🏆',category:'Kompetisi',text:'Ikut event, lomba, atau kompetisi apapun — cari yang bisa diikutin',why:'Kompetisi adalah cara tercepat untuk tahu level lo yang sesungguhnya.',gains:{CHA:2,DIS:1,INT:1},color:'#e07eb8'},
+  {mood:['all','kreatif'],icon:'🎸',category:'Musik',text:'Latihan gitar atau instrumen lain 30 menit — fokus 1 skill',why:'Musik melatih koordinasi tangan-otak dan disiplin sekaligus.',gains:{FOC:2,DIS:2,KNO:1},color:'#c47ee0'},
+  {mood:['all','kreatif'],icon:'🎨',category:'Visual Art',text:'Gambar atau desain sesuatu selama 20 menit — apapun, bebas',why:'Kreativitas visual melatih spatial thinking dan problem solving.',gains:{FOC:2,INT:1},color:'#c47ee0'},
+  {mood:['all','kreatif'],icon:'📷',category:'Fotografi',text:'Keluar rumah, foto 10 hal menarik yang biasa lo lewatin',why:'Fotografi melatih lo melihat dunia dengan perspektif berbeda.',gains:{FOC:2,KNO:1,STM:1},color:'#5ce0d8'},
+  {mood:['all','kreatif'],icon:'🍳',category:'Memasak',text:'Masak 1 resep yang belum pernah lo coba — from scratch',why:'Masak melatih fokus, kreativitas, dan ada hasil nyata yang bisa dimakan.',gains:{FOC:1,DIS:1,KNO:1},color:'#e0a35c'},
+  {mood:['all','kreatif'],icon:'🎬',category:'Video',text:'Bikin video pendek 60 detik — boleh tentang apapun',why:'Video creation melatih komunikasi dan storytelling yang sangat berguna.',gains:{CHA:2,FOC:1,KNO:1},color:'#e07eb8'},
+  {mood:['all','kreatif'],icon:'✒️',category:'Fiksi',text:'Tulis cerita pendek 500 kata — setting bebas, karakter bebas',why:'Creative writing melatih empati, imajinasi, dan kemampuan narasi.',gains:{INT:2,FOC:2,KNO:1},color:'#c47ee0'},
+  {mood:['all','kreatif'],icon:'🎹',category:'Komposisi',text:'Coba compose melodi sederhana — bisa di HP pakai app musik',why:'Komposisi musik melatih kemampuan berpikir struktural dan kreativitas.',gains:{INT:1,FOC:2,KNO:1},color:'#c47ee0'},
+  {mood:['all','kreatif'],icon:'🖌️',category:'Desain',text:'Bikin desain poster atau banner simpel — pakai Canva atau app lain',why:'Visual communication adalah skill yang sangat berharga di dunia digital.',gains:{FOC:2,INT:1,KNO:1},color:'#c47ee0'},
+  {mood:['all','kreatif'],icon:'🎭',category:'Akting',text:'Baca script atau dialog film favorit lo dengan suara keras dan ekspresif',why:'Ekspresi vokal dan emosi adalah komponen krusial dari charisma.',gains:{CHA:2,FOC:1},color:'#e07eb8'},
+  {mood:['all','kreatif'],icon:'🏺',category:'DIY',text:'Bikin sesuatu dari bahan yang ada di rumah — origami, dekorasi, apapun',why:'Making things dengan tangan melatih patience dan fine motor skills.',gains:{FOC:2,DIS:1,INT:1},color:'#c47ee0'},
+  {mood:['all','kreatif'],icon:'🗣️',category:'Storytelling',text:'Latihan ceritakan kembali film atau buku yang baru lo tonton/baca',why:'Kemampuan bercerita adalah skill paling berharga di networking.',gains:{CHA:2,INT:1,FOC:1},color:'#e07eb8'},
+  {mood:['all','kreatif'],icon:'🌱',category:'Tanaman',text:'Rawat atau tanam sesuatu — pot kecil pun cukup',why:'Merawat sesuatu yang hidup melatih kesabaran dan tanggung jawab.',gains:{DIS:1,STM:1,FOC:1},color:'#5ce08a'},
+  {mood:['all','kreatif'],icon:'🎲',category:'Game Design',text:'Desain aturan game sederhana — board game, card game, atau game fisik',why:'Game design melatih systems thinking dan creative problem solving.',gains:{INT:2,FOC:2,KNO:1},color:'#5c9ee0'},
+  {mood:['all','kreatif'],icon:'🗃️',category:'Dokumentasi',text:'Dokumentasikan hari ini dalam bentuk foto, tulisan, atau sketsa',why:'Dokumentasi hidup lo bikin lo lebih intentional dan reflektif.',gains:{FOC:1,INT:1,DIS:1},color:'#c47ee0'},
+  {mood:['all','outdoor'],icon:'🌄',category:'Alam',text:'Hiking atau jalan ke tempat tinggi — nikmatin pemandangannya',why:'Alam terbuka nurunin stres dan bikin otak lebih kreatif.',gains:{STM:2,STR:1,FOC:1},color:'#5ce08a'},
+  {mood:['all','outdoor'],icon:'🚴',category:'Gowes',text:'Bersepeda explore area baru yang belum pernah lo datengin',why:'Eksplorasi fisik bikin lo lebih kenal lingkungan dan ningkatin dopamin.',gains:{STM:2,STR:1,KNO:1},color:'#5ce08a'},
+  {mood:['all','outdoor'],icon:'📸',category:'Street Photography',text:'Jalan kaki 30 menit sambil foto hal-hal menarik di jalanan',why:'Observasi lingkungan melatih perhatian terhadap detail.',gains:{FOC:2,KNO:1,STM:1},color:'#5ce0d8'},
+  {mood:['all','outdoor'],icon:'☕',category:'Kafe Baru',text:'Pergi ke kafe atau tempat baru yang belum pernah lo coba — bawa buku',why:'Environment baru bikin otak lebih alert dan kreatif.',gains:{KNO:1,FOC:1,STM:1},color:'#e0a35c'},
+  {mood:['all','outdoor'],icon:'🏃',category:'Lari Rute Baru',text:'Lari pagi 25 menit di route yang berbeda dari biasanya',why:'Rute baru bikin otak tetap engage dan tidak autopilot.',gains:{STR:1,STM:2,FOC:1},color:'#5ce08a'},
+  {mood:['all','outdoor'],icon:'🌊',category:'Alam',text:'Pergi ke tempat air — sungai, danau, pantai, atau kolam renang',why:'Air punya efek calming yang terbukti secara neuroscience.',gains:{STM:1,FOC:2},color:'#5ce0d8'},
+  {mood:['all','outdoor'],icon:'🧺',category:'Social Outdoor',text:'Ajak teman atau keluarga piknik atau santai di taman',why:'Outdoor social time adalah kombinasi terbaik untuk wellbeing.',gains:{CHA:2,STM:2},color:'#e07eb8'},
+  {mood:['all','outdoor'],icon:'🌿',category:'Eksplorasi',text:'Jelajahi area di sekitar rumah lo yang belum pernah lo masuki',why:'Curiosity geografis melatih sense of adventure dan mindfulness.',gains:{KNO:1,STM:1,FOC:1},color:'#5ce08a'},
+  {mood:['all','outdoor'],icon:'🎯',category:'Olahraga Luar',text:'Main frisbee, badminton, atau olahraga apapun di luar rumah',why:'Outdoor exercise memberikan vitamin D dan mood boost ekstra.',gains:{STR:2,STM:1,CHA:1},color:'#e05c5c'},
+  {mood:['all','outdoor'],icon:'🧹',category:'Komunitas',text:'Bersihkan area publik di sekitar rumah lo — minimal 15 menit',why:'Kontribusi ke lingkungan ninggalin sense of purpose yang nyata.',gains:{DIS:2,CHA:1,STM:1},color:'#e0a35c'},
+  {mood:['all','challenge'],icon:'🥶',category:'Mental Toughness',text:'Cold shower 5 menit penuh — timer on, tidak boleh keluar sebelum selesai',why:'5 menit cold shower adalah latihan mental terkeras yang bisa lo lakuin hari ini.',gains:{DIS:3,STM:2},color:'#e0a35c'},
+  {mood:['all','challenge'],icon:'💪',category:'Max Out',text:'Push up sampai benar-benar tidak bisa lagi — catat rekor lo',why:'Max effort sesekali penting untuk breakthrough dari plateau.',gains:{STR:3,DIS:2},color:'#e05c5c'},
+  {mood:['all','challenge'],icon:'⏱️',category:'Speed Run',text:'Selesaikan 1 task penting yang sudah lo tunda — timer 25 menit, no distraksi',why:'Deadline buatan sendiri adalah cara terbaik melawan prokrastinasi.',gains:{DIS:3,FOC:2},color:'#e0a35c'},
+  {mood:['all','challenge'],icon:'🤐',category:'No HP',text:'Tidak pegang HP sama sekali selama 3 jam ke depan',why:'3 jam tanpa HP adalah challenge paling susah di era sekarang. Prove yourself.',gains:{DIS:3,FOC:3},color:'#5ce0d8'},
+  {mood:['all','challenge'],icon:'🏋️',category:'Volume Training',text:'200 squat + 100 push up + 100 sit up — boleh istirahat tapi harus selesai',why:'Volume tinggi membangun mental endurance sekaligus fisik.',gains:{STR:3,STM:3,DIS:2},color:'#e05c5c'},
+  {mood:['all','challenge'],icon:'🎤',category:'Comfort Zone',text:'Ngobrol dengan orang yang tidak lo kenal hari ini — mulai percakapan',why:'Social anxiety dikalahkan satu percakapan random setiap kali.',gains:{CHA:3,DIS:2},color:'#e07eb8'},
+  {mood:['all','challenge'],icon:'🌅',category:'Early Rise',text:'Bangun jam 5 pagi besok — set alarm sekarang, tidak ada snooze',why:'Bangun pagi bukan soal jam, tapi soal siapa yang mengontrol hari lo.',gains:{DIS:3,STM:1},color:'#e0a35c'},
+  {mood:['all','challenge'],icon:'📵',category:'Digital Detox',text:'Hapus semua media sosial dari HP lo untuk 24 jam',why:'Digital detox 24 jam bikin lo sadar betapa banyak waktu yang terbuang.',gains:{DIS:3,FOC:2,STM:1},color:'#5ce0d8'},
+  {mood:['all','challenge'],icon:'🧊',category:'Eat The Frog',text:'Kerjain 1 hal yang paling lo hindari — langsung, sekarang, tidak ada alasan',why:'Eat the frog: kalau lo harus makan katak, makan yang paling besar dulu.',gains:{DIS:3,INT:1,FOC:2},color:'#e0a35c'},
+  {mood:['all','challenge'],icon:'🏆',category:'Personal Best',text:'Pilih 1 aktivitas fisik dan coba kalahkan record pribadi lo',why:'Personal bests adalah bukti nyata bahwa lo berkembang.',gains:{STR:2,STM:2,DIS:2},color:'#e05c5c'},
+  {mood:['all','challenge'],icon:'🗣️',category:'Improv',text:'Presentasikan sesuatu ke kamera selama 5 menit tanpa naskah',why:'Impromptu speaking adalah skill yang membedakan orang biasa dan luar biasa.',gains:{CHA:3,FOC:2,DIS:1},color:'#e07eb8'},
+  {mood:['all','challenge'],icon:'🍽️',category:'Fasting',text:'Intermittent fast: tidak makan 16 jam — hanya air dan teh',why:'IF melatih kontrol diri dan punya banyak benefit kesehatan terbukti.',gains:{DIS:3,STM:1},color:'#e0a35c'},
+  {mood:['all','inspirasi'],icon:'📖',category:'Biografi',text:'Baca atau tonton kisah hidup tokoh yang lo kagumi — 30 menit',why:'Biografi orang sukses adalah blueprint yang bisa lo reverse engineer.',gains:{KNO:2,INT:1,DIS:1},color:'#c47ee0'},
+  {mood:['all','inspirasi'],icon:'🎬',category:'Dokumenter',text:'Tonton dokumenter inspiratif — nature, sains, atau human interest',why:'Dokumenter yang bagus bisa ubah cara pandang lo dalam 1 jam.',gains:{KNO:2,INT:1,FOC:1},color:'#c47ee0'},
+  {mood:['all','inspirasi'],icon:'💭',category:'Visi',text:'Tulis gambaran hidup lo 5 tahun dari sekarang — sespesifik mungkin',why:'Clarity tentang masa depan adalah motivasi terkuat yang ada.',gains:{INT:2,DIS:1,FOC:2},color:'#5c9ee0'},
+  {mood:['all','inspirasi'],icon:'📜',category:'Quote',text:'Cari 5 quote dari tokoh yang lo respect — tulis yang paling lo relate',why:'Kata-kata yang tepat bisa jadi anchor di saat lo butuh motivasi.',gains:{KNO:1,INT:1,FOC:1},color:'#c47ee0'},
+  {mood:['all','inspirasi'],icon:'🎵',category:'Playlist Motivasi',text:'Bikin playlist motivasi — lagu-lagu yang bikin lo ngerasa invincible',why:'Musik yang tepat secara literal mengaktifkan dopamine circuit di otak lo.',gains:{STM:2,FOC:1},color:'#e07eb8'},
+  {mood:['all','inspirasi'],icon:'🌟',category:'Role Model',text:'Research mendalam tentang 1 orang yang lo ingin tiru — buat notes',why:'Meniru yang terbaik bukan curang, itu strategi paling efisien.',gains:{KNO:2,INT:2},color:'#c47ee0'},
+  {mood:['all','inspirasi'],icon:'🗺️',category:'Big Picture',text:'Gambar mind map tentang semua hal yang mau lo capai dalam hidup',why:'Melihat big picture mengurangi kecemasan tentang hari-hari kecil.',gains:{INT:2,FOC:2,DIS:1},color:'#5c9ee0'},
+  {mood:['all','inspirasi'],icon:'🧭',category:'Nilai Hidup',text:'Tulis 5 nilai hidup terpenting lo dan kenapa — jujur, tidak perlu bagus',why:'Mengetahui nilai lo adalah kompas yang tidak pernah salah arah.',gains:{INT:2,FOC:1},color:'#5c9ee0'},
+  {mood:['all','inspirasi'],icon:'📚',category:'Wisdom',text:'Baca chapter pertama buku self-development yang sudah lama lo tunda',why:'Satu chapter pertama sudah cukup untuk ubah mindset lo hari ini.',gains:{KNO:2,INT:1,FOC:1},color:'#c47ee0'},
+  {mood:['all','inspirasi'],icon:'✉️',category:'Letter to Future Self',text:'Tulis surat untuk diri lo 1 tahun ke depan — jujur tentang harapan lo',why:'Menulis untuk diri masa depan bikin lo lebih accountable dan intentional.',gains:{INT:2,DIS:1,FOC:2},color:'#5c9ee0'},
+  {mood:['all','produktif'],icon:'📋',category:'Planning',text:'Buat weekly plan yang detail — harian, per jam, spesifik',why:'Orang yang menulis rencana 42% lebih mungkin mencapainya.',gains:{DIS:2,INT:2,FOC:1},color:'#e0a35c'},
+  {mood:['all','produktif'],icon:'🧹',category:'Digital Cleanup',text:'Bersihkan inbox email, folder download, dan galeri HP lo',why:'Digital clutter punya efek yang sama dengan physical clutter ke fokus.',gains:{FOC:2,DIS:2},color:'#5ce0d8'},
+  {mood:['all','produktif'],icon:'📊',category:'Tracking',text:'Buat spreadsheet atau catatan untuk tracking progress goal lo',why:'Yang bisa diukur bisa dimanage. Yang dimanage bisa ditingkatkan.',gains:{INT:2,DIS:1,FOC:1},color:'#5c9ee0'},
+  {mood:['all','produktif'],icon:'⚙️',category:'Sistem',text:'Identifikasi 1 kebiasaan buruk dan desain sistem untuk menggantinya',why:'Habits are systems. Ubah sistemnya, bukan hanya willpower-nya.',gains:{INT:2,DIS:2,FOC:1},color:'#e0a35c'},
+  {mood:['all','produktif'],icon:'📚',category:'Skill Building',text:'Luangkan 45 menit untuk belajar skill yang relevan dengan karir lo',why:'1 jam per hari belajar skill baru = expert dalam 5 tahun.',gains:{KNO:2,INT:1,DIS:1},color:'#c47ee0'},
+  {mood:['all','produktif'],icon:'🗂️',category:'Organisasi',text:'Rapiin semua file dan catatan lo — digital dan fisik',why:'Sistem organisasi yang baik menghemat 20-30 menit per hari.',gains:{DIS:2,FOC:1,INT:1},color:'#e0a35c'},
+  {mood:['all','produktif'],icon:'💼',category:'Portfolio',text:'Update atau mulai buat portfolio — apapun bentuknya',why:'Portfolio adalah bukti nyata skill lo. Mulai sekarang sebelum butuh.',gains:{KNO:1,INT:2,DIS:1},color:'#5c9ee0'},
+  {mood:['all','produktif'],icon:'🔧',category:'Problem Solving',text:'Identifikasi 1 masalah dalam rutinitas lo dan brainstorm solusinya',why:'Problem solving mindset adalah skill yang paling dicari di dunia kerja.',gains:{INT:3,FOC:2},color:'#5c9ee0'},
+  {mood:['all','produktif'],icon:'⏰',category:'Time Audit',text:'Track semua aktivitas lo hari ini per jam — tulis jujur',why:'Time audit bikin lo sadar kemana waktu lo beneran pergi.',gains:{INT:1,DIS:2,FOC:1},color:'#e0a35c'},
+  {mood:['all','produktif'],icon:'🎯',category:'Pomodoro',text:'Pomodoro session: 4x 25 menit fokus penuh dengan 5 menit istirahat',why:'Pomodoro technique adalah salah satu productivity method paling proven.',gains:{FOC:3,DIS:2,INT:1},color:'#5ce0d8'},
+];
+
+let activeMood='all',currentRollResult=null;
+
+function initRoll(){renderMoodChips();renderRollHistory();}
+function renderMoodChips(){document.getElementById('mood-chips').innerHTML=MOODS.map(m=>`<div class="mood-chip ${activeMood===m.id?'active':''}" onclick="setMood('${m.id}')"><i class="fa-solid ${m.icon}" style="font-size:0.75rem"></i> ${m.label}</div>`).join('');}
+function setMood(id){activeMood=id;renderMoodChips();}
+function doRoll(){
+  const pool=ACTIVITIES.filter(a=>a.mood.includes(activeMood));if(!pool.length)return;
+  document.getElementById('roll-done-overlay').classList.remove('show');
+  const btn=document.getElementById('roll-btn');btn.classList.add('rolling');
+  let ticks=0;
+  const iv=setInterval(()=>{
+    const r=pool[Math.floor(Math.random()*pool.length)];
+    document.getElementById('roll-result-activity').textContent=r.text;
+    ticks++;if(ticks>=12){clearInterval(iv);btn.classList.remove('rolling');
+      const final=pool[Math.floor(Math.random()*pool.length)];currentRollResult=final;showRollResult(final);}
+  },60);
+}
+function showRollResult(act){
+  document.getElementById('roll-result-category').textContent=act.category;
+  document.getElementById('roll-result-category').style.color=act.color;
+  document.getElementById('roll-result-activity').textContent=act.text;
+  document.getElementById('roll-result-why').textContent=act.why;
+  document.getElementById('roll-result-stats').innerHTML=Object.entries(act.gains).map(([k,v])=>{const m=STAT_META[k];return`<div class="roll-stat-tag" style="background:${hexAlpha(m.color,0.15)};color:${m.color};border:1px solid ${hexAlpha(m.color,0.25)}">+${v} ${k}</div>`;}).join('');
+  document.getElementById('roll-result-card').classList.add('show');
+  document.getElementById('roll-result-card').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+function rollDoThis(){
+  if(!currentRollResult)return;
+  const data=loadData();Object.entries(currentRollResult.gains).forEach(([k,v])=>{data.stats[k]=(data.stats[k]||0)+v;});saveData(data);
+  const logs=loadLogs(),now=new Date(),ts=`${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
+  logs.unshift({text:currentRollResult.text,gains:currentRollResult.gains,time:ts,date:now.toDateString(),source:'roll'});saveLogs(logs);
+  const decay=loadDecay();Object.keys(currentRollResult.gains).forEach(k=>{if(!decay[k])decay[k]={};decay[k].lastActivity=TODAY_ISO;});saveDecay(decay);
+  const rh=loadRollHistory();rh.unshift({text:currentRollResult.text,icon:currentRollResult.icon,color:currentRollResult.color,time:ts,date:now.toDateString(),gains:currentRollResult.gains});saveRollHistory(rh.slice(0,20));
+  const gt=Object.entries(currentRollResult.gains).map(([k,v])=>`+${v} ${k}`).join(' ');
+  document.getElementById('roll-done-gains').textContent='Stats naik: '+gt;
+  document.getElementById('roll-done-overlay').classList.add('show');
+  renderRollHistory();showToast('Dicatat ke log! Stats naik.');
+  triggerGlitch(currentRollResult.gains);
+  setTimeout(autoCheckAchievements,500);
+  setTimeout(()=>{document.getElementById('roll-done-overlay').classList.remove('show');currentRollResult=null;},2500);
+}
+function renderRollHistory(){
+  const rh=loadRollHistory(),todayRH=rh.filter(h=>h.date===TODAY),c=document.getElementById('roll-history-container');
+  if(!todayRH.length){c.innerHTML='<div class="history-empty">Belum ada roll hari ini. Tap dice di atas!</div>';return;}
+  c.innerHTML='<div class="history-list">'+todayRH.map(h=>`<div class="history-item"><div class="history-icon" style="background:${hexAlpha(h.color,0.12)}">${h.icon}</div><div class="history-body"><div class="history-text">${h.text}</div><div class="history-time">${h.time} · ${Object.entries(h.gains).map(([k,v])=>`+${v} ${k}`).join(' ')}</div></div></div>`).join('')+'</div>';
+}
+function clearRollHistory(){saveRollHistory(loadRollHistory().filter(h=>h.date!==TODAY));renderRollHistory();showToast('History hari ini dihapus');}
+
+function resetAllData(){
+  const keys=['plt_data','plt_profile','plt_logs','plt_goals','plt_quests','plt_challenges','plt_decay','plt_roll_history','plt_gemini_key'];
+  keys.forEach(k=>localStorage.removeItem(k));
+  showToast('Semua data direset. App fresh!');
+  setTimeout(()=>location.reload(),1200);
+}
+
+function confirmReset(){
+  // Simple confirm — double tap to confirm
+  if(!window._resetConfirm){
+    window._resetConfirm=true;
+    showToast('Tap sekali lagi untuk konfirmasi reset');
+    setTimeout(()=>{window._resetConfirm=false;},3000);
+  } else {
+    window._resetConfirm=false;
+    resetAllData();
+  }
+}
+
+// ════════════════════════════════════════════════════════
+// GLITCH EFFECT
+// ════════════════════════════════════════════════════════
+
+function triggerGlitch(gains, sourceElement) {
+  // 1. Screen glitch
+  const overlay = document.getElementById('glitch-overlay');
+  const body    = document.body;
+
+  // Reset and retrigger animations by cloning nodes
+  const layer1 = document.getElementById('glitch-layer1');
+  const layer2 = document.getElementById('glitch-layer2');
+  const flash  = document.getElementById('glitch-flash');
+  const scan   = document.getElementById('glitch-scanline');
+
+  [layer1,layer2,flash,scan].forEach(el=>{
+    el.style.animation='none';
+    el.offsetHeight; // reflow
+    el.style.animation='';
+  });
+
+  overlay.classList.add('active');
+  body.classList.add('glitching');
+
+  setTimeout(()=>{
+    overlay.classList.remove('active');
+    body.classList.remove('glitching');
+  }, 450);
+
+  // 2. Float-up numbers for each stat gained
+  if(gains){
+    Object.entries(gains).forEach(([statKey, pts], idx) => {
+      setTimeout(()=>{
+        const meta = STAT_META[statKey];
+        if(!meta) return;
+
+        // Find the stat card element if on stats page
+        const card = document.querySelector(`.stat-card[data-stat="${statKey}"]`);
+        if(card) {
+          card.classList.remove('popping');
+          card.offsetHeight;
+          card.classList.add('popping');
+          setTimeout(()=>card.classList.remove('popping'), 400);
+        }
+
+        // Spawn floating number at random position near center-ish
+        const floater = document.createElement('div');
+        floater.className = 'float-pts';
+        floater.textContent = `+${pts} ${statKey}`;
+        floater.style.color = meta.color;
+        floater.style.textShadow = `0 0 10px ${meta.color}`;
+
+        // Position: spread across screen width, vertically mid-screen
+        const x = 20 + Math.random() * 60; // 20-80% across
+        const y = 30 + Math.random() * 40; // 30-70% down
+        floater.style.left = x + 'vw';
+        floater.style.top  = y + 'vh';
+
+        document.body.appendChild(floater);
+        setTimeout(()=>floater.remove(), 1000);
+      }, idx * 120);
+    });
+  }
+}
+
+// ════════════════════════════════════════════════════════
+// STAT HISTORY
+// ════════════════════════════════════════════════════════
+
+function showStatHistory(statKey, statName, color) {
+  const logs      = loadLogs();
+  const challenges= loadCH();
+  const allHistory= [];
+
+  // From activity logs
+  logs.forEach(log => {
+    if(log.gains && log.gains[statKey] > 0) {
+      allHistory.push({
+        pts:    log.gains[statKey],
+        text:   log.text,
+        time:   log.time,
+        date:   log.date,
+        source: log.source === 'roll' ? 'ROLL' : 'LOG',
+        positive: true,
+      });
+    }
+  });
+
+  // From quest completions (stored in logs too, but tag quest separately)
+  // Check challenge completions
+  const chComp = challenges[statKey]?.completions || 0;
+  if(chComp > 0) {
+    allHistory.push({
+      pts: chComp * 5,
+      text: `Challenge Quest selesai ×${chComp}`,
+      time: '', date: '',
+      source: 'CHALLENGE',
+      positive: true,
+    });
+  }
+
+  // Sort: newest first (by date+time)
+  allHistory.sort((a,b) => {
+    if(!a.date) return 1;
+    if(!b.date) return -1;
+    return new Date(b.date+' '+b.time) - new Date(a.date+' '+a.time);
+  });
+
+  // Total gained
+  const totalGained = allHistory.filter(h=>h.positive).reduce((s,h)=>s+h.pts,0);
+  const currentVal  = loadData().stats[statKey] || 0;
+  const initVal     = {STR:12,INT:22,STM:10,KNO:18,DIS:8,FOC:11,CHA:15}[statKey] || 0;
+  const netGain     = currentVal - initVal;
+
+  // Render
+  document.getElementById('sh-dot').style.background = color;
+  document.getElementById('sh-title').textContent    = statName + ' History';
+  document.getElementById('sh-total').innerHTML      = `<span style="color:${color}">${currentVal} pts</span> &nbsp;·&nbsp; net <span style="color:var(--green)">+${netGain}</span>`;
+
+  const list = document.getElementById('sh-list');
+  if(!allHistory.length) {
+    list.innerHTML = '<div class="sh-empty">Belum ada riwayat untuk stat ini.<br>Mulai log aktivitas!</div>';
+  } else {
+    list.innerHTML = allHistory.slice(0,30).map(h => {
+      const srcColors = {LOG:'var(--accent-blue)',ROLL:'var(--accent)',CHALLENGE:'var(--green)',QUEST:color};
+      const srcColor  = srcColors[h.source] || 'var(--subtext)';
+      const dateStr   = h.date ? h.date.replace(/ \d{4}/,'') + (h.time?' '+h.time:'') : '';
+      return `<div class="sh-item">
+        <div class="sh-source" style="color:${srcColor}">${h.source}</div>
+        <div style="flex:1;min-width:0">
+          <div class="sh-text">${h.text}</div>
+          ${dateStr?`<div class="sh-date">${dateStr}</div>`:''}
+        </div>
+        <div class="sh-pts" style="color:${color}">+${h.pts}</div>
+      </div>`;
+    }).join('');
+  }
+
+  openModal('stat-history-modal');
+}
+
+// ════════════════════════════════════════════════════════
+// PAGE SWITCH GLITCH (lighter than stat glitch)
+// ════════════════════════════════════════════════════════
+function triggerPageGlitch() {
+  const overlay = document.getElementById('glitch-overlay');
+  const body    = document.body;
+  [document.getElementById('glitch-layer1'),
+   document.getElementById('glitch-layer2'),
+   document.getElementById('glitch-flash'),
+   document.getElementById('glitch-scanline')].forEach(el=>{
+    el.style.animation='none'; el.offsetHeight; el.style.animation='';
+  });
+  // Shorter/lighter version — reduce opacity
+  overlay.style.opacity='0.6';
+  overlay.classList.add('active');
+  body.classList.add('glitching');
+  setTimeout(()=>{ overlay.classList.remove('active'); overlay.style.opacity=''; body.classList.remove('glitching'); }, 280);
+  // Light page-switch sound
+  try {
+    const ctx = new(window.AudioContext||window.webkitAudioContext)();
+    const t   = ctx.currentTime;
+    const o   = ctx.createOscillator(), g = ctx.createGain();
+    o.type = 'square';
+    o.frequency.setValueAtTime(180, t);
+    o.frequency.exponentialRampToValueAtTime(320, t + 0.12);
+    g.gain.setValueAtTime(0.06, t);
+    g.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
+    o.connect(g); g.connect(ctx.destination);
+    o.start(t); o.stop(t + 0.2);
+  } catch(e) {}
+}
+
+// ════════════════════════════════════════════════════════
+// ANIMATED BACKGROUND
+// ════════════════════════════════════════════════════════
+(function initBgCanvas() {
+  const canvas = document.getElementById('bg-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  let W, H, particles = [], grid = [];
+  const COLORS = ['#1e40ff','#7c3aed','#0ea5e9','#10b981','#60b4ff','#e0b860'];
+
+  function resize() {
+    W = canvas.width  = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+
+  // Particles — slow floating orbs
+  function initParticles() {
+    particles = [];
+    const count = Math.floor((W * H) / 18000);
+    for (let i = 0; i < count; i++) {
+      particles.push({
+        x: Math.random() * W,
+        y: Math.random() * H,
+        r: 1.5 + Math.random() * 3,
+        vx: (Math.random() - 0.5) * 0.3,
+        vy: (Math.random() - 0.5) * 0.3,
+        color: COLORS[Math.floor(Math.random() * COLORS.length)],
+        alpha: 0.3 + Math.random() * 0.5,
+        pulse: Math.random() * Math.PI * 2,
+        pulseSpeed: 0.01 + Math.random() * 0.02,
+      });
+    }
+  }
+
+  // Grid lines — subtle hex/circuit pattern
+  function drawGrid() {
+    const size = 60;
+    ctx.strokeStyle = 'rgba(96,180,255,0.04)';
+    ctx.lineWidth = 0.5;
+    for (let x = 0; x < W; x += size) {
+      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+    }
+    for (let y = 0; y < H; y += size) {
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+    }
+    // Diagonal cross lines every 4 cells
+    ctx.strokeStyle = 'rgba(96,180,255,0.025)';
+    for (let x = 0; x < W + H; x += size * 4) {
+      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x - H, H); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(x - W, 0); ctx.lineTo(x, H); ctx.stroke();
+    }
+  }
+
+  // Moving aurora bands at top
+  let auroraT = 0;
+  function drawAurora() {
+    auroraT += 0.004;
+    const bands = [
+      { y: H * 0.15, color: '30,64,255', w: H * 0.4 },
+      { y: H * 0.35, color: '124,58,237', w: H * 0.3 },
+      { y: H * 0.08, color: '14,165,233', w: H * 0.25 },
+    ];
+    bands.forEach((b, i) => {
+      const offset = Math.sin(auroraT + i * 1.2) * 40;
+      const grad   = ctx.createLinearGradient(0, b.y + offset - b.w/2, 0, b.y + offset + b.w/2);
+      grad.addColorStop(0,   `rgba(${b.color},0)`);
+      grad.addColorStop(0.5, `rgba(${b.color},0.06)`);
+      grad.addColorStop(1,   `rgba(${b.color},0)`);
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, b.y + offset - b.w/2, W, b.w);
+    });
+  }
+
+  // Corner glow
+  function drawCornerGlow() {
+    const g1 = ctx.createRadialGradient(0, 0, 0, 0, 0, W * 0.5);
+    g1.addColorStop(0,   'rgba(30,64,255,0.08)');
+    g1.addColorStop(1,   'rgba(30,64,255,0)');
+    ctx.fillStyle = g1; ctx.fillRect(0, 0, W, H);
+
+    const g2 = ctx.createRadialGradient(W, H, 0, W, H, W * 0.5);
+    g2.addColorStop(0,   'rgba(124,58,237,0.06)');
+    g2.addColorStop(1,   'rgba(124,58,237,0)');
+    ctx.fillStyle = g2; ctx.fillRect(0, 0, W, H);
+  }
+
+  function animate() {
+    ctx.clearRect(0, 0, W, H);
+    drawCornerGlow();
+    drawAurora();
+    drawGrid();
+
+    // Draw + update particles
+    particles.forEach(p => {
+      p.pulse += p.pulseSpeed;
+      const alpha = p.alpha * (0.6 + 0.4 * Math.sin(p.pulse));
+      // Glow
+      const grd = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r * 4);
+      grd.addColorStop(0,   p.color + Math.round(alpha * 255).toString(16).padStart(2,'0'));
+      grd.addColorStop(1,   p.color + '00');
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r * 4, 0, Math.PI * 2);
+      ctx.fillStyle = grd;
+      ctx.fill();
+      // Core dot
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = p.color + Math.round(alpha * 220).toString(16).padStart(2,'0');
+      ctx.fill();
+      // Move
+      p.x += p.vx; p.y += p.vy;
+      if (p.x < -20) p.x = W + 20;
+      if (p.x > W+20) p.x = -20;
+      if (p.y < -20) p.y = H + 20;
+      if (p.y > H+20) p.y = -20;
+    });
+
+    requestAnimationFrame(animate);
+  }
+
+  window.addEventListener('resize', () => { resize(); initParticles(); });
+  resize();
+  initParticles();
+  animate();
+})();
+
+// ════════════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════════════
+document.getElementById('topbar-date').textContent=formatDate();
+initStats();
+
+// Register Service Worker for PWA
+if('serviceWorker' in navigator){
+  const swCode=`
+self.addEventListener('install',e=>self.skipWaiting());
+self.addEventListener('activate',e=>e.waitUntil(clients.claim()));
+self.addEventListener('fetch',e=>e.respondWith(fetch(e.request).catch(()=>caches.match(e.request))));
+  `;
+  const blob=new Blob([swCode],{type:'text/javascript'});
+  const swUrl=URL.createObjectURL(blob);
+  navigator.serviceWorker.register(swUrl).catch(()=>{});
+}
+
+// ════════════════════════════════════════════════════════
+// SOUND SYSTEM — Web Audio API
+// ════════════════════════════════════════════════════════
+const SFX=(()=>{
+  let ctx=null;
+  function gc(){if(!ctx)ctx=new(window.AudioContext||window.webkitAudioContext)();return ctx;}
+  function play(fn){try{fn(gc());}catch(e){}}
+  function beep(c,type,f,t,dur,g0,g1){const o=c.createOscillator(),g=c.createGain();o.type=type;o.frequency.setValueAtTime(f,t);g.gain.setValueAtTime(g0,t);g.gain.exponentialRampToValueAtTime(Math.max(g1,0.001),t+dur);o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+dur+0.05);}
+  return{
+    roll(){play(c=>{const t=c.currentTime;const o=c.createOscillator(),g=c.createGain();o.type='sawtooth';o.frequency.setValueAtTime(80,t);o.frequency.exponentialRampToValueAtTime(400,t+0.28);g.gain.setValueAtTime(0.12,t);g.gain.exponentialRampToValueAtTime(0.001,t+0.32);o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+0.35);});},
+    rollReveal(){play(c=>{const t=c.currentTime;[[440,0],[554,0.05],[659,0.1],[880,0.16]].forEach(([f,d])=>{beep(c,'sine',f,t+d,0.55,0.1,0.001);});});},
+    questDone(){play(c=>{const t=c.currentTime;beep(c,'sine',300,t,0.12,0.18,0.001);const o=c.createOscillator();o.frequency.setValueAtTime(300,t);o.frequency.exponentialRampToValueAtTime(600,t+0.08);const g=c.createGain();g.gain.setValueAtTime(0.15,t);g.gain.exponentialRampToValueAtTime(0.001,t+0.12);o.type='sine';o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+0.15);[523,659,784].forEach((f,i)=>{beep(c,'square',f,t+0.12+i*0.07,0.1,0.06,0.001);});});},
+    statsUp(){play(c=>{const t=c.currentTime;[261,329,392,523,659].forEach((f,i)=>{beep(c,i===4?'sine':'square',f,t+i*0.06,0.16,0.07,0.001);});});},
+    achievement(){play(c=>{const t=c.currentTime;[[261,0],[329,0],[392,0],[523,0.1],[659,0.2],[784,0.32]].forEach(([f,d])=>{beep(c,'sine',f,t+d,0.9,0.09,0.001);});[1046,1318].forEach((f,i)=>{beep(c,'sine',f,t+0.4+i*0.12,0.35,0.06,0.001);});});},
+    penalty(){play(c=>{const t=c.currentTime;const o=c.createOscillator(),g=c.createGain();o.type='sawtooth';o.frequency.setValueAtTime(110,t);o.frequency.exponentialRampToValueAtTime(40,t+0.3);g.gain.setValueAtTime(0.18,t);g.gain.exponentialRampToValueAtTime(0.001,t+0.35);o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+0.4);beep(c,'square',60,t,0.14,0.12,0.001);});},
+    challengeWin(){play(c=>{const t=c.currentTime;[[392,0],[523,0.14],[659,0.28],[784,0.42],[1046,0.56]].forEach(([f,d])=>{beep(c,'sine',f,t+d,0.38,0.12,0.001);});beep(c,'sine',130,t,0.5,0.16,0.001);});}
+  };
+})();
+
+// ── Hook sounds into existing functions ──
+const _origDoRoll = doRoll;
+doRoll = function() { SFX.roll(); _origDoRoll.apply(this, arguments); };
+
+const _origShowRollResult = showRollResult;
+showRollResult = function() { setTimeout(()=>SFX.rollReveal(), 800); _origShowRollResult.apply(this, arguments); };
+
+const _origToggleQuest = toggleQuest;
+toggleQuest = function(type, id) {
+  const qd = loadQD(); if(!qd) return;
+  const q = qd[type]?.find(x=>x.id===id);
+  const wasDone = q?.done;
+  _origToggleQuest.apply(this, arguments);
+  const qd2 = loadQD(); const q2 = qd2?.[type]?.find(x=>x.id===id);
+  if(q2?.done && !wasDone) SFX.questDone();
+  else if(!q2?.done && wasDone) SFX.penalty();
+};
+
+const _origConfirmActivity = confirmActivity;
+confirmActivity = function() { _origConfirmActivity.apply(this, arguments); SFX.statsUp(); };
+
+const _origRollDoThis = rollDoThis;
+rollDoThis = function() { _origRollDoThis.apply(this, arguments); SFX.statsUp(); };
+
+const _origAutoCheckAchievements = autoCheckAchievements;
+autoCheckAchievements = function() {
+  const before = loadProfile().achievements.length;
+  _origAutoCheckAchievements.apply(this, arguments);
+  const after = loadProfile().achievements.length;
+  if(after > before) SFX.achievement();
+};
+
+const _origFailChallenge = failChallenge;
+failChallenge = function() { _origFailChallenge.apply(this, arguments); SFX.penalty(); };
+
+const _origClaimChallengeDay = claimChallengeDay;
+claimChallengeDay = function(sk) {
+  const ch = loadCH(), c = ch[sk];
+  const wasDayCount = c?.claimedDays?.length || 0;
+  _origClaimChallengeDay.apply(this, arguments);
+  const ch2 = loadCH(), c2 = ch2[sk];
+  const nowDayCount = c2?.claimedDays?.length || 0;
+  if(nowDayCount >= 7 || (!c2?.active && wasDayCount > 0)) SFX.challengeWin();
+  else if(nowDayCount > wasDayCount) SFX.questDone();
+};
+
+</script>
+</body>
+</html>
