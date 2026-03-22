@@ -35,7 +35,7 @@
     .topbar{position:sticky;top:0;z-index:100;background:rgba(11,17,32,0.94);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--border-sys);display:flex;align-items:center;justify-content:space-between;padding:12px 16px}
     .topbar-brand{font-family:var(--font-mono);font-size:0.82rem;font-weight:400;letter-spacing:0.22em;color:var(--accent-blue);text-transform:uppercase}
     .topbar-right{display:flex;align-items:center;gap:10px}
-    .topbar-date{font-family:var(--font-mono);font-size:0.65rem;color:var(--muted)}
+    .topbar-date{font-family:var(--font-mono);font-size:0.68rem;color:#7aa8d8;letter-spacing:0.06em}
     .topbar-btn{background:var(--accent-blue-dim);border:1px solid #1a3a6a;color:var(--accent-blue);font-size:0.65rem;font-weight:400;padding:4px 10px;border-radius:2px;cursor:pointer;transition:all 0.2s;font-family:var(--font-mono);letter-spacing:0.08em}
     .topbar-btn:hover{background:#0f2a52;border-color:#2d6fcf}
 
@@ -148,13 +148,22 @@
     .edit-btn:hover{color:var(--accent-blue)}
     .char-level-row{display:flex;align-items:center;gap:7px}
     .char-level{font-family:var(--font-mono);font-size:0.65rem;color:var(--accent-blue);background:var(--accent-blue-dim);border:1px solid #1a3a6a;padding:2px 8px;border-radius:2px;letter-spacing:0.1em}
+    .xp-bar-wrap{margin-top:10px;padding-top:10px;border-top:1px solid var(--border)}
+    .xp-bar-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px}
+    .xp-bar-label{font-family:var(--font-mono);font-size:0.58rem;color:var(--subtext);letter-spacing:0.06em}
+    .xp-bar-nums{font-family:var(--font-mono);font-size:0.62rem;color:var(--accent-blue);letter-spacing:0.04em}
+    .xp-bar-track{height:4px;background:#0a1628;border-radius:2px;overflow:hidden;position:relative}
+    .xp-bar-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--accent-blue),#c87aff);transition:width 1s cubic-bezier(0.25,1,0.5,1);position:relative}
+    .xp-bar-fill::after{content:'';position:absolute;top:0;right:0;bottom:0;width:4px;background:rgba(255,255,255,0.6);border-radius:2px;animation:xpPulse 1.5s ease infinite}
+    @keyframes xpPulse{0%,100%{opacity:0.4}50%{opacity:1}}
+    .xp-bar-next{font-family:var(--font-mono);font-size:0.54rem;color:var(--muted);margin-top:3px;text-align:right;letter-spacing:0.04em}
     .char-total-xp{font-family:var(--font-mono);font-size:0.6rem;color:var(--muted)}
     .char-title{margin-top:10px;padding-top:10px;border-top:1px solid var(--border);font-size:0.6rem;color:var(--muted);font-family:var(--font-mono);letter-spacing:0.06em}
     .char-title span{color:var(--accent-blue)}
 
-    .radar-wrap{background:var(--surface);border:1px solid var(--border-sys);border-left:2px solid #2d6fcf;border-radius:4px;padding:16px;margin-bottom:12px;display:flex;flex-direction:column;align-items:center;position:relative}
+    .radar-wrap{background:var(--surface);border:1px solid var(--border-sys);border-left:2px solid #2d6fcf;border-radius:4px;padding:16px 16px 20px;margin-bottom:12px;display:flex;flex-direction:column;align-items:center;position:relative;box-shadow:0 0 30px rgba(96,180,255,0.06) inset}
     .radar-wrap::before{content:'▸ OVERVIEW STATS ◂';position:absolute;top:-8px;left:12px;font-family:var(--font-mono);font-size:0.5rem;color:#2d6fcf;background:var(--bg);padding:0 6px;letter-spacing:0.1em}
-    .radar-canvas-wrap{width:100%;max-width:280px}
+    .radar-canvas-wrap{width:100%;max-width:320px}
 
     .stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
     .stat-card{background:var(--card);border:1px solid var(--border);border-radius:3px;padding:12px;cursor:default;transition:all 0.2s;position:relative;overflow:hidden;animation:fadeUp 0.4s ease both}
@@ -177,6 +186,53 @@
     .stat-bar-label{display:flex;justify-content:space-between;margin-top:4px}
     .stat-bar-label span{font-family:var(--font-mono);font-size:0.52rem;color:var(--muted)}
     .stat-card.full-width .stat-value{font-size:1.9rem}
+
+    /* Rank badge on stat card */
+    .rank-badge{font-family:var(--font-mono);font-size:0.75rem;font-weight:400;letter-spacing:0.06em;padding:2px 7px;border-radius:2px;border:1px solid;transition:all 0.3s}
+    .rank-f  {color:#888;border-color:#444;background:rgba(136,136,136,0.1)}
+    .rank-e  {color:#66a0cc;border-color:#336688;background:rgba(102,160,204,0.1)}
+    .rank-d  {color:#66cc88;border-color:#338855;background:rgba(102,204,136,0.1)}
+    .rank-c  {color:#aacc44;border-color:#778822;background:rgba(170,204,68,0.1)}
+    .rank-b  {color:#ddaa22;border-color:#886611;background:rgba(221,170,34,0.1)}
+    .rank-a  {color:#ee7733;border-color:#883311;background:rgba(238,119,51,0.1)}
+    .rank-s  {color:#ff5566;border-color:#991122;background:rgba(255,85,102,0.12)}
+    .rank-sf {color:#ff44dd;border-color:#991188;background:rgba(255,68,221,0.12);text-shadow:0 0 8px rgba(255,68,221,0.4)}
+    .rank-ss {color:#ffaa00;border-color:#996600;background:rgba(255,170,0,0.12);text-shadow:0 0 10px rgba(255,170,0,0.5)}
+    .rank-sss{color:#ffffff;border-color:#aaaaaa;background:rgba(255,255,255,0.12);text-shadow:0 0 12px rgba(255,255,255,0.6);animation:rankGlow 2s ease infinite alternate}
+    @keyframes rankGlow{from{text-shadow:0 0 8px rgba(255,255,255,0.4)}to{text-shadow:0 0 16px rgba(255,255,255,0.9),0 0 30px rgba(200,180,255,0.4)}}
+
+    /* Cutscene particle */
+    @keyframes csParticle{0%{opacity:0;transform:scale(0) translateY(0)}30%{opacity:1}100%{opacity:0;transform:scale(2) translateY(-80px)}}
+
+    /* Tier body classes — card glow evolves */
+    body.tier-1 .char-card,body.tier-1 .radar-wrap{box-shadow:0 0 15px rgba(96,180,255,0.12)}
+    body.tier-2 .char-card,body.tier-2 .radar-wrap,body.tier-2 .stat-card{box-shadow:0 0 12px rgba(96,232,208,0.1)}
+    body.tier-3 .char-card,body.tier-3 .stat-card,body.tier-3 .radar-wrap{box-shadow:0 0 14px rgba(200,122,255,0.12);animation:none}
+    body.tier-3 .char-card::after,body.tier-3 .stat-card::after{filter:blur(1px)}
+    body.tier-4 .stat-card{box-shadow:0 0 10px rgba(255,204,68,0.08)}
+    body.tier-4 .roll-btn{background:radial-gradient(circle at 35% 35%,rgba(255,204,68,0.22),rgba(255,204,68,0.05))!important;border-color:rgba(255,204,68,0.5)!important}
+    body.tier-5 .char-card,body.tier-5 .stat-card{border-color:rgba(255,102,136,0.3)!important}
+    body.tier-5 .roll-btn{background:radial-gradient(circle at 35% 35%,rgba(255,102,136,0.2),rgba(255,102,136,0.04))!important;border-color:rgba(255,102,136,0.5)!important}
+    body.tier-6 .bottomnav{border-top-color:rgba(255,68,136,0.3)!important;background:rgba(32,8,22,0.96)!important}
+    body.tier-7 .char-level{animation:rankGlow 3s ease infinite alternate}
+    body.tier-7 .roll-btn{background:radial-gradient(circle at 35% 35%,rgba(170,68,255,0.25),rgba(170,68,255,0.05))!important;border-color:rgba(170,68,255,0.6)!important}
+    body.tier-8 .stat-value{color:#ffe0a0!important}
+    body.tier-8 .char-card::before{color:#ffaa00!important}
+    body.tier-9 .stat-abbr{animation:rankGlow 1.5s ease infinite alternate}
+    body.tier-10 .char-card,body.tier-10 .stat-card,body.tier-10 .radar-wrap{border-color:rgba(255,255,255,0.25)!important;box-shadow:0 0 20px rgba(255,255,255,0.08)!important}
+    body.tier-10 .stat-value,body.tier-10 .char-name{color:#ffffff!important;text-shadow:0 0 10px rgba(255,255,255,0.5)}
+    body.tier-10 .roll-btn{background:radial-gradient(circle at 35% 35%,rgba(255,255,255,0.2),rgba(255,255,255,0.04))!important;border-color:rgba(255,255,255,0.6)!important;box-shadow:0 0 40px rgba(255,255,255,0.2)!important}
+
+    /* Next rank info panel */
+    .next-rank-panel{background:var(--card);border:1px solid var(--border);border-radius:3px;padding:10px 12px;margin-top:8px;display:none;animation:fadeUp 0.2s ease both}
+    .next-rank-panel.show{display:block}
+    .nr-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+    .nr-stat{font-family:var(--font-body);font-size:0.82rem;font-weight:600;color:var(--text)}
+    .nr-info{font-family:var(--font-mono);font-size:0.6rem;color:var(--subtext)}
+    .nr-pts{font-family:var(--font-mono);font-size:0.65rem;font-weight:400}
+
+    /* Title badge on char card */
+    .char-title-badge{font-family:var(--font-mono);font-size:0.58rem;padding:2px 8px;border-radius:2px;margin-left:6px;letter-spacing:0.06em;border:1px solid}
 
     /* ════ PROFIL PAGE ════ */
     .profile-hero{background:var(--surface);border:1px solid var(--border-sys);border-left:2px solid #2d6fcf;border-radius:4px;padding:18px 14px 14px;margin-bottom:10px;position:relative;overflow:hidden;animation:fadeUp 0.35s ease both;text-align:center}
@@ -490,14 +546,27 @@
         </div>
       </div>
     </div>
-    <div class="char-title">Status: <span id="char-status">Rookie — Baru mulai perjalanan</span></div>
+    <div class="char-title">Status: <span id="char-status">Rookie</span> &nbsp;<span id="char-title-badge"></span></div>
+    <div class="xp-bar-wrap">
+      <div class="xp-bar-top">
+        <div class="xp-bar-label">EXP</div>
+        <div class="xp-bar-nums" id="xp-bar-nums">0 / 30</div>
+      </div>
+      <div class="xp-bar-track">
+        <div class="xp-bar-fill" id="xp-bar-fill" style="width:0%"></div>
+      </div>
+      <div class="xp-bar-next" id="xp-bar-next">butuh 30 XP lagi untuk LV 2</div>
+    </div>
   </div>
   <div class="section-header" style="margin-top:4px">
     <div class="section-title">Overview Stats</div>
     <div class="section-badge" id="radar-total">—</div>
   </div>
   <div class="radar-wrap"><div class="radar-canvas-wrap"><canvas id="radarChart"></canvas></div></div>
-  <div class="section-header"><div class="section-title">Character Stats</div></div>
+  <div class="section-header"><div class="section-title">Character Stats</div>
+    <button onclick="toggleNextRank()" id="nr-toggle-btn" style="background:var(--accent-blue-dim);border:1px solid var(--border-md);color:var(--accent-blue);font-family:var(--font-mono);font-size:0.58rem;padding:4px 10px;border-radius:2px;cursor:pointer;letter-spacing:0.06em">▸ NEXT RANK</button>
+  </div>
+  <div id="next-rank-panel" class="next-rank-panel"></div>
   <div class="stats-grid" id="stats-grid"></div>
   <div style="height:12px"></div>
 </div>
@@ -507,9 +576,9 @@
 ══════════════════════════════════════ -->
 <div class="page" id="page-quest">
   <div class="api-banner" id="quest-api-banner">
-    <div class="api-banner-title"><i class="fa-solid fa-key"></i> Setup Gemini AI</div>
-    <div class="api-banner-desc">Butuh API key gratis dari Google.<br>
-      Buka <a href="https://aistudio.google.com/apikey" target="_blank">aistudio.google.com/apikey</a> → Create API Key → paste di sini.</div>
+    <div class="api-banner-title"><i class="fa-solid fa-key"></i> Setup OpenRouter AI</div>
+    <div class="api-banner-desc">API key OpenRouter gratis, tidak butuh kartu kredit.<br>
+      Buka <a href="https://openrouter.ai" target="_blank">openrouter.ai</a> → Sign up pakai Google → Keys → Create Key → paste di sini. Key bentuknya sk-or-...</div>
     <div class="api-key-row">
       <input class="api-key-input" id="quest-api-key-input" type="password" placeholder="AIza..."/>
       <button class="api-key-save" onclick="saveApiKeyFrom('quest')">Simpan</button>
@@ -585,9 +654,9 @@
 ══════════════════════════════════════ -->
 <div class="page" id="page-log">
   <div class="api-banner" id="log-api-banner">
-    <div class="api-banner-title"><i class="fa-solid fa-key"></i> Setup Gemini AI</div>
-    <div class="api-banner-desc">Butuh API key gratis dari Google.<br>
-      Buka <a href="https://aistudio.google.com/apikey" target="_blank">aistudio.google.com/apikey</a> → Create API Key → paste di sini.</div>
+    <div class="api-banner-title"><i class="fa-solid fa-key"></i> Setup OpenRouter AI</div>
+    <div class="api-banner-desc">API key OpenRouter gratis, tidak butuh kartu kredit.<br>
+      Buka <a href="https://openrouter.ai" target="_blank">openrouter.ai</a> → Sign up pakai Google → Keys → Create Key → paste di sini. Key bentuknya sk-or-...</div>
     <div class="api-key-row">
       <input class="api-key-input" id="log-api-key-input" type="password" placeholder="AIza..."/>
       <button class="api-key-save" onclick="saveApiKeyFrom('log')">Simpan</button>
@@ -732,6 +801,21 @@
   </div>
 </div>
 
+<!-- LEVEL UP CUTSCENE -->
+<div id="cutscene" style="display:none;position:fixed;inset:0;z-index:99999;background:#000;flex-direction:column;align-items:center;justify-content:center;gap:0">
+  <div id="cs-particles" style="position:absolute;inset:0;overflow:hidden;pointer-events:none"></div>
+  <div id="cs-line-top" style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,#60b4ff,#c87aff,#60e8d0,transparent);opacity:0;transition:opacity 0.3s"></div>
+  <div id="cs-line-bot" style="position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,#60b4ff,#c87aff,#60e8d0,transparent);opacity:0;transition:opacity 0.3s"></div>
+  <div style="text-align:center;z-index:1;padding:20px">
+    <div id="cs-system" style="font-family:'Share Tech Mono',monospace;font-size:0.65rem;letter-spacing:0.3em;color:#2a4a7a;margin-bottom:16px;opacity:0;transition:opacity 0.4s">▸ SYSTEM NOTIFICATION ◂</div>
+    <div id="cs-label" style="font-family:'Share Tech Mono',monospace;font-size:0.7rem;letter-spacing:0.2em;color:#4a6a9a;margin-bottom:10px;opacity:0;transition:opacity 0.4s"></div>
+    <div id="cs-level" style="font-family:'Rajdhani',sans-serif;font-size:5rem;font-weight:700;line-height:1;opacity:0;transform:scale(0.5);transition:all 0.5s cubic-bezier(0.34,1.56,0.64,1)"></div>
+    <div id="cs-title" style="font-family:'Rajdhani',sans-serif;font-size:1.4rem;font-weight:700;letter-spacing:0.08em;margin-top:8px;opacity:0;transition:opacity 0.4s"></div>
+    <div id="cs-unlock" style="font-family:'Share Tech Mono',monospace;font-size:0.65rem;letter-spacing:0.1em;margin-top:20px;padding:8px 16px;border-radius:2px;opacity:0;transition:opacity 0.4s"></div>
+    <div id="cs-sub" style="font-family:'Share Tech Mono',monospace;font-size:0.58rem;color:#4a6a9a;margin-top:24px;opacity:0;transition:opacity 0.4s;letter-spacing:0.1em">TAP UNTUK LANJUT</div>
+  </div>
+</div>
+
 <!-- GLITCH OVERLAY -->
 <div id="glitch-overlay">
   <div id="glitch-layer1"></div>
@@ -860,7 +944,7 @@ function loadDecay(){const r=localStorage.getItem('plt_decay');return r?JSON.par
 function saveDecay(d){localStorage.setItem('plt_decay',JSON.stringify(d));}
 function loadRollHistory(){const r=localStorage.getItem('plt_roll_history');return r?JSON.parse(r):[];}
 function saveRollHistory(h){localStorage.setItem('plt_roll_history',JSON.stringify(h));}
-function getApiKey(){return localStorage.getItem('plt_gemini_key')||'';}
+function getApiKey(){return localStorage.getItem('plt_or_key')||'';}
 
 const TODAY=new Date().toDateString();
 const TODAY_ISO=new Date().toISOString().split('T')[0];
@@ -868,7 +952,7 @@ const TODAY_ISO=new Date().toISOString().split('T')[0];
 function saveApiKeyFrom(src){
   const v=document.getElementById(src+'-api-key-input').value.trim();
   if(!v)return;
-  localStorage.setItem('plt_gemini_key',v);
+  localStorage.setItem('plt_or_key',v);
   document.getElementById(src+'-api-banner').classList.remove('show');
   showToast('API key disimpan — AI aktif!');
 }
@@ -881,8 +965,239 @@ function formatDate(){const n=new Date(),days=['MIN','SEN','SEL','RAB','KAM','JU
 function getLevel(key,value){const c=STAT_CONFIG.find(s=>s.key===key);let lv=1;c.levelThresholds.forEach((t,i)=>{if(value>=t)lv=i+1});return lv;}
 function getBarPercent(key,value){const c=STAT_CONFIG.find(s=>s.key===key),t=c.levelThresholds,lv=getLevel(key,value),f=t[lv-1]??0,n=t[lv]??t[t.length-1]*1.5;return Math.min(100,((value-f)/(n-f))*100);}
 function getTotalXP(){return Object.values(loadData().stats).reduce((a,b)=>a+b,0);}
-function getOverallLevel(){const x=getTotalXP();if(x<100)return 1;if(x<250)return 2;if(x<500)return 3;if(x<850)return 4;if(x<1300)return 5;if(x<1900)return 6;if(x<2700)return 7;if(x<3700)return 8;if(x<5000)return 9;return 10;}
-function getStatus(){const x=getTotalXP(),t=[{min:0,l:'Rookie — Baru mulai perjalanan'},{min:50,l:'Apprentice — Mulai terbentuk'},{min:120,l:'Challenger — Progres terasa'},{min:250,l:'Veteran — Konsistensi terjaga'},{min:450,l:'Elite — Jauh di atas rata-rata'},{min:700,l:'Legend — Penguasaan sejati'}];let lb=t[0].l;t.forEach(i=>{if(x>=i.min)lb=i.l});return lb;}
+function getOverallLevel(){
+  const x=getTotalXP();
+  // Level 1-100, XP thresholds designed so ~1 year of daily use = LV 60-70
+  const thresholds=[
+    0,30,65,105,150,200,255,315,380,450,    // LV 1-10
+    525,605,690,780,875,975,1080,1190,1305,1425, // LV 11-20
+    1550,1680,1815,1955,2100,2250,2405,2565,2730,2900, // LV 21-30
+    3075,3255,3440,3630,3825,4025,4230,4440,4655,4875, // LV 31-40
+    5100,5330,5565,5805,6050,6300,6555,6815,7080,7350, // LV 41-50
+    7625,7905,8190,8480,8775,9075,9380,9690,10005,10325, // LV 51-60
+    10650,10980,11315,11655,12000,12350,12705,13065,13430,13800, // LV 61-70
+    14175,14555,14940,15330,15725,16125,16530,16940,17355,17775, // LV 71-80
+    18200,18630,19065,19505,19950,20400,20855,21315,21780,22250, // LV 81-90
+    22725,23205,23690,24180,24675,25175,25680,26190,26705,27225, // LV 91-100
+  ];
+  let lv=1;
+  for(let i=0;i<thresholds.length;i++){if(x>=thresholds[i])lv=i+1;}
+  return Math.min(lv,100);
+}
+function getXPForLevel(lv){
+  const thresholds=[
+    0,30,65,105,150,200,255,315,380,450,
+    525,605,690,780,875,975,1080,1190,1305,1425,
+    1550,1680,1815,1955,2100,2250,2405,2565,2730,2900,
+    3075,3255,3440,3630,3825,4025,4230,4440,4655,4875,
+    5100,5330,5565,5805,6050,6300,6555,6815,7080,7350,
+    7625,7905,8190,8480,8775,9075,9380,9690,10005,10325,
+    10650,10980,11315,11655,12000,12350,12705,13065,13430,13800,
+    14175,14555,14940,15330,15725,16125,16530,16940,17355,17775,
+    18200,18630,19065,19505,19950,20400,20855,21315,21780,22250,
+    22725,23205,23690,24180,24675,25175,25680,26190,26705,27225,
+  ];
+  return thresholds[Math.min(lv-1,99)]||0;
+}
+// ════════════════════════════════════════════════════════
+// RANK SYSTEM
+// ════════════════════════════════════════════════════════
+
+// Thresholds: [minPts, rankCode, rankLabel, rankClass]
+const RANKS = [
+  [0,    'F',    'F',    'rank-f'],
+  [20,   'F+',   'F+',   'rank-f'],
+  [35,   'E-',   'E−',   'rank-e'],
+  [50,   'E',    'E',    'rank-e'],
+  [70,   'E+',   'E+',   'rank-e'],
+  [90,   'D-',   'D−',   'rank-d'],
+  [115,  'D',    'D',    'rank-d'],
+  [145,  'D+',   'D+',   'rank-d'],
+  [180,  'C-',   'C−',   'rank-c'],
+  [220,  'C',    'C',    'rank-c'],
+  [265,  'C+',   'C+',   'rank-c'],
+  [315,  'B-',   'B−',   'rank-b'],
+  [370,  'B',    'B',    'rank-b'],
+  [430,  'B+',   'B+',   'rank-b'],
+  [495,  'A-',   'A−',   'rank-a'],
+  [565,  'A',    'A',    'rank-a'],
+  [640,  'A+',   'A+',   'rank-a'],
+  [720,  'S-',   'S−',   'rank-s'],
+  [805,  'S',    'S',    'rank-s'],
+  [895,  'S+',   'S+',   'rank-s'],
+  [990,  'SF-',  'SF−',  'rank-sf'],
+  [1090, 'SF',   'SF',   'rank-sf'],
+  [1195, 'SF+',  'SF+',  'rank-sf'],
+  [1305, 'SS-',  'SS−',  'rank-ss'],
+  [1420, 'SS',   'SS',   'rank-ss'],
+  [1540, 'SS+',  'SS+',  'rank-ss'],
+  [1665, 'SSS-', 'SSS−', 'rank-sss'],
+  [1795, 'SSS',  'SSS',  'rank-sss'],
+  [1930, 'SSS+', 'SSS+', 'rank-sss'],
+];
+
+function getRank(pts) {
+  let rank = RANKS[0];
+  for(const r of RANKS) { if(pts >= r[0]) rank = r; else break; }
+  return rank; // [minPts, code, label, class]
+}
+
+function getNextRank(pts) {
+  for(const r of RANKS) { if(r[0] > pts) return r; }
+  return null; // already max
+}
+
+// ── TITLES ──
+// Muncul di sebelah nama, berdasarkan stat/overall tertinggi
+const TITLES = {
+  overall: [
+    { min:0,    name:'Rookie',          color:'#888' },
+    { min:200,  name:'Awakening',       color:'#66a0cc' },
+    { min:450,  name:'The Rising',      color:'#66cc88' },
+    { min:800,  name:'Challenger',      color:'#aacc44' },
+    { min:1200, name:'The Formidable',  color:'#ddaa22' },
+    { min:1800, name:'The Elite',       color:'#ee7733' },
+    { min:2500, name:'Shadow Monarch',  color:'#ff5566' },
+    { min:3500, name:'The Absolute',    color:'#ffaa00' },
+    { min:5000, name:'SYSTEM',          color:'#ffffff' },
+  ],
+  STR: [
+    { min:50,   name:'Iron Body',       color:'#e05c5c' },
+    { min:150,  name:'War Machine',     color:'#e05c5c' },
+    { min:400,  name:'The Unstoppable', color:'#e05c5c' },
+    { min:800,  name:'Physical God',    color:'#ff4444' },
+  ],
+  INT: [
+    { min:50,   name:'Quick Thinker',   color:'#5c9ee0' },
+    { min:150,  name:'The Strategist',  color:'#5c9ee0' },
+    { min:400,  name:'Genius',          color:'#5c9ee0' },
+    { min:800,  name:'The Oracle',      color:'#44aaff' },
+  ],
+  STM: [
+    { min:50,   name:'Enduring',        color:'#5ce08a' },
+    { min:150,  name:'Iron Will Body',  color:'#5ce08a' },
+    { min:400,  name:'The Immortal',    color:'#44ff88' },
+  ],
+  KNO: [
+    { min:50,   name:'Scholar',         color:'#c47ee0' },
+    { min:150,  name:'The Sage',        color:'#c47ee0' },
+    { min:400,  name:'Encyclopedia',    color:'#c47ee0' },
+    { min:800,  name:'Omniscient',      color:'#dd44ff' },
+  ],
+  DIS: [
+    { min:50,   name:'Disciplined',     color:'#e0a35c' },
+    { min:150,  name:'Iron Discipline', color:'#e0a35c' },
+    { min:400,  name:'The Unbreakable', color:'#ffaa33' },
+  ],
+  FOC: [
+    { min:50,   name:'Focused Mind',    color:'#5ce0d8' },
+    { min:150,  name:'Laser Focus',     color:'#5ce0d8' },
+    { min:400,  name:'The Enlightened', color:'#44ffee' },
+  ],
+  CHA: [
+    { min:50,   name:'Silver Tongue',   color:'#e07eb8' },
+    { min:150,  name:'The Charming',    color:'#e07eb8' },
+    { min:400,  name:'The Sovereign',   color:'#ff66cc' },
+  ],
+};
+
+function getTitle(stats, totalXP) {
+  // Cari stat tertinggi
+  let highestKey = 'STR', highestVal = 0;
+  STAT_KEYS.forEach(k => { if((stats[k]||0) > highestVal) { highestVal = stats[k]||0; highestKey = k; } });
+
+  // Overall title
+  let overallTitle = TITLES.overall[0];
+  TITLES.overall.forEach(t => { if(totalXP >= t.min) overallTitle = t; });
+
+  // Stat-specific title (only if that stat is high enough)
+  let statTitle = null;
+  const statTiers = TITLES[highestKey];
+  if(statTiers) {
+    statTiers.forEach(t => { if(highestVal >= t.min) statTitle = t; });
+  }
+
+  // Return stat title if significant, otherwise overall
+  return statTitle || overallTitle;
+}
+
+function getStatus(){
+  const x=getTotalXP();
+  const title=getTitle(loadData().stats,x);
+  return title.name;
+}
+
+// ── NEXT RANK TOGGLE ──
+let nextRankVisible = false;
+function toggleNextRank() {
+  nextRankVisible = !nextRankVisible;
+  const panel = document.getElementById('next-rank-panel');
+  const btn   = document.getElementById('nr-toggle-btn');
+  if(!nextRankVisible) { panel.classList.remove('show'); btn.textContent='▸ NEXT RANK'; return; }
+  // Build content
+  const data  = loadData().stats;
+  const rows  = STAT_CONFIG.map(cfg => {
+    const v      = data[cfg.key] || 0;
+    const cur    = getRank(v);
+    const next   = getNextRank(v);
+    const needed = next ? next[0] - v : 0;
+    return { cfg, v, cur, next, needed };
+  });
+  panel.innerHTML = rows.map(r => `
+    <div class="nr-row" style="border-bottom:1px solid var(--border);padding:5px 0">
+      <div style="display:flex;align-items:center;gap:8px;flex:1">
+        <div style="font-family:var(--font-mono);font-size:0.6rem;color:${r.cfg.color};min-width:28px;letter-spacing:0.1em">${r.cfg.key}</div>
+        <div class="nr-stat">${r.cfg.name}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="rank-badge ${r.cur[3]}">${r.cur[2]}</span>
+        ${r.next
+          ? `<span style="font-family:var(--font-mono);font-size:0.6rem;color:var(--muted)">→</span>
+             <span class="rank-badge ${r.next[3]}">${r.next[2]}</span>
+             <span class="nr-pts" style="color:var(--accent)">+${r.needed} pts</span>`
+          : `<span style="font-family:var(--font-mono);font-size:0.62rem;color:#ffaa00">MAX ★</span>`
+        }
+      </div>
+    </div>`).join('');
+  panel.classList.add('show');
+  btn.textContent='▾ HIDE';
+}
+
+// ── Update initStats to show title badge ──
+function initStats(){
+  const data=loadData(),prof=loadProfile();
+  if(prof.photo){document.getElementById('stats-avatar-photo').src=prof.photo;document.getElementById('stats-avatar-photo').style.display='block';document.getElementById('stats-avatar-icon').style.display='none';}
+  else{document.getElementById('stats-avatar-photo').style.display='none';document.getElementById('stats-avatar-icon').style.display='';}
+  const ne=document.getElementById('char-name');
+  const nm=data.name||prof.name;
+  if(nm){ne.textContent=nm;ne.classList.remove('placeholder');}else{ne.textContent='Tap untuk set nama';ne.classList.add('placeholder');}
+  document.getElementById('char-level').textContent='LV '+getOverallLevel();
+  document.getElementById('char-xp').textContent='Total XP: '+getTotalXP();
+
+  // XP Bar
+  const curLv   = getOverallLevel();
+  const totalXP = getTotalXP();
+  const curFloor= getXPForLevel(curLv);
+  const nextFloor= curLv < 100 ? getXPForLevel(curLv+1) : curFloor;
+  const xpInLevel = totalXP - curFloor;
+  const xpNeeded  = nextFloor - curFloor;
+  const pctFill   = curLv >= 100 ? 100 : Math.min(100, (xpInLevel / xpNeeded) * 100);
+  document.getElementById('xp-bar-nums').textContent = curLv >= 100 ? 'MAX' : `${xpInLevel} / ${xpNeeded}`;
+  document.getElementById('xp-bar-next').textContent = curLv >= 100 ? '★ Level Maksimum Tercapai' : `butuh ${xpNeeded - xpInLevel} XP lagi untuk LV ${curLv+1}`;
+  requestAnimationFrame(()=>setTimeout(()=>{
+    document.getElementById('xp-bar-fill').style.width = pctFill + '%';
+  }, 200));
+
+  // Title
+  const title = getTitle(data.stats, getTotalXP());
+  document.getElementById('char-status').textContent = title.name;
+  const badge = document.getElementById('char-title-badge');
+  badge.textContent = '[' + title.name + ']';
+  badge.style.cssText = `font-family:var(--font-mono);font-size:0.55rem;color:${title.color};border:1px solid ${title.color}44;background:${title.color}18;padding:1px 6px;border-radius:2px;letter-spacing:0.06em`;
+
+  renderRadar(data);
+  renderStatsGrid(data);
+}
 
 // Modal helpers
 function openModal(id){document.getElementById(id).classList.add('active');}
@@ -917,41 +1232,139 @@ function goPage(name){
 // ════════════════════════════════════════════════════════
 let radarInstance=null;
 
-function initStats(){
-  const data=loadData(),prof=loadProfile();
-  // Avatar
-  if(prof.photo){document.getElementById('stats-avatar-photo').src=prof.photo;document.getElementById('stats-avatar-photo').style.display='block';document.getElementById('stats-avatar-icon').style.display='none';}
-  else{document.getElementById('stats-avatar-photo').style.display='none';document.getElementById('stats-avatar-icon').style.display='';}
-  // Name
-  const ne=document.getElementById('char-name');
-  const nm=data.name||prof.name;
-  if(nm){ne.textContent=nm;ne.classList.remove('placeholder');}else{ne.textContent='Tap untuk set nama';ne.classList.add('placeholder');}
-  document.getElementById('char-level').textContent='LV '+getOverallLevel();
-  document.getElementById('char-xp').textContent='Total XP: '+getTotalXP();
-  document.getElementById('char-status').textContent=getStatus();
-  renderRadar(data);
-  renderStatsGrid(data);
-}
 
 function renderRadar(data){
-  const labels=STAT_CONFIG.map(s=>s.name),values=STAT_CONFIG.map(s=>data.stats[s.key]);
-  document.getElementById('radar-total').textContent='Total '+values.reduce((a,b)=>a+b,0)+' XP';
-  const ctx=document.getElementById('radarChart').getContext('2d');
-  if(radarInstance)radarInstance.destroy();
-  radarInstance=new Chart(ctx,{type:'radar',data:{labels,datasets:[{data:values,backgroundColor:'rgba(212,168,83,0.1)',borderColor:'rgba(212,168,83,0.7)',borderWidth:1.5,pointBackgroundColor:'rgba(212,168,83,0.9)',pointBorderColor:'transparent',pointRadius:3,pointHoverRadius:5}]},options:{responsive:true,animation:{duration:800,easing:'easeOutQuart'},scales:{r:{beginAtZero:true,grid:{color:'rgba(255,255,255,0.05)'},angleLines:{color:'rgba(255,255,255,0.07)'},pointLabels:{color:'#6b6b8a',font:{family:"'Sora',sans-serif",size:10,weight:'500'}},ticks:{display:false}}},plugins:{legend:{display:false},tooltip:{backgroundColor:'#1c1c2e',borderColor:'rgba(255,255,255,0.08)',borderWidth:1,titleColor:'#d4a853',bodyColor:'#e4e4f0',callbacks:{label:c=>` ${c.raw} pts`}}}}});
+  const labels = STAT_CONFIG.map(s=>{
+    const v    = data.stats[s.key];
+    const rank = getRank(v);
+    return s.name + '\n' + rank[2];
+  });
+  const values = STAT_CONFIG.map(s=>data.stats[s.key]);
+  const total  = values.reduce((a,b)=>a+b,0);
+  document.getElementById('radar-total').textContent='Total '+total+' XP';
+
+  const ctx = document.getElementById('radarChart').getContext('2d');
+  if(radarInstance) radarInstance.destroy();
+
+  // Per-stat colors for points
+  const statColors = STAT_CONFIG.map(s=>s.color);
+
+  // Gradient fill — blue to purple
+  const gradFill = ctx.createLinearGradient(0,0,0,300);
+  gradFill.addColorStop(0,'rgba(96,180,255,0.25)');
+  gradFill.addColorStop(1,'rgba(180,100,255,0.1)');
+
+  radarInstance = new Chart(ctx, {
+    type: 'radar',
+    data: {
+      labels,
+      datasets: [
+        // Shadow/glow layer
+        {
+          data: values,
+          backgroundColor: 'rgba(96,180,255,0.06)',
+          borderColor: 'rgba(96,180,255,0.15)',
+          borderWidth: 8,
+          pointRadius: 0,
+          pointHoverRadius: 0,
+        },
+        // Main layer
+        {
+          data: values,
+          backgroundColor: gradFill,
+          borderColor: ctx => {
+            const g = ctx.chart.ctx.createLinearGradient(0,0,300,300);
+            g.addColorStop(0,'#60b4ff');
+            g.addColorStop(0.5,'#c87aff');
+            g.addColorStop(1,'#60e8d0');
+            return g;
+          },
+          borderWidth: 2,
+          pointBackgroundColor: statColors,
+          pointBorderColor: statColors,
+          pointBorderWidth: 1.5,
+          pointRadius: 5,
+          pointHoverRadius: 7,
+          pointHoverBackgroundColor: statColors,
+          fill: true,
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      animation: { duration: 1000, easing: 'easeOutQuart' },
+      scales: {
+        r: {
+          beginAtZero: true,
+          grid: {
+            color: 'rgba(96,180,255,0.08)',
+            lineWidth: 1,
+          },
+          angleLines: {
+            color: 'rgba(96,180,255,0.12)',
+            lineWidth: 1,
+          },
+          pointLabels: {
+            color: '#7aa8d8',
+            font: { family:"'Share Tech Mono',monospace", size: 11 },
+            padding: 8,
+          },
+          ticks: { display: false, stepSize: 20 }
+        }
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#121a2e',
+          borderColor: 'rgba(96,180,255,0.3)',
+          borderWidth: 1,
+          titleColor: '#60b4ff',
+          bodyColor: '#c8dff8',
+          titleFont: { family:"'Share Tech Mono',monospace", size: 11 },
+          bodyFont:  { family:"'Share Tech Mono',monospace", size: 12 },
+          padding: 10,
+          callbacks: {
+            title: items => STAT_CONFIG[items[0].dataIndex].name,
+            label: c => ` ${c.raw} pts — LV ${getLevel(STAT_CONFIG[c.dataIndex].key, c.raw)}`
+          }
+        }
+      }
+    }
+  });
 }
 
 function renderStatsGrid(data){
   const grid=document.getElementById('stats-grid');
   grid.innerHTML='';
   STAT_CONFIG.forEach((cfg,idx)=>{
-    const v=data.stats[cfg.key],lv=getLevel(cfg.key,v),pct=getBarPercent(cfg.key,v).toFixed(1),isLast=idx===STAT_CONFIG.length-1;
+    const v    = data.stats[cfg.key];
+    const lv   = getLevel(cfg.key,v);
+    const pct  = getBarPercent(cfg.key,v).toFixed(1);
+    const rank = getRank(v);
+    const next = getNextRank(v);
+    const isLast = idx===STAT_CONFIG.length-1;
+
     const card=document.createElement('div');
     card.className='stat-card'+(isLast?' full-width':'');
     card.setAttribute('data-stat',cfg.key);
-    card.innerHTML=`<div class="stat-abbr">${cfg.key}</div><div class="stat-name">${cfg.name}</div><div class="stat-bottom"><div class="stat-value">${v}<span class="unit"> pts</span></div><div class="stat-right"><div class="stat-lv">LV ${lv}</div></div></div><div class="stat-bar-wrap"><div class="stat-bar-fill" style="width:0%"></div></div><div class="stat-bar-label"><span>${cfg.desc}</span><span>${pct}%</span></div><div style="font-family:var(--font-mono);font-size:0.52rem;color:var(--muted);margin-top:5px;letter-spacing:0.08em">▸ tap untuk lihat history</div>`;
+    card.innerHTML=`
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px">
+        <div class="stat-abbr">${cfg.key}</div>
+        <span class="rank-badge ${rank[3]}">${rank[2]}</span>
+      </div>
+      <div class="stat-name">${cfg.name}</div>
+      <div class="stat-bottom">
+        <div class="stat-value">${v}<span class="unit"> pts</span></div>
+        <div class="stat-right"><div class="stat-lv">LV ${lv}</div></div>
+      </div>
+      <div class="stat-bar-wrap"><div class="stat-bar-fill" style="width:0%"></div></div>
+      <div class="stat-bar-label">
+        <span>${cfg.desc}</span>
+        <span style="color:${cfg.color}">${next ? `→ ${next[2]} (${next[0]-v} pts)` : '★ MAX'}</span>
+      </div>
+      <div style="font-family:var(--font-mono);font-size:0.5rem;color:var(--muted);margin-top:5px;letter-spacing:0.08em">▸ tap untuk lihat history</div>`;
     card.style.cursor='pointer';
-    card.onclick=()=>showStatHistory(cfg.key, cfg.name, cfg.color);
+    card.onclick=()=>showStatHistory(cfg.key,cfg.name,cfg.color);
     card.style.animationDelay=(0.18+idx*0.04)+'s';
     grid.appendChild(card);
     requestAnimationFrame(()=>setTimeout(()=>{card.querySelector('.stat-bar-fill').style.width=pct+'%'},100+idx*60));
@@ -1003,6 +1416,19 @@ const ACH_LIST=[
   {id:'a28',icon:'🛡️', img:null, name:'Iron Will',          desc:'DIS mencapai 50',                           check:()=>(loadData().stats.DIS||0)>=50},
   {id:'a29',icon:'👁️', img:null, name:'Laser Focus',        desc:'FOC mencapai 50',                           check:()=>(loadData().stats.FOC||0)>=50},
   {id:'a30',icon:'⚡', img:null, name:'Juggernaut',          desc:'STR mencapai 50',                           check:()=>(loadData().stats.STR||0)>=50},
+  // Rank achievements
+  {id:'r1', icon:'🔵', img:null, name:'Rank E',              desc:'Salah satu stat mencapai rank E',            check:()=>STAT_KEYS.some(k=>getRank(loadData().stats[k]||0)[0]==='E'||getRank(loadData().stats[k]||0)[1]==='E')},
+  {id:'r2', icon:'🟢', img:null, name:'Rank D',              desc:'Salah satu stat mencapai rank D',            check:()=>STAT_KEYS.some(k=>(loadData().stats[k]||0)>=90)},
+  {id:'r3', icon:'🟡', img:null, name:'Rank C',              desc:'Salah satu stat mencapai rank C',            check:()=>STAT_KEYS.some(k=>(loadData().stats[k]||0)>=180)},
+  {id:'r4', icon:'🟠', img:null, name:'Rank B',              desc:'Salah satu stat mencapai rank B',            check:()=>STAT_KEYS.some(k=>(loadData().stats[k]||0)>=315)},
+  {id:'r5', icon:'🔴', img:null, name:'Rank A',              desc:'Salah satu stat mencapai rank A',            check:()=>STAT_KEYS.some(k=>(loadData().stats[k]||0)>=495)},
+  {id:'r6', icon:'💠', img:null, name:'Rank S',              desc:'Salah satu stat mencapai rank S — langka',   check:()=>STAT_KEYS.some(k=>(loadData().stats[k]||0)>=720)},
+  {id:'r7', icon:'💜', img:null, name:'Rank SF',             desc:'Salah satu stat mencapai rank SF',           check:()=>STAT_KEYS.some(k=>(loadData().stats[k]||0)>=990)},
+  {id:'r8', icon:'💛', img:null, name:'Rank SS',             desc:'Salah satu stat mencapai rank SS',           check:()=>STAT_KEYS.some(k=>(loadData().stats[k]||0)>=1305)},
+  {id:'r9', icon:'🌟', img:null, name:'Rank SSS',            desc:'Mencapai puncak — rank SSS',                 check:()=>STAT_KEYS.some(k=>(loadData().stats[k]||0)>=1665)},
+  {id:'r10',icon:'👑', img:null, name:'The Iron',            desc:'Dapat title Iron Body atau Iron Discipline',  check:()=>{const s=loadData().stats;return(s.STR||0)>=50||(s.DIS||0)>=50;}},
+  {id:'r11',icon:'🧠', img:null, name:'The Oracle',          desc:'Dapat title The Oracle (INT ≥ 800)',          check:()=>(loadData().stats.INT||0)>=800},
+  {id:'r12',icon:'🌑', img:null, name:'Shadow Monarch',      desc:'Overall title Shadow Monarch (≥2500 XP)',     check:()=>getTotalXP()>=2500},
 ];
 
 // ── Achievement check helpers ──
@@ -1051,7 +1477,7 @@ function autoCheckAchievements(){
 
 // ── RESET ALL DATA ──
 function resetAllData(){
-  const keys=['plt_data','plt_profile','plt_logs','plt_goals','plt_quests','plt_challenges','plt_decay','plt_roll_history','plt_gemini_key'];
+  const keys=['plt_data','plt_profile','plt_logs','plt_goals','plt_quests','plt_challenges','plt_decay','plt_roll_history','plt_or_key'];
   keys.forEach(k=>localStorage.removeItem(k));
   showToast('Semua data direset. App fresh!');
   setTimeout(()=>location.reload(),1200);
@@ -1169,33 +1595,6 @@ document.getElementById('pinfo-input').addEventListener('keydown',e=>{if(e.key==
 // ════════════════════════════════════════════════════════
 const QUICK_PICKS=['Lari pagi 30 menit','Push up 50x','Baca buku 1 jam','Belajar 2 jam','Meditasi 15 menit','Cold shower','Gym 1 jam','Ngobrol sama teman baru'];
 
-// ── Prompt lebih friendly, tidak terlalu strict ──
-const GEMINI_LOG_PROMPT=`Kamu adalah sistem penilaian aktivitas untuk game RPG kehidupan nyata bernama PLT.
-Ada 7 stats: STR (aktivitas fisik), INT (berpikir/logika), STM (daya tahan), KNO (belajar/ilmu), DIS (disiplin/konsistensi), FOC (fokus/konsentrasi), CHA (sosial/komunikasi).
-
-Cara memberi poin:
-- Aktivitas fisik ringan (jalan, stretching): STR/STM +1
-- Olahraga sedang (push up, lari, badminton): STR/STM +1 sampai +2
-- Olahraga berat (gym, HIIT, renang lama): STR/STM +2 sampai +3
-- Belajar/baca singkat: KNO/INT +1
-- Belajar serius 1+ jam: KNO/INT/FOC +2
-- Cold shower, disiplin keras: DIS +2
-- Sosial/ngobrol: CHA +1 sampai +2
-- Aktivitas basic (mandi, makan biasa, tidur, scroll HP): 0 poin, masukkan ke "ignored"
-
-PENTING: Hampir semua aktivitas positif layak dapat minimal +1 poin di stat yang relevan. Jangan terlalu ketat.
-
-Balas HANYA dengan JSON berikut tanpa teks lain:
-{"gains":{"STR":1,"DIS":1},"reasoning":"Penjelasan singkat dalam 1-2 kalimat bahasa Indonesia.","ignored":[]}
-
-Contoh:
-Input: "push up 20x" → {"gains":{"STR":1,"DIS":1},"reasoning":"20 push up adalah latihan fisik yang layak dapat poin meski tidak banyak.","ignored":[]}
-Input: "belajar matematika 1 jam" → {"gains":{"KNO":2,"INT":1,"FOC":1},"reasoning":"Belajar 1 jam penuh adalah komitmen yang solid.","ignored":[]}
-Input: "mandi pagi" → {"gains":{},"reasoning":"Mandi adalah aktivitas basic sehari-hari, tidak ada poin.","ignored":["mandi pagi"]}
-
-Sekarang nilai aktivitas ini:
-`;
-
 // ── Fallback scoring jika API gagal ──
 function fallbackScore(text) {
   const t = text.toLowerCase();
@@ -1234,55 +1633,68 @@ function initLog(){
 function renderQuickChips(){document.getElementById('quick-chips').innerHTML=QUICK_PICKS.map(l=>`<div class="quick-chip" onclick="useQuick('${l}')">${l}</div>`).join('');}
 function useQuick(t){document.getElementById('activity-input').value=t;document.getElementById('activity-input').focus();}
 
-async function callGeminiLog(text) {
+async function callGroqLog(text) {
   const controller = new AbortController();
-  const timeout    = setTimeout(() => controller.abort(), 12000); // 12s timeout
+  const timeout    = setTimeout(() => controller.abort(), 15000);
 
   try {
-    const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-8b:generateContent?key=${getApiKey()}`,
-      {
-        method: 'POST',
-        headers: {'Content-Type':'application/json'},
-        signal: controller.signal,
-        body: JSON.stringify({
-          contents:[{parts:[{text: GEMINI_LOG_PROMPT + text}]}],
-          generationConfig:{temperature:0.4, maxOutputTokens:250}
-        })
-      }
-    );
+    const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${getApiKey()}`
+      },
+      signal: controller.signal,
+      body: JSON.stringify({
+        model: 'meta-llama/llama-3.1-8b-instruct:free',
+        temperature: 0.4,
+        max_tokens: 250,
+        messages: [
+          {
+            role: 'system',
+            content: `Kamu adalah sistem penilaian aktivitas untuk game RPG kehidupan nyata bernama PLT.
+Ada 7 stats: STR (aktivitas fisik), INT (berpikir/logika), STM (daya tahan), KNO (belajar/ilmu), DIS (disiplin/konsistensi), FOC (fokus/konsentrasi), CHA (sosial/komunikasi).
+
+Cara memberi poin:
+- Aktivitas fisik ringan: STR/STM +1
+- Olahraga sedang (push up, lari): STR/STM +1 sampai +2
+- Olahraga berat (gym, HIIT): STR/STM +2 sampai +3
+- Belajar/baca singkat: KNO/INT +1
+- Belajar serius 1+ jam: KNO/INT/FOC +2
+- Cold shower, disiplin keras: DIS +2
+- Sosial/ngobrol: CHA +1 sampai +2
+- Aktivitas basic (mandi, makan, tidur, scroll HP): 0 poin
+
+Balas HANYA JSON tanpa teks lain: {"gains":{"STR":1},"reasoning":"1-2 kalimat bahasa Indonesia","ignored":[]}`
+          },
+          { role: 'user', content: text }
+        ]
+      })
+    });
 
     clearTimeout(timeout);
-
     if(!res.ok) {
       const err = await res.json().catch(()=>({}));
       throw new Error(err.error?.message || `HTTP ${res.status}`);
     }
 
     const d   = await res.json();
-    const raw = (d.candidates?.[0]?.content?.parts?.[0]?.text || '').trim();
-
-    // Try to extract JSON even if Gemini adds extra text
+    const raw = (d.choices?.[0]?.message?.content || '').trim();
     const jsonMatch = raw.match(/\{[\s\S]*\}/);
-    if(!jsonMatch) throw new Error('Format respons tidak valid');
+    if(!jsonMatch) throw new Error('Format tidak valid');
 
     const parsed = JSON.parse(jsonMatch[0]);
-    parsed.gains = Object.fromEntries(
-      Object.entries(parsed.gains || {}).filter(([,v]) => typeof v==='number' && v > 0)
-    );
-    parsed.ignored  = parsed.ignored  || [];
-    parsed.reasoning= parsed.reasoning|| '';
+    parsed.gains   = Object.fromEntries(Object.entries(parsed.gains||{}).filter(([,v])=>typeof v==='number'&&v>0));
+    parsed.ignored = parsed.ignored || [];
+    parsed.reasoning = parsed.reasoning || '';
     return { ...parsed, source: 'ai' };
 
   } catch(e) {
     clearTimeout(timeout);
-    // Fallback ke hardcoded scoring
     const fb = fallbackScore(text);
-    if(e.name === 'AbortError') {
-      fb.reasoning = '(Timeout — koneksi lambat, poin dihitung offline)';
-    } else {
-      fb.reasoning = `(API error: ${e.message} — poin dihitung offline)`;
-    }
+    fb.reasoning = e.name==='AbortError'
+      ? '(Timeout — poin dihitung offline)'
+      : `(${e.message} — poin dihitung offline)`;
     return { ...fb, source: 'fallback' };
   }
 }
@@ -1302,7 +1714,7 @@ async function submitActivity(){
   const btn=document.getElementById('submit-btn');
   btn.disabled=true;btn.innerHTML=`<div class="spinner"></div> AI lagi mikir...`;
   try{
-    const result = await callGeminiLog(text);
+    const result = await callGroqLog(text);
     pendingGains = Object.keys(result.gains).length > 0 ? result.gains : null;
     pendingText  = text; pendingReasoning = result.reasoning;
     showLogResult(result);
@@ -1332,6 +1744,7 @@ function showLogResult(result){
 
 function confirmActivity(){
   if(!pendingGains)return;
+  const prevXP = getTotalXP();
   const confirmedGains={...pendingGains};
   const data=loadData();Object.entries(pendingGains).forEach(([k,v])=>{data.stats[k]=(data.stats[k]||0)+v;});saveData(data);
   const logs=loadLogs(),now=new Date(),ts=`${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
@@ -1341,6 +1754,7 @@ function confirmActivity(){
   document.getElementById('activity-input').value='';document.getElementById('result-panel').classList.remove('show');
   renderLogHistory();showToast('Aktivitas disimpan! Stats naik 📈');
   triggerGlitch(confirmedGains);
+  checkLevelUp(prevXP);
   setTimeout(autoCheckAchievements, 500);
 }
 
@@ -1374,10 +1788,26 @@ function addQuestGoal(){
 function deleteQuestGoal(i){questGoals.splice(i,1);saveGoals(questGoals);renderQuestGoalChips();}
 function renderQuestGoalChips(){document.getElementById('q-goal-chips').innerHTML=questGoals.map((g,i)=>`<div class="goal-chip">${g}<button class="goal-chip-del" onclick="deleteQuestGoal(${i})"><i class="fa-solid fa-xmark"></i></button></div>`).join('');}
 
-async function callGemini(prompt){
-  const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${getApiKey()}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:prompt}]}],generationConfig:{temperature:0.7,maxOutputTokens:600}})});
-  if(!res.ok)throw new Error((await res.json()).error?.message||'API error');
-  const d=await res.json();return(d.candidates?.[0]?.content?.parts?.[0]?.text||'').replace(/```json|```/g,'').trim();
+async function callGroq(prompt){
+  const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${getApiKey()}`
+    },
+    body: JSON.stringify({
+      model: 'meta-llama/llama-3.3-70b-instruct:free',
+      temperature: 0.7,
+      max_tokens: 600,
+      messages: [
+        { role: 'system', content: 'Kamu adalah AI assistant yang membalas HANYA dengan JSON valid tanpa markdown, tanpa penjelasan tambahan.' },
+        { role: 'user',   content: prompt }
+      ]
+    })
+  });
+  if(!res.ok) throw new Error((await res.json()).error?.message || `HTTP ${res.status}`);
+  const d = await res.json();
+  return (d.choices?.[0]?.message?.content || '').replace(/```json|```/g,'').trim();
 }
 
 async function generateQuests(){
@@ -1388,7 +1818,7 @@ async function generateQuests(){
   try{
     const stats=loadData().stats;
     const prompt=`Quest generator RPG kehidupan nyata. Goals: ${questGoals.join(', ')}. Stats: STR=${stats.STR},INT=${stats.INT},STM=${stats.STM},KNO=${stats.KNO},DIS=${stats.DIS},FOC=${stats.FOC},CHA=${stats.CHA}. Kondisi: kelas 12 SMA, nganggur sebelum kuliah September 2026. Generate 3 quest WAJIB (spesifik+ukuran, ada penalti) dan 3 OPSIONAL (lebih ringan). Reward max +2/stat, penalti -1/stat. Beragam, relevan. Bahasa Indonesia singkat. Balas HANYA JSON: {"wajib":[{"title":"...","reward":{"STR":1},"penalty":{"STR":1}}],"opsional":[{"title":"...","reward":{"KNO":1}}]}`;
-    const parsed=JSON.parse(await callGemini(prompt));
+    const parsed=JSON.parse(await callGroq(prompt));
     const qd={date:TODAY,wajib:(parsed.wajib||[]).map((q,i)=>({...q,id:'w'+i,done:false,type:'wajib'})),opsional:(parsed.opsional||[]).map((q,i)=>({...q,id:'o'+i,done:false,type:'opsional'}))};
     saveQD(qd);renderDailyAll();showToast('Quest hari ini siap!');
     document.getElementById('topbar-regen').style.display='block';
@@ -1681,6 +2111,7 @@ function showRollResult(act){
 }
 function rollDoThis(){
   if(!currentRollResult)return;
+  const prevXP=getTotalXP();
   const data=loadData();Object.entries(currentRollResult.gains).forEach(([k,v])=>{data.stats[k]=(data.stats[k]||0)+v;});saveData(data);
   const logs=loadLogs(),now=new Date(),ts=`${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
   logs.unshift({text:currentRollResult.text,gains:currentRollResult.gains,time:ts,date:now.toDateString(),source:'roll'});saveLogs(logs);
@@ -1691,6 +2122,7 @@ function rollDoThis(){
   document.getElementById('roll-done-overlay').classList.add('show');
   renderRollHistory();showToast('Dicatat ke log! Stats naik.');
   triggerGlitch(currentRollResult.gains);
+  checkLevelUp(prevXP);
   setTimeout(autoCheckAchievements,500);
   setTimeout(()=>{document.getElementById('roll-done-overlay').classList.remove('show');currentRollResult=null;},2500);
 }
@@ -1702,7 +2134,7 @@ function renderRollHistory(){
 function clearRollHistory(){saveRollHistory(loadRollHistory().filter(h=>h.date!==TODAY));renderRollHistory();showToast('History hari ini dihapus');}
 
 function resetAllData(){
-  const keys=['plt_data','plt_profile','plt_logs','plt_goals','plt_quests','plt_challenges','plt_decay','plt_roll_history','plt_gemini_key'];
+  const keys=['plt_data','plt_profile','plt_logs','plt_goals','plt_quests','plt_challenges','plt_decay','plt_roll_history','plt_or_key'];
   keys.forEach(k=>localStorage.removeItem(k));
   showToast('Semua data direset. App fresh!');
   setTimeout(()=>location.reload(),1200);
@@ -2020,9 +2452,205 @@ function triggerPageGlitch() {
 })();
 
 // ════════════════════════════════════════════════════════
+// LEVEL MILESTONE SYSTEM
+// ════════════════════════════════════════════════════════
+
+const MILESTONES = {
+  10:  { name:'AWAKENING',     color:'#60b4ff', glow:'rgba(96,180,255,0.4)',   unlock:'Glow border aktif di semua card',          tier:1 },
+  20:  { name:'RISING',        color:'#60e8d0', glow:'rgba(96,232,208,0.4)',   unlock:'Partikel lebih kuat + cyan surge',          tier:2 },
+  30:  { name:'CHALLENGER',    color:'#c87aff', glow:'rgba(200,122,255,0.4)',  unlock:'Scanline animasi + corner pulse',           tier:3 },
+  40:  { name:'ELITE',         color:'#ffcc44', glow:'rgba(255,204,68,0.4)',   unlock:'Aurora intensif + Roll page upgrade',       tier:4 },
+  50:  { name:'SHADOW',        color:'#ff6688', glow:'rgba(255,102,136,0.5)',  unlock:'Dark mode shift + BOSS FIGHT unlocked',     tier:5 },
+  60:  { name:'MONARCH',       color:'#ff4488', glow:'rgba(255,68,136,0.5)',   unlock:'Deep crimson UI + PASSIVE TRAIT unlocked',  tier:6 },
+  70:  { name:'SOVEREIGN',     color:'#aa44ff', glow:'rgba(170,68,255,0.5)',   unlock:'Nebula field + border brilliance',          tier:7 },
+  80:  { name:'TRANSCENDENT',  color:'#ffaa00', glow:'rgba(255,170,0,0.5)',    unlock:'Gold-purple fusion + LEGACY SKILL unlocked',tier:8 },
+  90:  { name:'ABSOLUTE',      color:'#ff8844', glow:'rgba(255,136,68,0.6)',   unlock:'Multicolor glitch + supreme aura',          tier:9 },
+  100: { name:'SYSTEM',        color:'#ffffff', glow:'rgba(255,255,255,0.7)',  unlock:'WHITE SYSTEM MODE — transcendence complete',tier:10},
+};
+
+function getCurrentTier(lv) {
+  let tier=0;
+  [10,20,30,40,50,60,70,80,90,100].forEach(m=>{ if(lv>=m) tier=MILESTONES[m].tier; });
+  return tier;
+}
+
+function applyLevelTheme(lv) {
+  const tier = getCurrentTier(lv);
+  const root = document.documentElement;
+  const body = document.body;
+
+  // Remove all tier classes
+  for(let i=1;i<=10;i++) body.classList.remove('tier-'+i);
+  if(tier>0) body.classList.add('tier-'+tier);
+
+  // Dynamic CSS vars based on tier
+  const themes = {
+    0:  { accent:'#60b4ff', glow:'rgba(96,180,255,0.15)',  border:'#243a64', surface:'#121a2e' },
+    1:  { accent:'#60b4ff', glow:'rgba(96,180,255,0.25)',  border:'#2a4a7a', surface:'#131c30' },
+    2:  { accent:'#60e8d0', glow:'rgba(96,232,208,0.25)',  border:'#2a6a60', surface:'#12201e' },
+    3:  { accent:'#c87aff', glow:'rgba(200,122,255,0.28)', border:'#5a3a8a', surface:'#18122e' },
+    4:  { accent:'#ffcc44', glow:'rgba(255,204,68,0.28)',  border:'#6a5a1a', surface:'#1e1a10' },
+    5:  { accent:'#ff6688', glow:'rgba(255,102,136,0.32)', border:'#6a2a3a', surface:'#1e1018' },
+    6:  { accent:'#ff4488', glow:'rgba(255,68,136,0.35)',  border:'#6a1a30', surface:'#200c16' },
+    7:  { accent:'#aa44ff', glow:'rgba(170,68,255,0.35)',  border:'#5a2a8a', surface:'#160e26' },
+    8:  { accent:'#ffaa00', glow:'rgba(255,170,0,0.38)',   border:'#6a4a00', surface:'#1e1600' },
+    9:  { accent:'#ff8844', glow:'rgba(255,136,68,0.4)',   border:'#6a3a1a', surface:'#1e1208' },
+    10: { accent:'#ffffff', glow:'rgba(255,255,255,0.5)',  border:'#aaaaaa', surface:'#1e1e24' },
+  };
+
+  const t = themes[tier] || themes[0];
+  root.style.setProperty('--accent-blue', t.accent);
+  root.style.setProperty('--accent-glow', t.glow);
+  root.style.setProperty('--border-sys', t.border);
+  root.style.setProperty('--surface', t.surface);
+
+  // Roll page upgrade at tier 4+
+  updateRollTheme(tier);
+}
+
+function updateRollTheme(tier) {
+  const rollBtn = document.getElementById('roll-btn');
+  if(!rollBtn) return;
+  if(tier >= 4) {
+    // More dramatic roll button
+    rollBtn.style.width = '170px';
+    rollBtn.style.height = '170px';
+    rollBtn.style.boxShadow = `0 0 40px var(--accent-glow), 0 0 80px var(--accent-glow)`;
+  }
+  if(tier >= 7) {
+    rollBtn.style.width = '190px';
+    rollBtn.style.height = '190px';
+  }
+}
+
+// ── CUTSCENE ──
+function showLevelCutscene(newLevel, cb) {
+  const ms = MILESTONES[newLevel];
+  if(!ms) { if(cb)cb(); return; }
+
+  const cs       = document.getElementById('cutscene');
+  const csLevel  = document.getElementById('cs-level');
+  const csTitle  = document.getElementById('cs-title');
+  const csLabel  = document.getElementById('cs-label');
+  const csSystem = document.getElementById('cs-system');
+  const csUnlock = document.getElementById('cs-unlock');
+  const csSub    = document.getElementById('cs-sub');
+  const csTop    = document.getElementById('cs-line-top');
+  const csBot    = document.getElementById('cs-line-bot');
+  const csParts  = document.getElementById('cs-particles');
+
+  // Set content
+  csLabel.textContent  = 'LEVEL ' + newLevel + ' REACHED';
+  csLevel.textContent  = 'LV ' + newLevel;
+  csTitle.textContent  = ms.name;
+  csUnlock.textContent = '✦ ' + ms.unlock + ' ✦';
+
+  // Colors
+  csLevel.style.color   = ms.color;
+  csLevel.style.textShadow = `0 0 20px ${ms.glow}, 0 0 60px ${ms.glow}`;
+  csTitle.style.color   = ms.color;
+  csUnlock.style.color  = ms.color;
+  csUnlock.style.border = `1px solid ${ms.color}44`;
+  csUnlock.style.background = ms.color + '11';
+
+  // Generate particles
+  csParts.innerHTML = '';
+  for(let i=0;i<30;i++){
+    const p = document.createElement('div');
+    const size = 2 + Math.random()*4;
+    p.style.cssText = `position:absolute;width:${size}px;height:${size}px;border-radius:50%;background:${ms.color};left:${Math.random()*100}%;top:${Math.random()*100}%;opacity:0;animation:csParticle ${1+Math.random()*2}s ease ${Math.random()*1}s forwards`;
+    csParts.appendChild(p);
+  }
+
+  // Show cutscene
+  cs.style.display = 'flex';
+  cs.style.background = '#000';
+
+  // Animate in sequence
+  setTimeout(()=>{ csSystem.style.opacity='1'; csTop.style.opacity='1'; csBot.style.opacity='1'; }, 100);
+  setTimeout(()=>{ csLabel.style.opacity='1'; }, 400);
+  setTimeout(()=>{ csLevel.style.opacity='1'; csLevel.style.transform='scale(1)'; }, 700);
+  setTimeout(()=>{ csTitle.style.opacity='1'; }, 1100);
+  setTimeout(()=>{ csUnlock.style.opacity='1'; }, 1500);
+  setTimeout(()=>{ csSub.style.opacity='1'; }, 2000);
+
+  // Play epic sound
+  try {
+    const ctx2 = new(window.AudioContext||window.webkitAudioContext)();
+    const t = ctx2.currentTime;
+    // Low rumble
+    const o1=ctx2.createOscillator(),g1=ctx2.createGain();
+    o1.type='sine';o1.frequency.setValueAtTime(60,t);o1.frequency.exponentialRampToValueAtTime(120,t+0.5);
+    g1.gain.setValueAtTime(0,t);g1.gain.linearRampToValueAtTime(0.15,t+0.1);g1.gain.exponentialRampToValueAtTime(0.001,t+1.5);
+    o1.connect(g1);g1.connect(ctx2.destination);o1.start(t);o1.stop(t+1.6);
+    // Rising sweep
+    const o2=ctx2.createOscillator(),g2=ctx2.createGain();
+    o2.type='sine';o2.frequency.setValueAtTime(200,t+0.3);o2.frequency.exponentialRampToValueAtTime(800,t+0.9);
+    g2.gain.setValueAtTime(0,t+0.3);g2.gain.linearRampToValueAtTime(0.12,t+0.5);g2.gain.exponentialRampToValueAtTime(0.001,t+1.2);
+    o2.connect(g2);g2.connect(ctx2.destination);o2.start(t+0.3);o2.stop(t+1.3);
+    // Power chord
+    [261,329,392,523,659,784].forEach((f,i)=>{
+      const o=ctx2.createOscillator(),g=ctx2.createGain();
+      o.type='sine';o.frequency.value=f;
+      g.gain.setValueAtTime(0,t+0.8+i*0.06);g.gain.linearRampToValueAtTime(0.1,t+0.9+i*0.06);g.gain.exponentialRampToValueAtTime(0.001,t+2.5);
+      o.connect(g);g.connect(ctx2.destination);o.start(t+0.8+i*0.06);o.stop(t+2.6);
+    });
+  } catch(e){}
+
+  // Tap to dismiss
+  function dismiss() {
+    cs.removeEventListener('click', dismiss);
+    // Fade out
+    cs.style.transition='opacity 0.4s';
+    cs.style.opacity='0';
+    setTimeout(()=>{
+      cs.style.display='none';
+      cs.style.opacity='1';
+      cs.style.transition='';
+      // Reset all elements
+      [csSystem,csLabel,csLevel,csTitle,csUnlock,csSub,csTop,csBot].forEach(el=>{
+        el.style.opacity='0';
+        if(el===csLevel){el.style.transform='scale(0.5)';}
+      });
+      if(cb) cb();
+    }, 400);
+  }
+  setTimeout(()=>cs.addEventListener('click',dismiss), 2200);
+}
+
+// ── LEVEL UP DETECTION ──
+function checkLevelUp(prevXP) {
+  const newXP  = getTotalXP();
+  const prevLv = getOverallLevelFromXP(prevXP);
+  const newLv  = getOverallLevel();
+  if(newLv <= prevLv) return;
+
+  // Save last known level
+  localStorage.setItem('plt_last_level', newLv);
+
+  // Find highest milestone crossed
+  const milestonesCrossed = [10,20,30,40,50,60,70,80,90,100].filter(m=>m<=newLv&&m>prevLv);
+  if(milestonesCrossed.length > 0) {
+    const m = milestonesCrossed[milestonesCrossed.length-1];
+    setTimeout(()=>showLevelCutscene(m, ()=>applyLevelTheme(newLv)), 800);
+  } else {
+    // Regular level up — quick flash
+    triggerGlitch(null);
+    showToast(`⬆ LEVEL UP — LV ${newLv}`);
+  }
+  applyLevelTheme(newLv);
+}
+
+function getOverallLevelFromXP(x) {
+  const thresholds=[0,30,65,105,150,200,255,315,380,450,525,605,690,780,875,975,1080,1190,1305,1425,1550,1680,1815,1955,2100,2250,2405,2565,2730,2900,3075,3255,3440,3630,3825,4025,4230,4440,4655,4875,5100,5330,5565,5805,6050,6300,6555,6815,7080,7350,7625,7905,8190,8480,8775,9075,9380,9690,10005,10325,10650,10980,11315,11655,12000,12350,12705,13065,13430,13800,14175,14555,14940,15330,15725,16125,16530,16940,17355,17775,18200,18630,19065,19505,19950,20400,20855,21315,21780,22250,22725,23205,23690,24180,24675,25175,25680,26190,26705,27225];
+  let lv=1;for(let i=0;i<thresholds.length;i++){if(x>=thresholds[i])lv=i+1;}return Math.min(lv,100);
+}
+
+// ════════════════════════════════════════════════════════
 // INIT
 // ════════════════════════════════════════════════════════
 document.getElementById('topbar-date').textContent=formatDate();
+applyLevelTheme(getOverallLevel());
 initStats();
 
 // Register Service Worker for PWA
