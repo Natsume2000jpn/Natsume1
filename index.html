@@ -164,6 +164,8 @@
     .radar-wrap{background:var(--surface);border:1px solid var(--border-sys);border-left:2px solid #2d6fcf;border-radius:4px;padding:16px 16px 20px;margin-bottom:12px;display:flex;flex-direction:column;align-items:center;position:relative;box-shadow:0 0 30px rgba(96,180,255,0.06) inset}
     .radar-wrap::before{content:'▸ OVERVIEW STATS ◂';position:absolute;top:-8px;left:12px;font-family:var(--font-mono);font-size:0.5rem;color:#2d6fcf;background:var(--bg);padding:0 6px;letter-spacing:0.1em}
     .radar-canvas-wrap{width:100%;max-width:320px}
+    .snap-btn{background:var(--bg);border:1px solid var(--border);border-radius:2px;color:var(--muted);font-family:var(--font-mono);font-size:0.52rem;padding:2px 7px;cursor:pointer;letter-spacing:0.06em;transition:all 0.15s}
+    .snap-btn.active{background:var(--accent-blue-dim);border-color:var(--accent-blue);color:var(--accent-blue)}
 
     .stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
     .stat-card{background:var(--card);border:1px solid var(--border);border-radius:3px;padding:12px;cursor:default;transition:all 0.2s;position:relative;overflow:hidden;animation:fadeUp 0.4s ease both}
@@ -204,23 +206,26 @@
     /* Cutscene particle */
     @keyframes csParticle{0%{opacity:0;transform:scale(0) translateY(0)}30%{opacity:1}100%{opacity:0;transform:scale(2) translateY(-80px)}}
 
-    /* Tier body classes — card glow evolves */
-    body.tier-1 .char-card,body.tier-1 .radar-wrap{box-shadow:0 0 15px rgba(96,180,255,0.12)}
-    body.tier-2 .char-card,body.tier-2 .radar-wrap,body.tier-2 .stat-card{box-shadow:0 0 12px rgba(96,232,208,0.1)}
-    body.tier-3 .char-card,body.tier-3 .stat-card,body.tier-3 .radar-wrap{box-shadow:0 0 14px rgba(200,122,255,0.12);animation:none}
-    body.tier-3 .char-card::after,body.tier-3 .stat-card::after{filter:blur(1px)}
-    body.tier-4 .stat-card{box-shadow:0 0 10px rgba(255,204,68,0.08)}
-    body.tier-4 .roll-btn{background:radial-gradient(circle at 35% 35%,rgba(255,204,68,0.22),rgba(255,204,68,0.05))!important;border-color:rgba(255,204,68,0.5)!important}
-    body.tier-5 .char-card,body.tier-5 .stat-card{border-color:rgba(255,102,136,0.3)!important}
-    body.tier-5 .roll-btn{background:radial-gradient(circle at 35% 35%,rgba(255,102,136,0.2),rgba(255,102,136,0.04))!important;border-color:rgba(255,102,136,0.5)!important}
-    body.tier-6 .bottomnav{border-top-color:rgba(255,68,136,0.3)!important;background:rgba(32,8,22,0.96)!important}
-    body.tier-7 .char-level{animation:rankGlow 3s ease infinite alternate}
-    body.tier-7 .roll-btn{background:radial-gradient(circle at 35% 35%,rgba(170,68,255,0.25),rgba(170,68,255,0.05))!important;border-color:rgba(170,68,255,0.6)!important}
-    body.tier-8 .stat-value{color:#ffe0a0!important}
-    body.tier-8 .char-card::before{color:#ffaa00!important}
-    body.tier-9 .stat-abbr{animation:rankGlow 1.5s ease infinite alternate}
-    body.tier-10 .char-card,body.tier-10 .stat-card,body.tier-10 .radar-wrap{border-color:rgba(255,255,255,0.25)!important;box-shadow:0 0 20px rgba(255,255,255,0.08)!important}
-    body.tier-10 .stat-value,body.tier-10 .char-name{color:#ffffff!important;text-shadow:0 0 10px rgba(255,255,255,0.5)}
+    /* ── ORNAMENTAL BORDERS PER TIER ── */
+    .orb-corner{position:absolute;pointer-events:none;z-index:2}
+    .orb-mid{position:absolute;pointer-events:none;z-index:2}
+
+    /* Tier glow on cards */
+    body.tier-1  .char-card,.tier-1 .radar-wrap{box-shadow:0 0 15px rgba(96,180,255,0.12)}
+    body.tier-2  .char-card,.tier-2 .radar-wrap,.tier-2 .stat-card{box-shadow:0 0 12px rgba(96,232,208,0.1)}
+    body.tier-3  .char-card,.tier-3 .stat-card,.tier-3 .radar-wrap{box-shadow:0 0 14px rgba(200,122,255,0.12)}
+    body.tier-4  .stat-card{box-shadow:0 0 10px rgba(255,204,68,0.08)}
+    body.tier-4  .roll-btn{background:radial-gradient(circle at 35% 35%,rgba(255,204,68,0.22),rgba(255,204,68,0.05))!important;border-color:rgba(255,204,68,0.5)!important}
+    body.tier-5  .char-card,.tier-5 .stat-card{border-color:rgba(255,102,136,0.3)!important}
+    body.tier-5  .roll-btn{background:radial-gradient(circle at 35% 35%,rgba(255,102,136,0.2),rgba(255,102,136,0.04))!important;border-color:rgba(255,102,136,0.5)!important}
+    body.tier-6  .bottomnav{border-top-color:rgba(255,68,136,0.3)!important;background:rgba(32,8,22,0.96)!important}
+    body.tier-7  .char-level{animation:rankGlow 3s ease infinite alternate}
+    body.tier-7  .roll-btn{background:radial-gradient(circle at 35% 35%,rgba(170,68,255,0.25),rgba(170,68,255,0.05))!important;border-color:rgba(170,68,255,0.6)!important}
+    body.tier-8  .stat-value{color:#ffe0a0!important}
+    body.tier-8  .char-card::before{color:#ffaa00!important}
+    body.tier-9  .stat-abbr{animation:rankGlow 1.5s ease infinite alternate}
+    body.tier-10 .char-card,.tier-10 .stat-card,.tier-10 .radar-wrap{border-color:rgba(255,255,255,0.25)!important;box-shadow:0 0 20px rgba(255,255,255,0.08)!important}
+    body.tier-10 .stat-value,.tier-10 .char-name{color:#ffffff!important;text-shadow:0 0 10px rgba(255,255,255,0.5)}
     body.tier-10 .roll-btn{background:radial-gradient(circle at 35% 35%,rgba(255,255,255,0.2),rgba(255,255,255,0.04))!important;border-color:rgba(255,255,255,0.6)!important;box-shadow:0 0 40px rgba(255,255,255,0.2)!important}
 
     /* Next rank info panel */
@@ -475,6 +480,79 @@
     .section-clear{background:none;border:none;cursor:pointer;font-family:var(--font-mono);font-size:0.62rem;color:var(--muted);padding:3px;transition:color 0.2s}
     .section-clear:hover{color:var(--red)}
 
+    /* ── SIDE QUEST ── */
+    .sq-header{background:var(--surface);border:1px solid var(--border-sys);border-left:2px solid var(--accent);border-radius:4px;padding:12px 14px;position:relative}
+    .sq-header::before{content:'▸ SIDE QUEST ◂';position:absolute;top:-8px;left:12px;font-family:var(--font-mono);font-size:0.5rem;color:var(--accent);background:var(--bg);padding:0 6px;letter-spacing:0.1em}
+    .sq-card{background:var(--card);border:1px solid var(--border);border-left:2px solid var(--accent);border-radius:4px;padding:12px 14px;animation:fadeUp 0.3s ease both}
+    .sq-card.done{opacity:0.4}
+    .sq-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:8px}
+    .sq-title{font-size:0.88rem;font-weight:600;color:var(--text-bright);flex:1;font-family:var(--font-body);line-height:1.4}
+    .sq-title.done-text{text-decoration:line-through;color:var(--muted)}
+    .sq-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+    .sq-pts{font-family:var(--font-mono);font-size:0.6rem;color:var(--accent)}
+    .sq-complete-btn{padding:8px 16px;background:linear-gradient(135deg,#1a4a2e,#0d3a1e);border:1px solid #2ecc71;border-radius:3px;color:#2ecc71;font-family:var(--font-mono);font-size:0.68rem;cursor:pointer;transition:all 0.2s;letter-spacing:0.08em;position:relative;overflow:hidden}
+    .sq-complete-btn::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(46,204,113,0.1),transparent);opacity:0;transition:opacity 0.2s}
+    .sq-complete-btn:hover{background:linear-gradient(135deg,#1e5a34,#0f4422);box-shadow:0 0 15px rgba(46,204,113,0.3)}
+    .sq-complete-btn:hover::before{opacity:1}
+    .sq-complete-btn:disabled{opacity:0.35;cursor:not-allowed}
+
+    /* ── MISSION ── */
+    .mission-input-card{background:var(--surface);border:1px solid var(--border-sys);border-left:2px solid var(--accent);border-radius:4px;padding:14px;position:relative}
+    .mission-input-card::before{content:'▸ NEW MISSION ◂';position:absolute;top:-8px;left:12px;font-family:var(--font-mono);font-size:0.5rem;color:var(--accent);background:var(--bg);padding:0 6px;letter-spacing:0.1em}
+    .mission-card{background:var(--card);border:1px solid var(--border);border-radius:4px;overflow:hidden;margin-bottom:8px;animation:fadeUp 0.3s ease both}
+    .mission-card.active-m{border-color:rgba(212,184,96,0.35);border-left:2px solid var(--accent)}
+    .mission-card.expired-m{opacity:0.5;border-left:2px solid var(--red)}
+    .mission-card.done-m{opacity:0.6;border-left:2px solid var(--green)}
+    .mc-top{padding:12px 14px;display:flex;align-items:flex-start;gap:10px}
+    .mc-icon{width:36px;height:36px;border-radius:4px;background:var(--accent-dim);border:1px solid var(--accent-glow);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1rem}
+    .mc-info{flex:1;min-width:0}
+    .mc-name{font-size:0.9rem;font-weight:700;color:var(--text-bright);font-family:var(--font-body);margin-bottom:3px}
+    .mc-meta{font-family:var(--font-mono);font-size:0.58rem;color:var(--subtext)}
+    .mc-deadline{font-family:var(--font-mono);font-size:0.6rem;padding:2px 8px;border-radius:2px;flex-shrink:0}
+    .mc-deadline.urgent{color:var(--red);background:var(--red-dim);border:1px solid rgba(240,96,96,0.2);animation:pulse 1s ease infinite}
+    .mc-deadline.normal{color:var(--accent);background:var(--accent-dim);border:1px solid var(--accent-glow)}
+    .mc-deadline.done{color:var(--green);background:var(--green-dim);border:1px solid rgba(80,232,144,0.2)}
+    .mc-quest-area{padding:0 14px 14px}
+    .mc-quest{background:var(--surface);border:1px solid var(--border-sys);border-radius:3px;padding:10px 12px;margin-bottom:6px}
+    .mc-quest.locked{opacity:0.35;filter:blur(0.5px)}
+    .mc-quest-title{font-size:0.85rem;font-weight:600;color:var(--text-bright);font-family:var(--font-body);margin-bottom:6px}
+    .mc-quest-bottom{display:flex;align-items:center;justify-content:space-between;gap:8px}
+    .mc-quest-pts{font-family:var(--font-mono);font-size:0.6rem;color:var(--accent)}
+    .mc-claim-btn{padding:7px 14px;background:linear-gradient(135deg,#1a4a2e,#0d3a1e);border:1px solid #2ecc71;border-radius:2px;color:#2ecc71;font-family:var(--font-mono);font-size:0.65rem;cursor:pointer;letter-spacing:0.08em;transition:all 0.2s}
+    .mc-claim-btn:hover{box-shadow:0 0 12px rgba(46,204,113,0.3)}
+    .mc-claim-btn:disabled{opacity:0.35;cursor:not-allowed}
+    .mc-countdown{font-family:var(--font-mono);font-size:0.58rem;color:var(--subtext);padding:4px 8px;background:var(--bg);border-radius:2px;border:1px solid var(--border)}
+    .mc-locked-label{font-family:var(--font-mono);font-size:0.58rem;color:var(--muted);letter-spacing:0.06em}
+    .mc-history-row{padding:10px 14px;display:flex;align-items:center;gap:10px;border-top:1px solid var(--border)}
+    .mc-hist-icon{font-size:0.8rem}
+    .mc-hist-text{font-family:var(--font-mono);font-size:0.6rem;color:var(--subtext);flex:1}
+    .mc-hist-date{font-family:var(--font-mono);font-size:0.55rem;color:var(--muted)}
+
+    /* ── MISSION POPUP ── */
+    .mission-popup-inner{background:#0a0f1e;border:1px solid rgba(212,184,96,0.4);border-radius:8px;padding:28px 24px;max-width:340px;width:100%;position:relative;overflow:hidden;text-align:center;animation:popIn 0.4s cubic-bezier(0.34,1.56,0.64,1) both}
+    .mp-glow{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(212,184,96,0.12),transparent 70%);pointer-events:none}
+    .mp-label{font-family:var(--font-mono);font-size:0.55rem;letter-spacing:0.2em;color:var(--accent);margin-bottom:14px;position:relative}
+    .mp-icon{width:56px;height:56px;border-radius:50%;background:var(--accent-dim);border:1.5px solid var(--accent-glow);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:1.5rem;color:var(--accent);animation:pulse 2s ease infinite}
+    .mp-name{font-family:var(--font-body);font-size:1.1rem;font-weight:700;color:var(--text-bright);margin-bottom:6px;letter-spacing:0.04em}
+    .mp-meta{font-family:var(--font-mono);font-size:0.62rem;color:var(--subtext);margin-bottom:14px;line-height:1.6}
+    .mp-stats{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;margin-bottom:12px}
+    .mp-preview{font-family:var(--font-mono);font-size:0.6rem;color:var(--muted);margin-bottom:18px;line-height:1.6;text-align:left;background:var(--bg);border:1px solid var(--border);border-radius:3px;padding:10px}
+    .mp-btns{display:flex;gap:10px;justify-content:center}
+    .mp-btn-decline{padding:11px 20px;background:rgba(240,96,96,0.08);border:1px solid rgba(240,96,96,0.3);border-radius:3px;color:var(--red);font-family:var(--font-mono);font-size:0.72rem;cursor:pointer;transition:all 0.2s;letter-spacing:0.08em}
+    .mp-btn-decline:hover{background:rgba(240,96,96,0.15)}
+    .mp-btn-accept{padding:11px 24px;background:linear-gradient(135deg,rgba(212,184,96,0.2),rgba(212,184,96,0.08));border:1.5px solid var(--accent);border-radius:3px;color:var(--accent);font-family:var(--font-mono);font-size:0.72rem;font-weight:600;cursor:pointer;transition:all 0.2s;letter-spacing:0.1em;position:relative;overflow:hidden}
+    .mp-btn-accept:hover{background:linear-gradient(135deg,rgba(212,184,96,0.3),rgba(212,184,96,0.12));box-shadow:0 0 20px rgba(212,184,96,0.3)}
+
+    /* ── QUEST COMPLETE ANNOUNCE ── */
+    .qca-inner{background:#0a1a10;border:1.5px solid #2ecc71;border-radius:6px;padding:14px 16px;box-shadow:0 0 30px rgba(46,204,113,0.3);animation:qcaIn 0.4s cubic-bezier(0.34,1.56,0.64,1) both}
+    @keyframes qcaIn{from{opacity:0;transform:translateX(-50%) translateY(-20px) scale(0.9)}to{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}}
+    @keyframes qcaOut{to{opacity:0;transform:translateX(-50%) translateY(-20px) scale(0.9)}}
+    .qca-top{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+    .qca-icon{width:32px;height:32px;border-radius:50%;background:rgba(46,204,113,0.15);border:1px solid rgba(46,204,113,0.3);display:flex;align-items:center;justify-content:center;color:#2ecc71;font-size:0.9rem;flex-shrink:0}
+    .qca-title{font-family:var(--font-mono);font-size:0.65rem;font-weight:600;color:#2ecc71;letter-spacing:0.12em}
+    .qca-name{font-family:var(--font-body);font-size:0.88rem;font-weight:700;color:var(--text-bright);margin-top:2px}
+    .qca-rewards{display:flex;flex-wrap:wrap;gap:5px}
+
     /* ════ GLITCH ════ */
     @keyframes glitch-skew{0%{transform:skewX(0)}10%{transform:skewX(-3deg)}20%{transform:skewX(2deg)}30%{transform:skewX(-1deg)}40%{transform:skewX(3deg)}50%{transform:skewX(0)}60%{transform:skewX(-2deg)}70%{transform:skewX(1deg)}100%{transform:skewX(0)}}
     @keyframes glitch-clip1{0%{clip-path:inset(0 0 95% 0);transform:translate(-4px,0)}10%{clip-path:inset(30% 0 50% 0);transform:translate(4px,0)}20%{clip-path:inset(60% 0 20% 0);transform:translate(-3px,0)}30%{clip-path:inset(10% 0 70% 0);transform:translate(3px,0)}40%{clip-path:inset(80% 0 5% 0);transform:translate(-4px,0)}50%{clip-path:inset(45% 0 40% 0);transform:translate(2px,0)}60%{clip-path:inset(5% 0 85% 0);transform:translate(-2px,0)}70%{clip-path:inset(70% 0 10% 0);transform:translate(4px,0)}80%{clip-path:inset(20% 0 65% 0);transform:translate(-3px,0)}100%{clip-path:inset(0 0 100% 0);transform:translate(0,0)}}
@@ -560,9 +638,19 @@
   </div>
   <div class="section-header" style="margin-top:4px">
     <div class="section-title">Overview Stats</div>
-    <div class="section-badge" id="radar-total">—</div>
+    <div style="display:flex;align-items:center;gap:6px">
+      <div class="section-badge" id="radar-total">—</div>
+      <div style="display:flex;gap:3px">
+        <button class="snap-btn active" id="snap-btn-week" onclick="setSnapshotPeriod('week',this)">1M</button>
+        <button class="snap-btn" id="snap-btn-month" onclick="setSnapshotPeriod('month',this)">1B</button>
+        <button class="snap-btn" id="snap-btn-3month" onclick="setSnapshotPeriod('3month',this)">3B</button>
+      </div>
+    </div>
   </div>
-  <div class="radar-wrap"><div class="radar-canvas-wrap"><canvas id="radarChart"></canvas></div></div>
+  <div class="radar-wrap">
+    <div class="radar-canvas-wrap"><canvas id="radarChart"></canvas></div>
+    <div id="radar-legend" style="display:flex;gap:12px;margin-top:8px;justify-content:center"></div>
+  </div>
   <div class="section-header"><div class="section-title">Character Stats</div>
     <button onclick="toggleNextRank()" id="nr-toggle-btn" style="background:var(--accent-blue-dim);border:1px solid var(--border-md);color:var(--accent-blue);font-family:var(--font-mono);font-size:0.58rem;padding:4px 10px;border-radius:2px;cursor:pointer;letter-spacing:0.06em">▸ NEXT RANK</button>
   </div>
@@ -580,18 +668,30 @@
     <div class="api-banner-desc">API key OpenRouter gratis, tidak butuh kartu kredit.<br>
       Buka <a href="https://openrouter.ai" target="_blank">openrouter.ai</a> → Sign up pakai Google → Keys → Create Key → paste di sini. Key bentuknya sk-or-...</div>
     <div class="api-key-row">
-      <input class="api-key-input" id="quest-api-key-input" type="password" placeholder="AIza..."/>
+      <input class="api-key-input" id="quest-api-key-input" type="password" placeholder="sk-or-..."/>
       <button class="api-key-save" onclick="saveApiKeyFrom('quest')">Simpan</button>
     </div>
   </div>
 
+  <!-- 3 tabs -->
   <div class="tab-row">
-    <button class="tab-btn active" onclick="switchQuestTab('daily')">Quest Harian</button>
-    <button class="tab-btn" onclick="switchQuestTab('challenge')">Challenge</button>
+    <button class="tab-btn active"  onclick="switchQuestTab('side')">Side Quest</button>
+    <button class="tab-btn"         onclick="switchQuestTab('daily')">Quest Harian</button>
+    <button class="tab-btn"         onclick="switchQuestTab('mission')">Mission</button>
+    <button class="tab-btn"         onclick="switchQuestTab('challenge')">Challenge</button>
   </div>
 
-  <!-- Daily Tab -->
-  <div class="q-tab-content active" id="qtab-daily">
+  <!-- ── SIDE QUEST TAB ── -->
+  <div class="q-tab-content active" id="qtab-side">
+    <div class="sq-header">
+      <div style="font-family:var(--font-mono);font-size:0.58rem;letter-spacing:0.12em;color:var(--subtext)">▸ SIDE QUEST HARIAN ◂</div>
+      <div style="font-family:var(--font-mono);font-size:0.55rem;color:var(--muted);margin-top:4px">3 quest bonus per hari · reset tiap tengah malam · tidak ada penalti</div>
+    </div>
+    <div id="sq-container" style="display:flex;flex-direction:column;gap:8px;margin-top:10px"></div>
+  </div>
+
+  <!-- ── DAILY QUEST TAB ── -->
+  <div class="q-tab-content" id="qtab-daily">
     <div class="summary-bar" id="q-summary-bar" style="display:none">
       <div class="summary-ring">
         <svg width="52" height="52" viewBox="0 0 52 52">
@@ -606,11 +706,10 @@
       </div>
       <div class="summary-penalty" id="q-summary-penalty" style="display:none"></div>
     </div>
-
-    <div class="section-header"><div class="section-title"><i class="fa-solid fa-bullseye"></i> Goals Lo</div></div>
+    <div class="section-header"><div class="section-title">Goals Lo</div></div>
     <div class="goal-setup-card">
       <div class="goal-setup-title">Apa yang mau lo capai?</div>
-      <div class="goal-setup-desc">AI generate quest harian berdasarkan goals ini. Makin spesifik, makin relevan.</div>
+      <div class="goal-setup-desc">AI baca goals ini + goals dari Profil lo. Makin spesifik, makin relevan.</div>
       <div class="goal-input-row">
         <input class="goal-input" id="q-goal-input" placeholder="IPK 4.0, bisa main gitar, badan fit..." maxlength="80" onkeydown="if(event.key==='Enter')addQuestGoal()"/>
         <button class="goal-add-btn" onclick="addQuestGoal()"><i class="fa-solid fa-plus"></i></button>
@@ -620,33 +719,79 @@
         <i class="fa-solid fa-wand-magic-sparkles"></i> Generate Quest Hari Ini
       </button>
     </div>
-
     <div class="section-header" id="q-wajib-header" style="display:none">
-      <div class="section-title"><i class="fa-solid fa-fire" style="color:var(--red);font-size:0.75rem"></i> Quest Wajib</div>
+      <div class="section-title"><i class="fa-solid fa-fire" style="color:var(--red);font-size:0.7rem"></i> Quest Wajib</div>
       <div class="section-badge" id="q-wajib-badge">—</div>
     </div>
     <div id="q-wajib-container"></div>
-
     <div class="section-header" id="q-opsional-header" style="display:none">
-      <div class="section-title"><i class="fa-solid fa-star" style="color:var(--green);font-size:0.75rem"></i> Quest Opsional</div>
+      <div class="section-title"><i class="fa-solid fa-star" style="color:var(--green);font-size:0.7rem"></i> Quest Opsional</div>
       <div class="section-badge" id="q-opsional-badge">—</div>
     </div>
     <div id="q-opsional-container"></div>
   </div>
 
-  <!-- Challenge Tab -->
+  <!-- ── MISSION TAB ── -->
+  <div class="q-tab-content" id="qtab-mission">
+    <div class="sq-header" style="margin-bottom:12px">
+      <div style="font-family:var(--font-mono);font-size:0.58rem;letter-spacing:0.12em;color:var(--subtext)">▸ ACTIVE MISSIONS ◂</div>
+      <div style="font-family:var(--font-mono);font-size:0.55rem;color:var(--muted);margin-top:4px">Mission dibuat otomatis dari Quest Harian. Masukkan goal berjangka panjang di tab Quest Harian → AI detect → mission terbentuk.</div>
+    </div>
+    <div class="section-header">
+      <div class="section-title"><i class="fa-solid fa-crosshairs" style="color:var(--accent);font-size:0.7rem"></i> Active Missions</div>
+      <div class="section-badge" id="mission-count">0 aktif</div>
+    </div>
+    <div id="mission-active-container"></div>
+    <div class="section-header" style="margin-top:14px">
+      <div class="section-title">Mission History</div>
+    </div>
+    <div id="mission-history-container"></div>
+  </div>
+
+  <!-- ── CHALLENGE TAB ── -->
   <div class="q-tab-content" id="qtab-challenge">
     <div class="section-header">
       <div class="section-title"><i class="fa-solid fa-trophy" style="color:var(--accent);font-size:0.75rem"></i> Challenge Quest</div>
       <div class="section-badge">7 hari · +5 stats</div>
     </div>
-    <div style="font-family:var(--font-desc);font-size:0.78rem;color:var(--subtext);margin-bottom:14px;line-height:1.5">
-      Selesaikan 7 hari berturut-turut. Gagal 1 hari = reset + penalti. Claim hanya bisa di hari yang tepat.
+    <div style="font-family:var(--font-mono);font-size:0.68rem;color:var(--subtext);margin-bottom:14px;line-height:1.5">
+      Selesaikan 7 hari berturut-turut. Gagal 1 hari = reset + penalti.
     </div>
     <div id="ch-decay-warnings"></div>
     <div class="challenge-grid" id="ch-grid"></div>
   </div>
   <div style="height:12px"></div>
+</div>
+
+<!-- MISSION CONFIRM POPUP -->
+<div id="mission-popup" style="display:none;position:fixed;inset:0;z-index:9990;background:rgba(0,0,0,0.85);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:20px">
+  <div class="mission-popup-inner">
+    <div class="mp-glow"></div>
+    <div class="mp-label">▸ MISSION DETECTED ◂</div>
+    <div class="mp-icon"><i class="fa-solid fa-crosshairs"></i></div>
+    <div class="mp-name" id="mp-name">—</div>
+    <div class="mp-meta" id="mp-meta">—</div>
+    <div class="mp-stats" id="mp-stats"></div>
+    <div class="mp-preview" id="mp-preview"></div>
+    <div class="mp-btns">
+      <button class="mp-btn-decline" onclick="declineMission()">DECLINE</button>
+      <button class="mp-btn-accept"  onclick="acceptMission()">ACCEPT MISSION</button>
+    </div>
+  </div>
+</div>
+
+<!-- QUEST COMPLETE ANNOUNCEMENT -->
+<div id="quest-complete-announce" style="display:none;position:fixed;top:80px;left:50%;transform:translateX(-50%);z-index:9995;min-width:280px;max-width:340px">
+  <div class="qca-inner">
+    <div class="qca-top">
+      <div class="qca-icon"><i class="fa-solid fa-check"></i></div>
+      <div>
+        <div class="qca-title">QUEST COMPLETE</div>
+        <div class="qca-name" id="qca-name">—</div>
+      </div>
+    </div>
+    <div class="qca-rewards" id="qca-rewards"></div>
+  </div>
 </div>
 
 <!-- ══════════════════════════════════════
@@ -932,6 +1077,20 @@ function loadData(){const r=localStorage.getItem('plt_data');if(r)return JSON.pa
 function saveData(d){localStorage.setItem('plt_data',JSON.stringify(d));}
 function loadLogs(){const r=localStorage.getItem('plt_logs');return r?JSON.parse(r):[];}
 function saveLogs(l){localStorage.setItem('plt_logs',JSON.stringify(l));}
+
+// ── Centralized stat gain logger ──
+// source: 'log' | 'quest' | 'quest-opsional' | 'side-quest' | 'mission' | 'challenge' | 'roll'
+function logStatGain(text, gains, source){
+  if(!gains||!Object.keys(gains).length) return;
+  const logs=loadLogs(), now=new Date();
+  const ts=`${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
+  logs.unshift({text, gains, time:ts, date:now.toDateString(), source});
+  saveLogs(logs);
+  // Update decay tracker
+  const decay=loadDecay();
+  Object.keys(gains).forEach(k=>{if(!decay[k])decay[k]={};decay[k].lastActivity=TODAY_ISO;});
+  saveDecay(decay);
+}
 function loadProfile(){const r=localStorage.getItem('plt_profile');return r?JSON.parse(r):{name:'',bio:'',photo:'',info:{umur:'',kota:'',kampus:'','mulai-kuliah':''},goals:[],talents:[],achievements:[]};}
 function saveProfile(p){localStorage.setItem('plt_profile',JSON.stringify(p));}
 function loadGoals(){const r=localStorage.getItem('plt_goals');return r?JSON.parse(r):[];}
@@ -1197,6 +1356,8 @@ function initStats(){
 
   renderRadar(data);
   renderStatsGrid(data);
+  // Re-apply ornamental borders after cards render
+  setTimeout(()=>applyOrnamentalBorders(getCurrentTier(getOverallLevel())), 150);
 }
 
 // Modal helpers
@@ -1231,6 +1392,176 @@ function goPage(name){
 // PAGE: STATS
 // ════════════════════════════════════════════════════════
 let radarInstance=null;
+let currentSnapshotPeriod='week';
+
+// ── Snapshot system ──
+function loadSnapshots(){
+  const r=localStorage.getItem('plt_snapshots');
+  return r?JSON.parse(r):{};
+}
+function saveSnapshots(s){localStorage.setItem('plt_snapshots',JSON.stringify(s));}
+
+function takeSnapshot(){
+  const snaps=loadSnapshots();
+  const data=loadData();
+  const key=TODAY_ISO;
+  // Save daily snapshot (keep last 90 days)
+  snaps[key]={...data.stats};
+  // Prune old snapshots beyond 90 days
+  const cutoff=new Date();cutoff.setDate(cutoff.getDate()-90);
+  Object.keys(snaps).forEach(k=>{if(new Date(k)<cutoff)delete snaps[k];});
+  saveSnapshots(snaps);
+}
+
+function getSnapshotForPeriod(period){
+  const snaps=loadSnapshots();
+  const keys=Object.keys(snaps).sort();
+  if(!keys.length) return null;
+  const now=new Date(TODAY_ISO);
+  let daysBack=7;
+  if(period==='month')  daysBack=30;
+  if(period==='3month') daysBack=90;
+  const target=new Date(now);target.setDate(target.getDate()-daysBack);
+  // Find closest snapshot to target
+  let closest=null,closestDiff=Infinity;
+  keys.forEach(k=>{
+    const d=new Date(k);
+    const diff=Math.abs(d-target);
+    if(diff<closestDiff){closestDiff=diff;closest=k;}
+  });
+  return closest?snaps[closest]:null;
+}
+
+function setSnapshotPeriod(period, btn){
+  currentSnapshotPeriod=period;
+  document.querySelectorAll('.snap-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderRadar(loadData());
+}
+
+function renderRadar(data){
+  const labels = STAT_CONFIG.map(s=>{
+    const v    = data.stats[s.key];
+    const rank = getRank(v);
+    return s.name+'\n'+rank[2];
+  });
+  const values  = STAT_CONFIG.map(s=>data.stats[s.key]);
+  const total   = values.reduce((a,b)=>a+b,0);
+  document.getElementById('radar-total').textContent='Total '+total+' XP';
+
+  const ctx = document.getElementById('radarChart').getContext('2d');
+  if(radarInstance) radarInstance.destroy();
+
+  // Get snapshot for comparison
+  const snap=getSnapshotForPeriod(currentSnapshotPeriod);
+  const snapValues=snap?STAT_CONFIG.map(s=>snap[s.key]||0):null;
+
+  // Period label
+  const periodLabels={week:'1 minggu lalu',month:'1 bulan lalu','3month':'3 bulan lalu'};
+  const periodLabel=periodLabels[currentSnapshotPeriod];
+
+  // Legend
+  const legend=document.getElementById('radar-legend');
+  if(legend){
+    legend.innerHTML=`
+      <div style="display:flex;align-items:center;gap:4px;font-family:var(--font-mono);font-size:0.52rem;color:var(--accent-blue)">
+        <div style="width:10px;height:2px;background:var(--accent-blue);border-radius:1px"></div>Sekarang
+      </div>
+      <div style="display:flex;align-items:center;gap:4px;font-family:var(--font-mono);font-size:0.52rem;color:var(--muted)">
+        <div style="width:10px;height:2px;background:var(--muted);border-radius:1px;opacity:0.6"></div>${snap?periodLabel:'Belum ada snapshot'}
+      </div>`;
+  }
+
+  const datasets=[];
+
+  // Shadow dataset (previous) — shown first so it's behind
+  if(snapValues){
+    datasets.push({
+      label: periodLabel,
+      data: snapValues,
+      backgroundColor: 'rgba(74,159,255,0.06)',
+      borderColor:     'rgba(74,159,255,0.2)',
+      borderWidth:     1.5,
+      borderDash:      [4,3],
+      pointBackgroundColor: 'rgba(74,159,255,0.3)',
+      pointBorderColor:     'transparent',
+      pointRadius:     3,
+      pointHoverRadius:4,
+      fill: true,
+    });
+  }
+
+  // Current dataset — on top, full color
+  datasets.push({
+    label: 'Sekarang',
+    data: values,
+    backgroundColor: 'rgba(96,180,255,0.15)',
+    borderColor: ctx=>{
+      const g=ctx.chart.ctx.createLinearGradient(0,0,300,300);
+      g.addColorStop(0,'#60b4ff');
+      g.addColorStop(0.5,'#c87aff');
+      g.addColorStop(1,'#60e8d0');
+      return g;
+    },
+    borderWidth:  2.5,
+    pointBackgroundColor: STAT_CONFIG.map(s=>s.color),
+    pointBorderColor:     STAT_CONFIG.map(s=>s.color),
+    pointBorderWidth:     1.5,
+    pointRadius:  5,
+    pointHoverRadius: 7,
+    fill: true,
+  });
+
+  radarInstance = new Chart(ctx,{
+    type:'radar',
+    data:{labels, datasets},
+    options:{
+      responsive:true,
+      animation:{duration:800,easing:'easeOutQuart'},
+      scales:{
+        r:{
+          beginAtZero:true,
+          grid:{color:'rgba(96,180,255,0.07)'},
+          angleLines:{color:'rgba(96,180,255,0.1)'},
+          pointLabels:{
+            color:'#7aa8d8',
+            font:{family:"'Share Tech Mono',monospace",size:9},
+            padding:8,
+          },
+          ticks:{display:false}
+        }
+      },
+      plugins:{
+        legend:{display:false},
+        tooltip:{
+          backgroundColor:'#121a2e',
+          borderColor:'rgba(96,180,255,0.3)',
+          borderWidth:1,
+          titleColor:'#60b4ff',
+          bodyColor:'#c8dff8',
+          titleFont:{family:"'Share Tech Mono',monospace",size:10},
+          bodyFont:{family:"'Share Tech Mono',monospace",size:11},
+          padding:10,
+          callbacks:{
+            title: items=>STAT_CONFIG[items[0].dataIndex].name,
+            label: c=>{
+              const label=c.dataset.label==='Sekarang'?'Sekarang':periodLabel;
+              const diff=c.dataset.label==='Sekarang'&&snapValues
+                ? c.raw-(snapValues[c.dataIndex]||0)
+                : null;
+              const diffStr=diff!==null?(diff>0?` (+${diff})`:(diff<0?` (${diff})`:' (=)')):'';
+              return` ${label}: ${c.raw} pts${diffStr}`;
+            }
+          }
+        }
+      }
+    }
+  });
+
+  // Auto-take snapshot once per day
+  const snaps=loadSnapshots();
+  if(!snaps[TODAY_ISO]) takeSnapshot();
+}
 
 
 function renderRadar(data){
@@ -1477,7 +1808,7 @@ function autoCheckAchievements(){
 
 // ── RESET ALL DATA ──
 function resetAllData(){
-  const keys=['plt_data','plt_profile','plt_logs','plt_goals','plt_quests','plt_challenges','plt_decay','plt_roll_history','plt_or_key'];
+  const keys=['plt_data','plt_profile','plt_logs','plt_goals','plt_quests','plt_challenges','plt_decay','plt_roll_history','plt_or_key','plt_missions','plt_side_quests'];
   keys.forEach(k=>localStorage.removeItem(k));
   showToast('Semua data direset. App fresh!');
   setTimeout(()=>location.reload(),1200);
@@ -1771,14 +2102,287 @@ function renderLogHistory(){
 let questGoals=loadGoals();
 
 function switchQuestTab(tab){
-  document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active',(i===0&&tab==='daily')||(i===1&&tab==='challenge')));
-  document.getElementById('qtab-daily').classList.toggle('active',tab==='daily');
-  document.getElementById('qtab-challenge').classList.toggle('active',tab==='challenge');
+  const tabs=['side','daily','mission','challenge'];
+  document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active',tabs[i]===tab));
+  tabs.forEach(t=>{
+    const el=document.getElementById('qtab-'+t);
+    if(el) el.classList.toggle('active',t===tab);
+  });
+  if(tab==='side') renderSideQuests();
+  if(tab==='mission') renderMissions();
 }
+
 function initQuest(){
-  if(!getApiKey())document.getElementById('quest-api-banner').classList.add('show');
+  if(!getApiKey()) document.getElementById('quest-api-banner').classList.add('show');
   else document.getElementById('quest-api-banner').classList.remove('show');
-  questGoals=loadGoals();renderQuestGoalChips();renderDailyAll();renderChallenges();
+  questGoals=loadGoals();
+  renderQuestGoalChips();
+  renderDailyAll();
+  renderChallenges();
+  renderSideQuests();
+  renderMissions();
+}
+
+// ════════════════════════════════════════════════════════
+// SIDE QUEST SYSTEM
+// ════════════════════════════════════════════════════════
+
+const SIDE_QUEST_POOL = [
+  {text:'Push up 10x sekarang',cat:'STR',gains:{STR:1},icon:'💪'},
+  {text:'Push up 20x',cat:'STR',gains:{STR:1},icon:'💪'},
+  {text:'Sit up 15x',cat:'STR',gains:{STR:1},icon:'🔥'},
+  {text:'Squat 20x',cat:'STR',gains:{STR:1},icon:'🦵'},
+  {text:'Plank 30 detik',cat:'STM',gains:{STM:1},icon:'⏱️'},
+  {text:'Jalan kaki 10 menit',cat:'STM',gains:{STM:1},icon:'🚶'},
+  {text:'Stretching 5 menit',cat:'STM',gains:{STM:1},icon:'🧘'},
+  {text:'Minum 2 gelas air sekarang',cat:'STM',gains:{STM:1},icon:'💧'},
+  {text:'Baca 5 halaman buku apapun',cat:'KNO',gains:{KNO:1},icon:'📖'},
+  {text:'Tulis 3 hal yang lo pelajari hari ini',cat:'KNO',gains:{KNO:1},icon:'✍️'},
+  {text:'Pelajari 5 kata baru bahasa Inggris',cat:'KNO',gains:{KNO:1},icon:'🌐'},
+  {text:'Tonton 1 video edukatif (min 5 menit)',cat:'KNO',gains:{KNO:1},icon:'🎓'},
+  {text:'Kerjain 5 soal matematika',cat:'INT',gains:{INT:1},icon:'🔢'},
+  {text:'Main puzzle atau teka-teki 10 menit',cat:'INT',gains:{INT:1},icon:'🧩'},
+  {text:'Tulis solusi dari 1 masalah yang lagi lo hadapi',cat:'INT',gains:{INT:1},icon:'💡'},
+  {text:'Meditasi 5 menit — fokus napas',cat:'FOC',gains:{FOC:1},icon:'🧠'},
+  {text:'Tidak buka HP 30 menit ke depan',cat:'FOC',gains:{FOC:1},icon:'📵'},
+  {text:'Kerjain 1 task yang sudah lama ditunda',cat:'DIS',gains:{DIS:1},icon:'✅'},
+  {text:'Tidur sebelum jam 11 malam hari ini',cat:'DIS',gains:{DIS:1},icon:'🌙'},
+  {text:'Rapiin 1 sudut kamar lo sekarang',cat:'DIS',gains:{DIS:1},icon:'🧹'},
+  {text:'Kirim pesan ke 1 teman yang udah lama tidak kontak',cat:'CHA',gains:{CHA:1},icon:'💬'},
+  {text:'Ceritain sesuatu yang lo pelajari ke orang lain',cat:'CHA',gains:{CHA:1},icon:'🗣️'},
+  {text:'Minta pendapat orang tentang sesuatu',cat:'CHA',gains:{CHA:1},icon:'🤝'},
+  {text:'Cold shower minimal 1 menit',cat:'DIS',gains:{DIS:1},icon:'🚿'},
+  {text:'Latihan gitar atau instrumen 10 menit',cat:'FOC',gains:{FOC:1},icon:'🎸'},
+  {text:'Lompat tali atau jumping jack 30x',cat:'STR',gains:{STR:1},icon:'🏃'},
+];
+
+function loadSideQuests(){
+  const r=localStorage.getItem('plt_side_quests');
+  if(r){
+    const d=JSON.parse(r);
+    if(d.date===TODAY) return d;
+  }
+  // Generate 3 random, no repeats
+  const pool=[...SIDE_QUEST_POOL];
+  const picked=[];
+  for(let i=0;i<3;i++){
+    const idx=Math.floor(Math.random()*pool.length);
+    picked.push({...pool[idx],id:'sq'+i,done:false});
+    pool.splice(idx,1);
+  }
+  const sq={date:TODAY,quests:picked};
+  localStorage.setItem('plt_side_quests',JSON.stringify(sq));
+  return sq;
+}
+
+function completeSideQuest(id){
+  const sq=loadSideQuests();
+  const q=sq.quests.find(x=>x.id===id);
+  if(!q||q.done) return;
+  q.done=true;
+  localStorage.setItem('plt_side_quests',JSON.stringify(sq));
+  const data=loadData();
+  Object.entries(q.gains).forEach(([k,v])=>{data.stats[k]=(data.stats[k]||0)+v;});
+  saveData(data);
+  logStatGain('[SIDE QUEST] '+q.text, q.gains, 'side-quest');
+  showQuestCompleteAnnounce(q.text, q.gains);
+  triggerGlitch(q.gains);
+  setTimeout(autoCheckAchievements,500);
+  renderSideQuests();
+}
+
+function renderSideQuests(){
+  const sq=loadSideQuests();
+  const c=document.getElementById('sq-container');
+  if(!c) return;
+  c.innerHTML=sq.quests.map(q=>`
+    <div class="sq-card ${q.done?'done':''}">
+      <div class="sq-card-top">
+        <div>
+          <div style="font-size:1.1rem;margin-bottom:4px">${q.icon}</div>
+          <div class="sq-title ${q.done?'done-text':''}">${q.text}</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div class="sq-meta">
+          <div style="font-family:var(--font-mono);font-size:0.58rem;padding:2px 7px;border-radius:2px;background:rgba(212,184,96,0.1);color:var(--accent);border:1px solid var(--accent-glow)">${q.cat}</div>
+          <div class="sq-pts">${Object.entries(q.gains).map(([k,v])=>`+${v} ${k}`).join(' ')}</div>
+        </div>
+        ${q.done
+          ? `<div style="font-family:var(--font-mono);font-size:0.65rem;color:var(--green);letter-spacing:0.08em">✓ COMPLETE</div>`
+          : `<button class="sq-complete-btn" onclick="completeSideQuest('${q.id}')"><i class="fa-solid fa-check" style="margin-right:5px"></i>COMPLETE</button>`
+        }
+      </div>
+    </div>`).join('');
+}
+
+// ════════════════════════════════════════════════════════
+// QUEST COMPLETE ANNOUNCEMENT
+// ════════════════════════════════════════════════════════
+function showQuestCompleteAnnounce(name, gains){
+  const el=document.getElementById('quest-complete-announce');
+  const nm=document.getElementById('qca-name');
+  const rw=document.getElementById('qca-rewards');
+  nm.textContent=name.length>50?name.slice(0,47)+'...':name;
+  rw.innerHTML=Object.entries(gains).map(([k,v])=>{
+    const m=STAT_META[k];
+    return`<div class="gain-tag" style="background:${hexAlpha(m.color,0.15)};color:${m.color};font-family:var(--font-mono);font-size:0.6rem;padding:2px 8px;border-radius:10px">+${v} ${k}</div>`;
+  }).join('');
+  el.style.display='block';
+  el.querySelector('.qca-inner').style.animation='qcaIn 0.4s cubic-bezier(0.34,1.56,0.64,1) both';
+  // Sound
+  SFX?.questDone();
+  setTimeout(()=>{
+    el.querySelector('.qca-inner').style.animation='qcaOut 0.3s ease forwards';
+    setTimeout(()=>{el.style.display='none';},300);
+  },2800);
+}
+
+// ════════════════════════════════════════════════════════
+// MISSION SYSTEM
+// ════════════════════════════════════════════════════════
+function loadMissions(){
+  const r=localStorage.getItem('plt_missions');
+  return r?JSON.parse(r):{active:[],history:[]};
+}
+function saveMissions(m){localStorage.setItem('plt_missions',JSON.stringify(m));}
+
+let pendingMission=null;
+
+
+function showMissionPopup(m){
+  document.getElementById('mp-name').textContent=m.emoji+' '+m.name;
+  document.getElementById('mp-meta').innerHTML=`${m.daysLeft} hari tersisa &nbsp;·&nbsp; deadline ${m.deadline} &nbsp;·&nbsp; ${m.quests.length} quest`;
+  // Total gains
+  const totals={};
+  m.quests.forEach(q=>Object.entries(q.gains||{}).forEach(([k,v])=>{totals[k]=(totals[k]||0)+v;}));
+  document.getElementById('mp-stats').innerHTML=Object.entries(totals).map(([k,v])=>{
+    const mc=STAT_META[k];
+    return`<div style="font-family:var(--font-mono);font-size:0.62rem;padding:3px 8px;border-radius:2px;background:${hexAlpha(mc.color,0.12)};color:${mc.color};border:1px solid ${hexAlpha(mc.color,0.25)}">+${v} ${k}</div>`;
+  }).join('');
+  // Preview quests
+  document.getElementById('mp-preview').innerHTML=
+    `<div style="font-family:var(--font-mono);font-size:0.55rem;color:var(--muted);letter-spacing:0.08em;margin-bottom:6px">PREVIEW QUESTS:</div>`+
+    m.quests.slice(0,4).map((q,i)=>`<div style="margin-bottom:3px">→ ${q.title} (${Object.entries(q.gains||{}).map(([k,v])=>`+${v} ${k}`).join(' ')})</div>`).join('')+
+    (m.quests.length>4?`<div style="color:var(--muted)">+ ${m.quests.length-4} quest lagi...</div>`:'');
+  const popup=document.getElementById('mission-popup');
+  popup.style.display='flex';
+  // Glow border animate
+  setTimeout(()=>{popup.querySelector('.mission-popup-inner').style.borderColor='rgba(212,184,96,0.8)';},300);
+  setTimeout(()=>{popup.querySelector('.mission-popup-inner').style.borderColor='rgba(212,184,96,0.4)';},800);
+}
+
+function declineMission(){
+  pendingMission=null;
+  document.getElementById('mission-popup').style.display='none';
+  showToast('Mission ditolak');
+}
+
+function acceptMission(){
+  if(!pendingMission) return;
+  const queue=pendingMission.pendingQueue||[];
+  delete pendingMission.pendingQueue;
+  const ms=loadMissions();
+  ms.active.push(pendingMission);
+  saveMissions(ms);
+  pendingMission=null;
+  document.getElementById('mission-popup').style.display='none';
+  renderMissions();
+  showToast('Mission diterima!');
+  SFX?.achievement();
+  // If there are more missions queued, show next popup
+  if(queue.length>0){
+    const next=queue[0];
+    pendingMission={
+      id:'m_'+Date.now(),
+      name:next.name,
+      deadline:next.deadline||TODAY_ISO,
+      daysLeft:next.daysLeft||1,
+      intervalHours:next.intervalHours||24,
+      quests:(next.quests||[]).map((q,i)=>{
+        const unlockAt=new Date(Date.now()+i*next.intervalHours*3600000).toISOString();
+        return{...q,id:'mq'+Date.now()+'_'+i,claimed:false,claimedDate:null,unlockAt};
+      }),
+      emoji:next.emoji||'⚔️',
+      createdDate:TODAY_ISO,
+      status:'active',
+      pendingQueue:queue.slice(1),
+    };
+    setTimeout(()=>showMissionPopup(pendingMission),500);
+  }
+}
+
+function claimMissionQuest(missionId, questId){
+  const ms=loadMissions();
+  const m=ms.active.find(x=>x.id===missionId);
+  if(!m) return;
+  const q=m.quests.find(x=>x.id===questId);
+  if(!q||q.claimed) return;
+  // Check if unlocked
+  if(new Date(q.unlockAt)>new Date()){showToast('Quest belum unlock');return;}
+  q.claimed=true;
+  q.claimedDate=TODAY_ISO;
+  const data=loadData();
+  Object.entries(q.gains||{}).forEach(([k,v])=>{data.stats[k]=(data.stats[k]||0)+v;});
+  saveData(data);
+  logStatGain('[MISSION: '+m.name+'] '+q.title, q.gains||{}, 'mission');
+  // Check if this was last quest or deadline passed → intensify skipped quests
+  const nextUnclaimed=m.quests.find(x=>!x.claimed&&new Date(x.unlockAt)>new Date());
+  if(nextUnclaimed){
+    // Push next quest unlock sooner if we just claimed
+    const now=new Date();
+    nextUnclaimed.unlockAt=new Date(now.getTime()+m.intervalHours*3600000).toISOString();
+  }
+  // Check mission complete
+  const allClaimed=m.quests.every(x=>x.claimed);
+  const deadlinePassed=new Date(m.deadline+'T23:59:59')<new Date();
+  if(allClaimed||deadlinePassed){
+    m.status=allClaimed?'done':'expired';
+    ms.history.push(m);
+    ms.active=ms.active.filter(x=>x.id!==missionId);
+  }
+  saveMissions(ms);
+  showQuestCompleteAnnounce(q.title, q.gains);
+  triggerGlitch(q.gains);
+  checkLevelUp(getTotalXP()-Object.values(q.gains||{}).reduce((a,b)=>a+b,0));
+  setTimeout(autoCheckAchievements,500);
+  renderMissions();
+}
+
+function renderMissions(){
+  const ms=loadMissions();
+  const ac=document.getElementById('mission-active-container');
+  const hi=document.getElementById('mission-history-container');
+  const mc=document.getElementById('mission-count');
+  if(!ac||!hi) return;
+  mc.textContent=ms.active.length+' aktif';
+  const now=new Date();
+  // Active
+  if(!ms.active.length){
+    ac.innerHTML=`<div style="background:var(--card);border:1px dashed var(--border-md);border-radius:4px;padding:20px;text-align:center;font-family:var(--font-mono);font-size:0.65rem;color:var(--muted)">Belum ada mission aktif.<br>Buat mission baru di atas.</div>`;
+  } else {
+    ac.innerHTML=ms.active.map(m=>{
+      const deadline=new Date(m.deadline+'T23:59:59');
+      const daysLeft=Math.max(0,Math.ceil((deadline-now)/86400000));
+      const isUrgent=daysLeft<=3;
+      const questsHtml=m.quests.map(q=>{
+        const unlocked=new Date(q.unlockAt)<=now;
+        const minsToUnlock=Math.max(0,Math.round((new Date(q.unlockAt)-now)/60000));
+        const hoursToUnlock=Math.floor(minsToUnlock/60);
+        const minsRem=minsToUnlock%60;
+        if(q.claimed) return`<div class="mc-quest" style="opacity:0.4;border-left:2px solid var(--green)"><div class="mc-quest-title" style="text-decoration:line-through;color:var(--muted)">${q.title}</div><div class="mc-quest-bottom"><div class="mc-quest-pts">${Object.entries(q.gains||{}).map(([k,v])=>`+${v} ${k}`).join(' ')}</div><div style="font-family:var(--font-mono);font-size:0.6rem;color:var(--green)">✓ CLAIMED</div></div></div>`;
+        if(!unlocked) return`<div class="mc-quest locked"><div class="mc-quest-title" style="color:var(--muted)">🔒 ${q.title}</div><div class="mc-quest-bottom"><div class="mc-quest-pts" style="color:var(--muted)">${Object.entries(q.gains||{}).map(([k,v])=>`+${v} ${k}`).join(' ')}</div><div class="mc-countdown">unlock ${hoursToUnlock}j ${minsRem}m lagi</div></div></div>`;
+        return`<div class="mc-quest"><div class="mc-quest-title">${q.title}</div><div class="mc-quest-bottom"><div class="mc-quest-pts">${Object.entries(q.gains||{}).map(([k,v])=>`+${v} ${k}`).join(' ')}</div><button class="mc-claim-btn" onclick="claimMissionQuest('${m.id}','${q.id}')"><i class="fa-solid fa-check" style="margin-right:4px"></i>CLAIM</button></div></div>`;
+      }).join('');
+      return`<div class="mission-card active-m"><div class="mc-top"><div class="mc-icon">${m.emoji}</div><div class="mc-info"><div class="mc-name">${m.name}</div><div class="mc-meta">${m.quests.filter(q=>q.claimed).length}/${m.quests.length} quest selesai</div></div><div class="mc-deadline ${isUrgent?'urgent':'normal'}">${daysLeft} hari lagi</div></div><div class="mc-quest-area">${questsHtml}</div></div>`;
+    }).join('');
+  }
+  // History
+  if(!ms.history.length){
+    hi.innerHTML=`<div style="font-family:var(--font-mono);font-size:0.62rem;color:var(--muted);padding:10px 0">Belum ada riwayat mission.</div>`;
+  } else {
+    hi.innerHTML=ms.history.slice().reverse().map(m=>`<div class="mission-card ${m.status==='done'?'done-m':'expired-m'}"><div class="mc-top"><div class="mc-icon">${m.emoji}</div><div class="mc-info"><div class="mc-name">${m.name}</div><div class="mc-meta">${m.status==='done'?'✓ Selesai':'✗ Expired'} · ${m.quests.filter(q=>q.claimed).length}/${m.quests.length} quest</div></div><div class="mc-deadline done">${m.deadline}</div></div></div>`).join('');
+  }
 }
 function addQuestGoal(){
   const inp=document.getElementById('q-goal-input'),v=inp.value.trim();
@@ -1812,16 +2416,86 @@ async function callGroq(prompt){
 
 async function generateQuests(){
   if(!getApiKey()){document.getElementById('quest-api-banner').classList.add('show');return;}
-  if(!questGoals.length){showToast('Tambah minimal 1 goal dulu');return;}
-  const btn=document.getElementById('q-gen-btn');btn.disabled=true;btn.innerHTML=`<div class="spinner"></div> AI lagi mikir...`;
+  const profGoals=loadProfile().goals.map(g=>g.title+(g.desc?' ('+g.desc+')':'')).slice(0,4);
+  const allGoals=[...questGoals,...profGoals].filter(Boolean);
+  if(!allGoals.length){showToast('Tambah minimal 1 goal dulu');return;}
+  const btn=document.getElementById('q-gen-btn');btn.disabled=true;btn.innerHTML=`<div class="spinner"></div> AI lagi analisa...`;
   showQuestLoading();
   try{
     const stats=loadData().stats;
-    const prompt=`Quest generator RPG kehidupan nyata. Goals: ${questGoals.join(', ')}. Stats: STR=${stats.STR},INT=${stats.INT},STM=${stats.STM},KNO=${stats.KNO},DIS=${stats.DIS},FOC=${stats.FOC},CHA=${stats.CHA}. Kondisi: kelas 12 SMA, nganggur sebelum kuliah September 2026. Generate 3 quest WAJIB (spesifik+ukuran, ada penalti) dan 3 OPSIONAL (lebih ringan). Reward max +2/stat, penalti -1/stat. Beragam, relevan. Bahasa Indonesia singkat. Balas HANYA JSON: {"wajib":[{"title":"...","reward":{"STR":1},"penalty":{"STR":1}}],"opsional":[{"title":"...","reward":{"KNO":1}}]}`;
-    const parsed=JSON.parse(await callGroq(prompt));
+    const now=new Date();
+    const dateStr=`${now.getDate()} ${['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'][now.getMonth()]} ${now.getFullYear()}`;
+
+    // AI detect missions + generate daily quests in one call
+    const prompt=`Kamu adalah quest generator untuk RPG kehidupan nyata. Tanggal hari ini: ${dateStr}.
+Goals user: ${allGoals.join(' | ')}.
+Stats sekarang: STR=${stats.STR},INT=${stats.INT},STM=${stats.STM},KNO=${stats.KNO},DIS=${stats.DIS},FOC=${stats.FOC},CHA=${stats.CHA}.
+
+Tugas:
+1. Detect apakah ada goal yang berjangka panjang (punya deadline/tanggal/jumlah hari). Kalau ada, extract jadi mission.
+2. Generate 3 quest WAJIB dan 3 quest OPSIONAL untuk hari ini dari semua goals (termasuk yang tidak berjangka).
+
+Untuk setiap mission yang terdeteksi:
+- Hitung deadline absolut dari tanggal hari ini
+- Tentukan interval unlock quest dalam jam (sisa hari > 14: 48-72 jam, 7-14 hari: 24-36 jam, < 7 hari: 12-24 jam)
+- Generate quest bertahap dari mudah ke sulit
+
+Balas HANYA JSON:
+{
+  "missions": [
+    {
+      "name": "nama singkat",
+      "deadline": "YYYY-MM-DD",
+      "daysLeft": 10,
+      "intervalHours": 48,
+      "emoji": "📚",
+      "quests": [{"title": "...", "gains": {"KNO": 1}}]
+    }
+  ],
+  "wajib": [{"title": "...", "reward": {"STR": 1}, "penalty": {"STR": 1}}],
+  "opsional": [{"title": "...", "reward": {"KNO": 1}}]
+}
+Kalau tidak ada goal berjangka panjang, "missions" boleh array kosong [].`;
+
+    const raw=await callGroq(prompt);
+    const jsonMatch=raw.match(/\{[\s\S]*\}/);
+    if(!jsonMatch) throw new Error('Format tidak valid');
+    const parsed=JSON.parse(jsonMatch[0]);
+
+    // Save daily quests
     const qd={date:TODAY,wajib:(parsed.wajib||[]).map((q,i)=>({...q,id:'w'+i,done:false,type:'wajib'})),opsional:(parsed.opsional||[]).map((q,i)=>({...q,id:'o'+i,done:false,type:'opsional'}))};
     saveQD(qd);renderDailyAll();showToast('Quest hari ini siap!');
     document.getElementById('topbar-regen').style.display='block';
+
+    // Handle missions detected
+    const newMissions=parsed.missions||[];
+    if(newMissions.length>0){
+      // Check which ones are not already active
+      const existing=loadMissions();
+      const existingNames=existing.active.map(m=>m.name.toLowerCase());
+      const toCreate=newMissions.filter(m=>!existingNames.includes(m.name.toLowerCase()));
+      if(toCreate.length>0){
+        // Show first one in popup — queue the rest
+        const first=toCreate[0];
+        pendingMission={
+          id:'m_'+Date.now(),
+          name:first.name,
+          deadline:first.deadline||TODAY_ISO,
+          daysLeft:first.daysLeft||1,
+          intervalHours:first.intervalHours||24,
+          quests:(first.quests||[]).map((q,i)=>{
+            const unlockAt=new Date(Date.now()+i*first.intervalHours*3600000).toISOString();
+            return{...q,id:'mq'+Date.now()+'_'+i,claimed:false,claimedDate:null,unlockAt};
+          }),
+          emoji:first.emoji||'⚔️',
+          createdDate:TODAY_ISO,
+          status:'active',
+          pendingQueue:toCreate.slice(1), // queue rest
+        };
+        // Delay popup so quest list renders first
+        setTimeout(()=>showMissionPopup(pendingMission), 800);
+      }
+    }
   }catch(e){showToast('Error: '+e.message);}
   finally{btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-wand-magic-sparkles"></i> Generate Quest Hari Ini';}
 }
@@ -1831,9 +2505,18 @@ function toggleQuest(type,id){
   const qd=loadQD();if(!qd)return;
   const q=qd[type].find(x=>x.id===id);if(!q)return;
   q.done=!q.done;saveQD(qd);
-  const data=loadData();Object.entries(q.reward||{}).forEach(([k,v])=>{data.stats[k]=Math.max(0,(data.stats[k]||0)+(q.done?v:-v));});saveData(data);
-  if(q.done) triggerGlitch(q.reward);
-  showToast(q.done?`Quest selesai! ${Object.entries(q.reward||{}).map(([k,v])=>`+${v} ${k}`).join(' ')}`:'Quest dibatalkan');renderDailyAll();
+  const data=loadData();
+  Object.entries(q.reward||{}).forEach(([k,v])=>{data.stats[k]=Math.max(0,(data.stats[k]||0)+(q.done?v:-v));});
+  saveData(data);
+  if(q.done){
+    const src=type==='wajib'?'quest':'quest-opsional';
+    logStatGain('['+src.toUpperCase()+'] '+q.title, q.reward||{}, src);
+    triggerGlitch(q.reward);
+    showQuestCompleteAnnounce(q.title||'Quest', q.reward||{});
+  } else {
+    showToast('Quest dibatalkan');
+  }
+  renderDailyAll();
   setTimeout(autoCheckAchievements,500);
 }
 function applyQuestPenalties(qd){
@@ -1901,10 +2584,15 @@ function claimChallengeDay(sk){
   if(c.claimedDays.length>=7){
     const spec=getChallengeSpec(sk,c.statAtStart,c.completions),data=loadData();
     Object.entries(spec.reward).forEach(([k,v])=>{data.stats[k]=(data.stats[k]||0)+v;});saveData(data);
+    logStatGain('[CHALLENGE SELESAI] '+spec.name+' — 7 hari clear', spec.reward, 'challenge');
     ch[sk]={active:false,completions:(c.completions||0)+1};saveCH(ch);
     showToast(`🏆 Challenge selesai! +${Object.entries(spec.reward).map(([k,v])=>`${v} ${k}`).join(' ')}`);
     triggerGlitch(spec.reward);
-  }else{showToast(`Hari ke-${c.claimedDays.length} done! ${7-c.claimedDays.length} hari lagi.`);}
+  }else{
+    const spec=getChallengeSpec(sk,c.statAtStart,c.completions);
+    logStatGain('[CHALLENGE] '+spec.name+' — hari ke-'+c.claimedDays.length, {}, 'challenge');
+    showToast(`Hari ke-${c.claimedDays.length} done! ${7-c.claimedDays.length} hari lagi.`);
+  }
   renderChallenges();
 }
 function failChallenge(sk){
@@ -2113,9 +2801,8 @@ function rollDoThis(){
   if(!currentRollResult)return;
   const prevXP=getTotalXP();
   const data=loadData();Object.entries(currentRollResult.gains).forEach(([k,v])=>{data.stats[k]=(data.stats[k]||0)+v;});saveData(data);
-  const logs=loadLogs(),now=new Date(),ts=`${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
-  logs.unshift({text:currentRollResult.text,gains:currentRollResult.gains,time:ts,date:now.toDateString(),source:'roll'});saveLogs(logs);
-  const decay=loadDecay();Object.keys(currentRollResult.gains).forEach(k=>{if(!decay[k])decay[k]={};decay[k].lastActivity=TODAY_ISO;});saveDecay(decay);
+  logStatGain('[ROLL] '+currentRollResult.text, currentRollResult.gains, 'roll');
+  const now=new Date(),ts=`${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
   const rh=loadRollHistory();rh.unshift({text:currentRollResult.text,icon:currentRollResult.icon,color:currentRollResult.color,time:ts,date:now.toDateString(),gains:currentRollResult.gains});saveRollHistory(rh.slice(0,20));
   const gt=Object.entries(currentRollResult.gains).map(([k,v])=>`+${v} ${k}`).join(' ');
   document.getElementById('roll-done-gains').textContent='Stats naik: '+gt;
@@ -2134,7 +2821,7 @@ function renderRollHistory(){
 function clearRollHistory(){saveRollHistory(loadRollHistory().filter(h=>h.date!==TODAY));renderRollHistory();showToast('History hari ini dihapus');}
 
 function resetAllData(){
-  const keys=['plt_data','plt_profile','plt_logs','plt_goals','plt_quests','plt_challenges','plt_decay','plt_roll_history','plt_or_key'];
+  const keys=['plt_data','plt_profile','plt_logs','plt_goals','plt_quests','plt_challenges','plt_decay','plt_roll_history','plt_or_key','plt_missions','plt_side_quests'];
   keys.forEach(k=>localStorage.removeItem(k));
   showToast('Semua data direset. App fresh!');
   setTimeout(()=>location.reload(),1200);
@@ -2222,68 +2909,53 @@ function triggerGlitch(gains, sourceElement) {
 // ════════════════════════════════════════════════════════
 
 function showStatHistory(statKey, statName, color) {
-  const logs      = loadLogs();
-  const challenges= loadCH();
-  const allHistory= [];
+  const logs = loadLogs();
 
-  // From activity logs
-  logs.forEach(log => {
-    if(log.gains && log.gains[statKey] > 0) {
-      allHistory.push({
-        pts:    log.gains[statKey],
-        text:   log.text,
-        time:   log.time,
-        date:   log.date,
-        source: log.source === 'roll' ? 'ROLL' : 'LOG',
-        positive: true,
-      });
-    }
-  });
+  // Source display config
+  const srcConfig = {
+    'log':           {label:'LOG',       color:'var(--accent-blue)'},
+    'roll':          {label:'ROLL',      color:'var(--accent)'},
+    'quest':         {label:'QUEST',     color:color},
+    'quest-opsional':{label:'OPSIONAL',  color:'var(--green)'},
+    'side-quest':    {label:'SIDE',      color:'var(--accent)'},
+    'mission':       {label:'MISSION',   color:'#aa44ff'},
+    'challenge':     {label:'CHALLENGE', color:'var(--green)'},
+  };
 
-  // From quest completions (stored in logs too, but tag quest separately)
-  // Check challenge completions
-  const chComp = challenges[statKey]?.completions || 0;
-  if(chComp > 0) {
-    allHistory.push({
-      pts: chComp * 5,
-      text: `Challenge Quest selesai ×${chComp}`,
-      time: '', date: '',
-      source: 'CHALLENGE',
-      positive: true,
-    });
-  }
+  // Filter logs that have gains for this stat
+  const allHistory = logs
+    .filter(log => log.gains && (log.gains[statKey]||0) > 0)
+    .map(log => ({
+      pts:    log.gains[statKey],
+      text:   log.text,
+      time:   log.time||'',
+      date:   log.date||'',
+      source: log.source||'log',
+    }));
 
-  // Sort: newest first (by date+time)
-  allHistory.sort((a,b) => {
-    if(!a.date) return 1;
-    if(!b.date) return -1;
-    return new Date(b.date+' '+b.time) - new Date(a.date+' '+a.time);
-  });
+  const currentVal = loadData().stats[statKey] || 0;
+  const initVal    = {STR:12,INT:22,STM:10,KNO:18,DIS:8,FOC:11,CHA:15}[statKey] || 0;
+  const netGain    = currentVal - initVal;
+  const totalPts   = allHistory.reduce((s,h)=>s+h.pts,0);
 
-  // Total gained
-  const totalGained = allHistory.filter(h=>h.positive).reduce((s,h)=>s+h.pts,0);
-  const currentVal  = loadData().stats[statKey] || 0;
-  const initVal     = {STR:12,INT:22,STM:10,KNO:18,DIS:8,FOC:11,CHA:15}[statKey] || 0;
-  const netGain     = currentVal - initVal;
-
-  // Render
-  document.getElementById('sh-dot').style.background = color;
-  document.getElementById('sh-title').textContent    = statName + ' History';
-  document.getElementById('sh-total').innerHTML      = `<span style="color:${color}">${currentVal} pts</span> &nbsp;·&nbsp; net <span style="color:var(--green)">+${netGain}</span>`;
+  document.getElementById('sh-dot').style.background  = color;
+  document.getElementById('sh-title').textContent     = statName + ' History';
+  document.getElementById('sh-total').innerHTML       = `<span style="color:${color}">${currentVal} pts</span> &nbsp;·&nbsp; net <span style="color:var(--green)">+${netGain}</span> &nbsp;·&nbsp; <span style="color:var(--subtext)">${allHistory.length} entri</span>`;
 
   const list = document.getElementById('sh-list');
-  if(!allHistory.length) {
-    list.innerHTML = '<div class="sh-empty">Belum ada riwayat untuk stat ini.<br>Mulai log aktivitas!</div>';
+  if(!allHistory.length){
+    list.innerHTML='<div class="sh-empty">Belum ada riwayat untuk stat ini.<br>Mulai log aktivitas, complete quest, atau roll!</div>';
   } else {
-    list.innerHTML = allHistory.slice(0,30).map(h => {
-      const srcColors = {LOG:'var(--accent-blue)',ROLL:'var(--accent)',CHALLENGE:'var(--green)',QUEST:color};
-      const srcColor  = srcColors[h.source] || 'var(--subtext)';
-      const dateStr   = h.date ? h.date.replace(/ \d{4}/,'') + (h.time?' '+h.time:'') : '';
+    list.innerHTML = allHistory.slice(0,40).map(h=>{
+      const sc  = srcConfig[h.source] || {label:(h.source||'LOG').toUpperCase(), color:'var(--subtext)'};
+      const dt  = h.date ? h.date.replace(/ \d{4}/,'')+(h.time?' '+h.time:'') : '';
+      // Clean up text — remove prefix tags like [QUEST] etc
+      const displayText = h.text.replace(/^\[[\w\s:]+\]\s*/,'');
       return `<div class="sh-item">
-        <div class="sh-source" style="color:${srcColor}">${h.source}</div>
+        <div class="sh-source" style="color:${sc.color}">${sc.label}</div>
         <div style="flex:1;min-width:0">
-          <div class="sh-text">${h.text}</div>
-          ${dateStr?`<div class="sh-date">${dateStr}</div>`:''}
+          <div class="sh-text">${displayText}</div>
+          ${dt?`<div class="sh-date">${dt}</div>`:''}
         </div>
         <div class="sh-pts" style="color:${color}">+${h.pts}</div>
       </div>`;
@@ -2506,6 +3178,147 @@ function applyLevelTheme(lv) {
 
   // Roll page upgrade at tier 4+
   updateRollTheme(tier);
+
+  // Ornamental borders
+  applyOrnamentalBorders(tier);
+}
+
+function makeCornerSVG(tier, pos, color) {
+  // pos: 'tl','tr','bl','br'
+  const s = document.createElementNS('http://www.w3.org/2000/svg','svg');
+  s.setAttribute('class','orb-corner');
+
+  // Size based on tier
+  const sz = tier <= 1 ? 14 : tier <= 3 ? 20 : tier <= 5 ? 26 : tier <= 7 ? 30 : 34;
+  s.style.width  = sz+'px';
+  s.style.height = sz+'px';
+  s.setAttribute('viewBox',`0 0 ${sz} ${sz}`);
+
+  const tl = pos==='tl', tr = pos==='tr', bl = pos==='bl', br = pos==='br';
+  s.style.top    = (tl||tr) ? '0' : 'auto';
+  s.style.bottom = (bl||br) ? '0' : 'auto';
+  s.style.left   = (tl||bl) ? '0' : 'auto';
+  s.style.right  = (tr||br) ? '0' : 'auto';
+
+  const n = sz, h = sz/2;
+  // L-shaped path
+  let d = '';
+  if(tl) d = `M0 ${n*0.7} L0 0 L${n*0.7} 0`;
+  if(tr) d = `M${n*0.3} 0 L${n} 0 L${n} ${n*0.7}`;
+  if(bl) d = `M0 ${n*0.3} L0 ${n} L${n*0.7} ${n}`;
+  if(br) d = `M${n*0.3} ${n} L${n} ${n} L${n} ${n*0.3}`;
+
+  const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+  path.setAttribute('d', d);
+  path.setAttribute('stroke', color);
+  path.setAttribute('stroke-width', tier >= 8 ? '1.8' : tier >= 5 ? '1.4' : '1');
+  path.setAttribute('fill','none');
+  s.appendChild(path);
+
+  // Corner dot — from tier 1
+  const cx = tl||bl ? 0 : n;
+  const cy = tl||tr ? 0 : n;
+  const dot = document.createElementNS('http://www.w3.org/2000/svg','circle');
+  dot.setAttribute('cx', cx); dot.setAttribute('cy', cy);
+  dot.setAttribute('r', tier >= 8 ? '3' : tier >= 3 ? '2' : '1.5');
+  dot.setAttribute('fill', color);
+  s.appendChild(dot);
+
+  // Extra dots on arms — tier 3+
+  if(tier >= 3) {
+    const arm1 = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    const ax = tl ? n*0.4 : tr ? n*0.6 : bl ? n*0.4 : n*0.6;
+    const ay = tl||tr ? 0 : n;
+    arm1.setAttribute('cx', tl||bl ? ax : (tr||br ? n*1-ax+n*0.4 : ax));
+    arm1.setAttribute('cy', ay);
+    arm1.setAttribute('r','1.2'); arm1.setAttribute('fill',color); arm1.setAttribute('opacity','0.7');
+    // Simplify: just one arm dot on the horizontal arm
+    const hd = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    hd.setAttribute('cx', tl ? n*0.4 : tr ? n*0.6 : bl ? n*0.4 : n*0.6);
+    hd.setAttribute('cy', tl||tr ? 0 : n);
+    hd.setAttribute('r','1.2'); hd.setAttribute('fill',color); hd.setAttribute('opacity','0.7');
+    s.appendChild(hd);
+    const vd = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    vd.setAttribute('cx', tl||bl ? 0 : n);
+    vd.setAttribute('cy', tl ? n*0.4 : tr ? n*0.4 : bl ? n*0.6 : n*0.6);
+    vd.setAttribute('r','1.2'); vd.setAttribute('fill',color); vd.setAttribute('opacity','0.7');
+    s.appendChild(vd);
+  }
+
+  // Diamond ornament at corner tip — tier 5+
+  if(tier >= 5) {
+    const dia = document.createElementNS('http://www.w3.org/2000/svg','polygon');
+    const dx = tl||bl ? 0 : n;
+    const dy = tl||tr ? 0 : n;
+    const ds = tier >= 8 ? 4 : 3;
+    dia.setAttribute('points',`${dx},${dy-ds} ${dx+ds},${dy} ${dx},${dy+ds} ${dx-ds},${dy}`);
+    dia.setAttribute('fill',color);
+    s.appendChild(dia);
+  }
+
+  return s;
+}
+
+function makeMidSVG(tier, pos, color) {
+  if(tier < 8) return null;
+  const s = document.createElementNS('http://www.w3.org/2000/svg','svg');
+  s.setAttribute('class','orb-mid');
+  s.setAttribute('viewBox','0 0 10 10');
+  s.style.width='10px'; s.style.height='10px';
+  if(pos==='l'){ s.style.left='-5px'; s.style.top='50%'; s.style.transform='translateY(-50%)'; }
+  if(pos==='r'){ s.style.right='-5px'; s.style.top='50%'; s.style.transform='translateY(-50%)'; }
+  if(pos==='t'){ s.style.top='-5px'; s.style.left='50%'; s.style.transform='translateX(-50%)'; }
+  if(pos==='b'){ s.style.bottom='-5px'; s.style.left='50%'; s.style.transform='translateX(-50%)'; }
+  const dia = document.createElementNS('http://www.w3.org/2000/svg','polygon');
+  dia.setAttribute('points','5,0 10,5 5,10 0,5');
+  dia.setAttribute('fill', color);
+  s.appendChild(dia);
+  return s;
+}
+
+function applyOrnamentalBorders(tier) {
+  if(tier < 1) { removeOrnamentalBorders(); return; }
+
+  const colors = {
+    1:'rgba(96,180,255,0.55)',  2:'rgba(96,232,208,0.6)',
+    3:'rgba(200,122,255,0.7)',  4:'rgba(255,204,68,0.7)',
+    5:'rgba(255,102,136,0.8)', 6:'rgba(255,68,136,0.8)',
+    7:'rgba(170,68,255,0.85)', 8:'rgba(255,170,0,0.9)',
+    9:'rgba(255,136,68,0.9)',  10:'rgba(255,255,255,0.85)',
+  };
+  const color = colors[tier] || colors[1];
+
+  // Apply to these elements
+  const targets = [
+    document.querySelector('.char-card'),
+    document.querySelector('.radar-wrap'),
+    ...document.querySelectorAll('.stat-card'),
+    document.querySelector('.input-card'),
+    document.querySelector('.goal-setup-card'),
+    document.querySelector('.mission-input-card'),
+  ].filter(Boolean);
+
+  // Remove old ornaments first
+  document.querySelectorAll('.orb-corner,.orb-mid').forEach(e=>e.remove());
+
+  targets.forEach(el => {
+    if(window.getComputedStyle(el).position === 'static') {
+      el.style.position = 'relative';
+    }
+    ['tl','tr','bl','br'].forEach(pos => {
+      el.appendChild(makeCornerSVG(tier, pos, color));
+    });
+    if(tier >= 8) {
+      ['t','b','l','r'].forEach(pos => {
+        const m = makeMidSVG(tier, pos, color);
+        if(m) el.appendChild(m);
+      });
+    }
+  });
+}
+
+function removeOrnamentalBorders() {
+  document.querySelectorAll('.orb-corner,.orb-mid').forEach(e=>e.remove());
 }
 
 function updateRollTheme(tier) {
